@@ -112,7 +112,7 @@
             padding: 20px;
             position: relative;
             z-index: 10;
-            overflow-y: auto; /* mobile-safe scrolling */
+            overflow-y: auto;
         }
         
         .login-box {
@@ -145,7 +145,7 @@
         
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* more mobile-friendly */
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 24px;
             flex: 1;
             overflow-y: auto;
@@ -153,11 +153,14 @@
         }
         
         .card {
-            padding: 28px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             transition: all 0.3s;
-            min-height: 200px;
+            min-height: 180px;
+            max-width: 100%;
+            /* prevent weird overflow */
+            overflow: hidden;
         }
         
         .card:hover {
@@ -169,11 +172,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            gap: 12px;
         }
         
         .card-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -181,8 +185,9 @@
         }
         
         .card-icon {
-            font-size: 28px;
+            font-size: 24px;
             opacity: 0.8;
+            flex-shrink: 0;
         }
         
         .card-body {
@@ -190,44 +195,50 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: 0;
         }
         
         .large-value {
-            font-size: 64px;
+            font-size: 56px;
             font-weight: 300;
             line-height: 1;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            word-wrap: break-word;
         }
         
         .stat-grid {
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
         
         .stat-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            gap: 8px;
         }
         
         .stat-label {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.7;
             font-weight: 500;
         }
         
         .stat-value {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
+            text-align: right;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
         
         .badge {
             padding: 6px 14px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
         
         .badge-success {
@@ -247,20 +258,22 @@
         
         #map {
             width: 100%;
-            height: 250px;
+            height: 220px;
             border-radius: 12px;
-            margin: 16px 0;
+            margin: 12px 0;
         }
         
         .alert-box {
-            padding: 14px 18px;
-            margin-bottom: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
             border-radius: 12px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             display: flex;
-            align-items: center;
-            gap: 12px;
+            align-items: flex-start;
+            gap: 10px;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
         
         .alert-success {
@@ -281,8 +294,8 @@
         .hidden { display: none; }
         
         .settings-btn {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border: none;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -293,6 +306,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         
         .settings-btn:hover {
@@ -301,19 +315,20 @@
         }
 
         .reset-btn {
-            height: 48px;
-            padding: 0 18px;
+            height: 44px;
+            padding: 0 16px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.5px;
             background: rgba(239, 68, 68, 0.9);
             color: #fff;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
             transition: all 0.3s;
+            flex-shrink: 0;
         }
 
         .reset-btn:hover {
@@ -327,9 +342,9 @@
         
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             opacity: 0.6;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         @media (max-width: 1200px) {
@@ -339,18 +354,36 @@
         }
         
         @media (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+
             .dashboard {
                 padding: 16px;
             }
             
             .header {
                 flex-direction: column;
-                gap: 16px;
+                gap: 12px;
                 text-align: center;
+                padding: 16px 18px;
+            }
+
+            .header > div:last-child {
+                justify-content: center;
             }
             
             .large-value {
-                font-size: 48px;
+                font-size: 44px;
+            }
+
+            .card {
+                padding: 18px;
+                min-height: 0;
+            }
+
+            .card-header {
+                margin-bottom: 12px;
             }
         }
 
@@ -358,17 +391,30 @@
             .login-box {
                 padding: 32px 20px;
             }
+
+            .grid-container {
+                gap: 16px;
+            }
+
+            .badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+
+            #map {
+                height: 200px;
+            }
         }
         
         .mini-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
         
         .mini-stat {
             background: rgba(255, 255, 255, 0.05);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
@@ -380,7 +426,7 @@
         }
         
         .mini-stat-value {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
         }
     </style>
@@ -391,18 +437,18 @@
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box glass">
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h1 style="font-size: 42px; font-weight: 300; margin-bottom: 8px;">Weather Terminal</h1>
-                <p style="opacity: 0.7; font-size: 15px;">Real-time weather intelligence (UK only)</p>
+            <div style="text-align: center; margin-bottom: 32px;">
+                <h1 style="font-size: 36px; font-weight: 300; margin-bottom: 8px;">Weather Terminal</h1>
+                <p style="opacity: 0.7; font-size: 14px;">Real-time weather intelligence (UK only)</p>
             </div>
             
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Your Name</label>
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; opacity: 0.8;">Your Name</label>
                 <input type="text" id="nameInput" placeholder="Enter your name" />
             </div>
             
-            <div style="margin-bottom: 28px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Location (UK only)</label>
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; opacity: 0.8;">Location (UK only)</label>
                 <input type="text" id="locationInput" placeholder="e.g., London, UK or SW1A 1AA" />
             </div>
             
@@ -410,7 +456,7 @@
                 Get Started →
             </button>
             
-            <p style="text-align: center; margin-top: 24px; font-size: 12px; opacity: 0.6;">
+            <p style="text-align: center; margin-top: 20px; font-size: 12px; opacity: 0.6;">
                 Powered by live UK weather & flood data
             </p>
         </div>
@@ -421,15 +467,15 @@
         <!-- Header -->
         <div class="header glass">
             <div>
-                <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">Weather Dashboard</h1>
-                <p style="opacity: 0.7; font-size: 14px;">
+                <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 4px;">Weather Dashboard</h1>
+                <p style="opacity: 0.7; font-size: 13px;">
                     <span id="displayName"></span> • <span id="displayLocation"></span>
                 </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="text-align: right;">
-                    <div style="font-size: 24px; font-weight: 600;" id="timeDisplay">--:--</div>
-                    <div style="font-size: 12px; opacity: 0.7;" id="dateDisplay">-</div>
+                    <div style="font-size: 20px; font-weight: 600;" id="timeDisplay">--:--</div>
+                    <div style="font-size: 11px; opacity: 0.7;" id="dateDisplay">-</div>
                 </div>
                 <button id="resetBtn" class="reset-btn">Reset</button>
                 <button id="settingsBtn" class="settings-btn">⚙</button>
@@ -438,8 +484,8 @@
         
         <!-- Settings Panel -->
         <div id="settingsPanel" class="settings-panel glass hidden">
-            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 16px;">Change Location (UK only)</h3>
-            <div style="display: flex; gap: 12px;">
+            <h3 style="font-weight: 600; margin-bottom: 12px; font-size: 15px;">Change Location (UK only)</h3>
+            <div style="display: flex; gap: 10px;">
                 <input type="text" id="newLocationInput" placeholder="Enter new UK location" style="flex: 1;" />
                 <button id="updateLocationBtn" class="btn btn-primary">Update</button>
             </div>
@@ -475,7 +521,7 @@
                     <div class="card-icon">☁️</div>
                 </div>
                 <div class="card-body">
-                    <div style="font-size: 28px; font-weight: 500; margin-bottom: 20px;" id="conditions">--</div>
+                    <div style="font-size: 24px; font-weight: 500; margin-bottom: 16px; word-wrap: break-word;" id="conditions">--</div>
                     <div class="stat-grid">
                         <div class="stat-row">
                             <span class="stat-label">Humidity</span>
@@ -501,7 +547,7 @@
                 </div>
                 <div class="card-body">
                     <div class="large-value" id="aqiNumber">--</div>
-                    <div id="aqiBadge" class="badge badge-success" style="display: inline-block; margin-bottom: 16px;">Loading</div>
+                    <div id="aqiBadge" class="badge badge-success" style="display: inline-block; margin-bottom: 12px;">Loading</div>
                     <div class="mini-grid">
                         <div class="mini-stat">
                             <div class="mini-stat-label">PM2.5</div>
@@ -543,9 +589,9 @@
                     <div class="card-icon">📍</div>
                 </div>
                 <div class="card-body" style="justify-content: flex-start;">
-                    <div style="margin-bottom: 16px;">
-                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;" id="mapLocation">--</div>
-                        <div style="font-size: 13px; opacity: 0.7;" id="mapCoords">--</div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px; word-wrap: break-word;" id="mapLocation">--</div>
+                        <div style="font-size: 12px; opacity: 0.7; word-wrap: break-word;" id="mapCoords">--</div>
                     </div>
                     <div id="map"></div>
                 </div>
@@ -641,7 +687,6 @@
                 if (data.results && data.results.length > 0) {
                     const place = data.results[0];
 
-                    // UK-only guard
                     if (place.country_code && place.country_code.toUpperCase() !== 'GB') {
                         alert('This dashboard currently supports UK locations only. Please enter a UK city, town, or postcode.');
                         return false;
@@ -650,7 +695,6 @@
                     locationCoords.lat = place.latitude;
                     locationCoords.lon = place.longitude;
 
-                    // nicer display location
                     const prettyLoc = `${place.name}${place.admin1 ? ', ' + place.admin1 : ''}, ${place.country}`;
                     document.getElementById('displayLocation').textContent = prettyLoc;
                     document.getElementById('mapLocation').textContent = prettyLoc;
@@ -739,10 +783,10 @@
                         const distance = station.distance ? ` (${station.distance.toFixed(1)}km away)` : '';
                         
                         return `
-                            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                                <div style="font-weight: 600; margin-bottom: 4px;">${riverName}${distance}</div>
-                                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Station: ${station.stationReference || 'Unknown'}</div>
-                                <span class="badge badge-success" style="font-size: 11px;">MONITORING</span>
+                            <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); word-wrap: break-word;">
+                                <div style="font-weight: 600; margin-bottom: 2px;">${riverName}${distance}</div>
+                                <div style="font-size: 11px; opacity: 0.7; margin-bottom: 6px;">Station: ${station.stationReference || 'Unknown'}</div>
+                                <span class="badge badge-success" style="font-size: 10px;">MONITORING</span>
                             </div>
                         `;
                     }).join('');
@@ -750,19 +794,19 @@
                     document.getElementById('riverData').innerHTML = riverHTML;
                 } else {
                     document.getElementById('riverData').innerHTML = `
-                        <div style="opacity: 0.7; text-align: center; padding: 20px;">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🌊</div>
+                        <div style="opacity: 0.7; text-align: center; padding: 16px; font-size: 13px;">
+                            <div style="font-size: 22px; margin-bottom: 6px;">🌊</div>
                             <div>No monitoring stations found within 50km of your UK location</div>
-                            <div style="font-size: 12px; margin-top: 8px; opacity: 0.6;">Try a location near a major UK river</div>
+                            <div style="font-size: 11px; margin-top: 6px; opacity: 0.6;">Try a location near a major UK river</div>
                         </div>
                     `;
                 }
             } catch (error) {
                 console.error('River data error:', error);
                 document.getElementById('riverData').innerHTML = `
-                    <div style="opacity: 0.7; text-align: center; padding: 20px;">
+                    <div style="opacity: 0.7; text-align: center; padding: 16px; font-size: 13px;">
                         <div>Unable to load river data</div>
-                        <div style="font-size: 12px; margin-top: 8px;">This service covers UK locations only</div>
+                        <div style="font-size: 11px; margin-top: 6px;">This service covers UK locations only</div>
                     </div>
                 `;
             }
