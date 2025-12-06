@@ -19,7 +19,8 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
         
         .animated-bg {
@@ -30,7 +31,6 @@
                 radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3), transparent 50%),
                 radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.2), transparent 50%);
             animation: float 20s ease-in-out infinite;
-            z-index: 0;
         }
         
         @keyframes float {
@@ -108,7 +108,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             padding: 20px;
             position: relative;
             z-index: 10;
@@ -123,7 +123,7 @@
         .dashboard {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
             padding: 24px;
             position: relative;
             z-index: 10;
@@ -135,8 +135,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
         }
         
         .settings-panel {
@@ -144,53 +142,13 @@
             margin-bottom: 24px;
         }
         
-        .customize-panel {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        .widget-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        
-        .widget-toggle {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .widget-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .widget-toggle input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        
-        .widget-toggle label {
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
-            margin-bottom: 24px;
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 24px;
         }
         
         .card {
@@ -198,6 +156,7 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s;
+            min-height: 200px;
         }
         
         .card:hover {
@@ -320,8 +279,8 @@
         
         .hidden { display: none; }
         
-        .settings-btn, .customize-btn {
-            min-width: 48px;
+        .settings-btn {
+            width: 48px;
             height: 48px;
             border: none;
             background: rgba(255, 255, 255, 0.1);
@@ -333,15 +292,58 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 16px;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .map-card {
+            grid-column: span 2;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.6;
             font-size: 14px;
         }
         
-        .settings-btn:hover, .customize-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        @media (max-width: 1200px) {
+            .map-card {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            .large-value {
+                font-size: 48px;
+            }
         }
         
         .mini-grid {
@@ -367,46 +369,12 @@
             font-size: 16px;
             font-weight: 600;
         }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            opacity: 0.6;
-            font-size: 14px;
-        }
-        
-        .forecast-card {
-            grid-column: span 2;
-        }
-        
-        @media (max-width: 1200px) {
-            .forecast-card {
-                grid-column: span 1;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard {
-                padding: 16px;
-            }
-            
-            .header {
-                padding: 16px;
-            }
-            
-            .large-value {
-                font-size: 48px;
-            }
-            
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="animated-bg"></div>
     
+    <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box glass">
             <div style="text-align: center; margin-bottom: 40px;">
@@ -434,78 +402,38 @@
         </div>
     </div>
     
+    <!-- Main Dashboard -->
     <div id="dashboard" class="dashboard hidden">
+        <!-- Header -->
         <div class="header glass">
-            <div style="flex: 1; min-width: 200px;">
+            <div>
                 <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">Weather Dashboard</h1>
                 <p style="opacity: 0.7; font-size: 14px;">
                     <span id="displayName"></span> • <span id="displayLocation"></span>
                 </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 20px;">
                 <div style="text-align: right;">
                     <div style="font-size: 24px; font-weight: 600;" id="timeDisplay">--:--</div>
                     <div style="font-size: 12px; opacity: 0.7;" id="dateDisplay">-</div>
                 </div>
-                <button id="customizeBtn" class="customize-btn">📊 Customize</button>
                 <button id="settingsBtn" class="settings-btn">⚙</button>
             </div>
         </div>
         
+        <!-- Settings Panel -->
         <div id="settingsPanel" class="settings-panel glass hidden">
             <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 16px;">Change Location</h3>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <input type="text" id="newLocationInput" placeholder="Enter new location" style="flex: 1; min-width: 200px;" />
+            <div style="display: flex; gap: 12px;">
+                <input type="text" id="newLocationInput" placeholder="Enter new location" style="flex: 1;" />
                 <button id="updateLocationBtn" class="btn btn-primary">Update</button>
             </div>
         </div>
         
-        <div id="customizePanel" class="customize-panel hidden">
-            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 18px;">Choose What to Display</h3>
-            <p style="opacity: 0.7; font-size: 14px; margin-bottom: 20px;">Select which widgets you want to see on your dashboard</p>
-            <div class="widget-options">
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-temp" checked>
-                    <label for="widget-temp">🌡️ Temperature</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-conditions" checked>
-                    <label for="widget-conditions">☁️ Conditions</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-air" checked>
-                    <label for="widget-air">💨 Air Quality</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-alerts" checked>
-                    <label for="widget-alerts">⚠️ Alerts</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-map" checked>
-                    <label for="widget-map">📍 Map</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-rivers" checked>
-                    <label for="widget-rivers">🌊 River Levels</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-forecast" checked>
-                    <label for="widget-forecast">📅 7-Day Forecast</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-sun" checked>
-                    <label for="widget-sun">🌅 Sun & Moon</label>
-                </div>
-                <div class="widget-toggle">
-                    <input type="checkbox" id="widget-rain" checked>
-                    <label for="widget-rain">💧 Precipitation</label>
-                </div>
-            </div>
-            <button id="applyCustomize" class="btn btn-primary" style="margin-top: 20px;">Apply Changes</button>
-        </div>
-        
-        <div class="grid-container" id="widgetGrid">
-            <div class="card glass-dark" id="card-temp">
+        <!-- Cards Grid -->
+        <div class="grid-container">
+            <!-- Temperature Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
                     <div class="card-title">Temperature</div>
                     <div class="card-icon">🌡️</div>
@@ -525,7 +453,8 @@
                 </div>
             </div>
 
-            <div class="card glass-dark" id="card-conditions">
+            <!-- Conditions Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
                     <div class="card-title">Conditions</div>
                     <div class="card-icon">☁️</div>
@@ -549,7 +478,8 @@
                 </div>
             </div>
 
-            <div class="card glass-dark" id="card-air">
+            <!-- Air Quality Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
                     <div class="card-title">Air Quality</div>
                     <div class="card-icon">💨</div>
@@ -578,19 +508,21 @@
                 </div>
             </div>
 
-            <div class="card glass-dark" id="card-alerts">
+            <!-- Alerts Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
                     <div class="card-title">Alerts</div>
                     <div class="card-icon">⚠️</div>
                 </div>
-                <div class="card-body" style="justify-content: flex-start;">
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
                     <div id="alertsContainer">
                         <div class="loading">Loading alerts...</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card glass-dark" id="card-map">
+            <!-- Map & Location Card -->
+            <div class="card glass-dark map-card">
                 <div class="card-header">
                     <div class="card-title">Location</div>
                     <div class="card-icon">📍</div>
@@ -604,68 +536,28 @@
                 </div>
             </div>
 
-            <div class="card glass-dark" id="card-rivers">
+            <!-- River Levels Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
                     <div class="card-title">River Levels</div>
                     <div class="card-icon">🌊</div>
                 </div>
-                <div class="card-body" style="justify-content: flex-start;">
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
                     <div id="riverData">
                         <div class="loading">Loading river data...</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="card glass-dark forecast-card" id="card-forecast">
+
+            <!-- Flood Warnings Card -->
+            <div class="card glass-dark">
                 <div class="card-header">
-                    <div class="card-title">7-Day Forecast</div>
-                    <div class="card-icon">📅</div>
+                    <div class="card-title">Flood Warnings</div>
+                    <div class="card-icon">⚡</div>
                 </div>
-                <div class="card-body" style="justify-content: flex-start;">
-                    <div id="forecastData" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px;">
-                        <div class="loading">Loading forecast...</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card glass-dark" id="card-sun">
-                <div class="card-header">
-                    <div class="card-title">Sun & Moon</div>
-                    <div class="card-icon">🌅</div>
-                </div>
-                <div class="card-body">
-                    <div class="stat-grid">
-                        <div class="stat-row">
-                            <span class="stat-label">🌅 Sunrise</span>
-                            <span class="stat-value" id="sunrise">--:--</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">🌇 Sunset</span>
-                            <span class="stat-value" id="sunset">--:--</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Moon Phase</span>
-                            <span class="stat-value" id="moonPhase">--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card glass-dark" id="card-rain">
-                <div class="card-header">
-                    <div class="card-title">Precipitation</div>
-                    <div class="card-icon">💧</div>
-                </div>
-                <div class="card-body">
-                    <div class="stat-grid">
-                        <div class="stat-row">
-                            <span class="stat-label">Chance of Rain</span>
-                            <span class="stat-value" id="rainChance">--%</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Precipitation</span>
-                            <span class="stat-value" id="rainAmount">-- mm</span>
-                        </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="floodData">
+                        <div class="loading">Loading flood warnings...</div>
                     </div>
                 </div>
             </div>
@@ -689,46 +581,6 @@
         const settingsPanel = document.getElementById('settingsPanel');
         const newLocationInput = document.getElementById('newLocationInput');
         const updateLocationBtn = document.getElementById('updateLocationBtn');
-        const customizeBtn = document.getElementById('customizeBtn');
-        const customizePanel = document.getElementById('customizePanel');
-        const applyCustomize = document.getElementById('applyCustomize');
-        
-        let widgetSettings = {
-            temp: true,
-            conditions: true,
-            air: true,
-            alerts: true,
-            map: true,
-            rivers: true,
-            forecast: true,
-            sun: true,
-            rain: true
-        };
-        
-        function loadWidgetSettings() {
-            const saved = localStorage.getItem('widgetSettings');
-            if (saved) {
-                widgetSettings = JSON.parse(saved);
-                applyWidgetVisibility();
-            }
-        }
-        
-        function saveWidgetSettings() {
-            localStorage.setItem('widgetSettings', JSON.stringify(widgetSettings));
-        }
-        
-        function applyWidgetVisibility() {
-            Object.keys(widgetSettings).forEach(key => {
-                const card = document.getElementById(`card-${key}`);
-                const checkbox = document.getElementById(`widget-${key}`);
-                if (card) {
-                    card.style.display = widgetSettings[key] ? 'flex' : 'none';
-                }
-                if (checkbox) {
-                    checkbox.checked = widgetSettings[key];
-                }
-            });
-        }
         
         function loadFromStorage() {
             const savedName = localStorage.getItem('userName');
@@ -752,6 +604,7 @@
                 await geocodeLocation(userLocation);
                 await fetchWeather();
                 await fetchRiverData();
+                await fetchFloodWarnings();
                 updateDisplay();
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -791,7 +644,285 @@
                     
                     return true;
                 } else {
-                    alert('Location not found');
+                    alert('Location not found. Please try again.');
                     return false;
                 }
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                return false;
             }
+        }
+        
+        async function fetchWeather() {
+            try {
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${locationCoords.lat}&longitude=${locationCoords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`
+                );
+                
+                const airResponse = await fetch(
+                    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${locationCoords.lat}&longitude=${locationCoords.lon}&current=pm10,pm2_5,nitrogen_dioxide,ozone,european_aqi&timezone=auto`
+                );
+                
+                const data = await response.json();
+                const airData = await airResponse.json();
+                
+                weatherData = {
+                    temp: Math.round(data.current.temperature_2m),
+                    feelsLike: Math.round(data.current.apparent_temperature),
+                    humidity: data.current.relative_humidity_2m,
+                    windSpeed: Math.round(data.current.wind_speed_10m),
+                    weatherCode: data.current.weather_code,
+                    maxTemp: Math.round(data.daily.temperature_2m_max[0]),
+                    minTemp: Math.round(data.daily.temperature_2m_min[0]),
+                    uvIndex: Math.round(data.daily.uv_index_max[0]),
+                    aqi: airData.current.european_aqi || 0,
+                    pm25: (airData.current.pm2_5 || 0).toFixed(1),
+                    pm10: (airData.current.pm10 || 0).toFixed(1),
+                    no2: (airData.current.nitrogen_dioxide || 0).toFixed(1),
+                    o3: (airData.current.ozone || 0).toFixed(1)
+                };
+            } catch (error) {
+                console.error('Weather fetch error:', error);
+            }
+        }
+        
+        async function fetchRiverData() {
+            try {
+                const response = await fetch('https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=10');
+                const data = await response.json();
+                
+                const riverHTML = data.items.slice(0, 5).map(station => {
+                    return `
+                        <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${station.label || 'River Station'}</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Station: ${station.stationReference || 'Unknown'}</div>
+                            <span class="badge badge-success" style="font-size: 11px;">MONITORING</span>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('riverData').innerHTML = riverHTML || '<div class="loading">No river data available</div>';
+            } catch (error) {
+                console.error('River data error:', error);
+                document.getElementById('riverData').innerHTML = '<div class="loading">Unable to load river data</div>';
+            }
+        }
+        
+        async function fetchFloodWarnings() {
+            try {
+                const response = await fetch('https://environment.data.gov.uk/flood-monitoring/id/floods');
+                const data = await response.json();
+                
+                const warnings = data.items.slice(0, 3);
+                
+                if (warnings.length > 0) {
+                    const floodHTML = warnings.map(warning => {
+                        return `
+                            <div class="alert-box alert-danger">
+                                <span>⚠️</span>
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">${warning.description || 'Flood Warning'}</div>
+                                    <div style="font-size: 12px; opacity: 0.8;">${warning.message || 'Please stay alert'}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('floodData').innerHTML = floodHTML;
+                } else {
+                    document.getElementById('floodData').innerHTML = `
+                        <div class="alert-box alert-success">
+                            <span>✓</span>
+                            <div>
+                                <div style="font-weight: 600;">No Active Flood Warnings</div>
+                                <div style="font-size: 12px; opacity: 0.8;">All monitored areas are at normal levels</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Flood warning error:', error);
+                document.getElementById('floodData').innerHTML = '<div class="loading">Unable to load flood warnings</div>';
+            }
+        }
+        
+        function getWeatherDescription(code) {
+            const codes = {
+                0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+                45: 'Foggy', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle',
+                55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+                71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 95: 'Thunderstorm'
+            };
+            return codes[code] || 'Unknown';
+        }
+        
+        function getAQIInfo(aqi) {
+            if (aqi <= 20) return { level: 'EXCELLENT', class: 'badge-success' };
+            if (aqi <= 40) return { level: 'GOOD', class: 'badge-success' };
+            if (aqi <= 60) return { level: 'MODERATE', class: 'badge-warning' };
+            if (aqi <= 80) return { level: 'POOR', class: 'badge-warning' };
+            return { level: 'HAZARDOUS', class: 'badge-danger' };
+        }
+        
+        function updateDisplay() {
+            if (!weatherData) return;
+            
+            const now = new Date();
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
+                weekday: 'short', month: 'short', day: 'numeric' 
+            });
+            
+            document.getElementById('displayName').textContent = userName;
+            document.getElementById('displayLocation').textContent = userLocation;
+            
+            document.getElementById('tempMain').textContent = weatherData.temp + '°';
+            document.getElementById('tempFeels').textContent = weatherData.feelsLike + '°C';
+            document.getElementById('tempHigh').textContent = weatherData.maxTemp + '°C';
+            document.getElementById('tempLow').textContent = weatherData.minTemp + '°C';
+            
+            document.getElementById('conditions').textContent = getWeatherDescription(weatherData.weatherCode);
+            document.getElementById('humidity').textContent = weatherData.humidity + '%';
+            document.getElementById('wind').textContent = weatherData.windSpeed + ' km/h';
+            document.getElementById('uv').textContent = weatherData.uvIndex;
+            
+            const aqiInfo = getAQIInfo(weatherData.aqi);
+            document.getElementById('aqiNumber').textContent = weatherData.aqi;
+            const aqiBadge = document.getElementById('aqiBadge');
+            aqiBadge.textContent = aqiInfo.level;
+            aqiBadge.className = 'badge ' + aqiInfo.class;
+            
+            document.getElementById('pm25').textContent = weatherData.pm25;
+            document.getElementById('pm10').textContent = weatherData.pm10;
+            document.getElementById('o3').textContent = weatherData.o3;
+            document.getElementById('no2').textContent = weatherData.no2;
+            
+            document.getElementById('mapLocation').textContent = userLocation;
+            document.getElementById('mapCoords').textContent = `${locationCoords.lat.toFixed(4)}°, ${locationCoords.lon.toFixed(4)}°`;
+            
+            const alertsContainer = document.getElementById('alertsContainer');
+            alertsContainer.innerHTML = '';
+            
+            if (weatherData.uvIndex > 6) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-warning">
+                        <span>⚡</span>
+                        <div>
+                            <div style="font-weight: 600;">High UV Index</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Sun protection recommended</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.aqi > 60) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-warning">
+                        <span>💨</span>
+                        <div>
+                            <div style="font-weight: 600;">Poor Air Quality</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Limit outdoor activity</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.windSpeed > 40) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-danger">
+                        <span>🌪️</span>
+                        <div>
+                            <div style="font-weight: 600;">High Wind Warning</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Take precautions</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.uvIndex <= 6 && weatherData.aqi <= 60 && weatherData.windSpeed <= 40) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-success">
+                        <span>✓</span>
+                        <div>
+                            <div style="font-weight: 600;">All Clear</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Conditions are favorable</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function showDashboard() {
+            loginScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
+                    weekday: 'short', month: 'short', day: 'numeric' 
+                });
+            }, 1000);
+        }
+        
+        // Event Listeners
+        loginBtn.addEventListener('click', async function() {
+            const name = nameInput.value.trim();
+            const loc = locationInput.value.trim();
+            
+            if (name && loc) {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Loading...';
+                
+                userName = name;
+                userLocation = loc;
+                saveToStorage();
+                
+                try {
+                    const success = await geocodeLocation(userLocation);
+                    if (success) {
+                        showDashboard();
+                        await fetchAllData();
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Get Started →';
+                }
+            } else {
+                alert('Please enter both name and location');
+            }
+        });
+        
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        
+        locationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('hidden');
+        });
+        
+        updateLocationBtn.addEventListener('click', async () => {
+            if (newLocationInput.value.trim()) {
+                userLocation = newLocationInput.value.trim();
+                saveToStorage();
+                settingsPanel.classList.add('hidden');
+                newLocationInput.value = '';
+                await fetchAllData();
+            }
+        });
+        
+        newLocationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') updateLocationBtn.click();
+        });
+        
+        // Initialize
+        loadFromStorage();
+    </script>
+</body>
+</html>
