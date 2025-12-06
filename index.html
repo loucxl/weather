@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Command Center - Real Data</title>
+    <title>Weather Command Center</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -14,61 +16,54 @@
         }
         
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #4a1a7d 0%, #000000 50%, #0a4a5c 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             height: 100vh;
             overflow: hidden;
         }
         
-        .grid-bg {
+        .animated-bg {
             position: fixed;
             inset: 0;
-            opacity: 0.1;
-            background-image: 
-                linear-gradient(cyan 1px, transparent 1px),
-                linear-gradient(90deg, cyan 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3), transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.2), transparent 50%);
+            animation: float 20s ease-in-out infinite;
         }
         
-        @keyframes gridMove {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(50px); }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
         
-        .glow-cyan { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
-        .glow-purple { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
-        .glow-yellow { box-shadow: 0 0 20px rgba(234, 179, 8, 0.3); }
-        .glow-pink { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
-        .glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
-        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-        
-        .panel {
-            background: rgba(0, 0, 0, 0.6);
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
-            border: 2px solid;
-            padding: 20px;
-            position: relative;
-            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         
-        .panel:hover { transform: translateY(-2px); }
-        
-        .gradient-text {
-            background: linear-gradient(90deg, #06b6d4, #a855f7, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
         
         .btn {
-            padding: 12px 24px;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
+            padding: 14px 28px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
             border: none;
             cursor: pointer;
             transition: all 0.3s;
+            border-radius: 12px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
         }
         
         .btn:disabled {
@@ -77,34 +72,36 @@
         }
         
         .btn-primary {
-            background: linear-gradient(90deg, #06b6d4, #a855f7);
-            color: black;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .btn-green {
-            background: linear-gradient(90deg, #22c55e, #10b981);
-            color: black;
-        }
-        
-        .btn-purple {
-            background: linear-gradient(90deg, #a855f7, #ec4899);
-            color: black;
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
         
         input {
             width: 100%;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid #06b6d4;
-            color: #06b6d4;
-            font-family: 'Courier New', monospace;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
             outline: none;
             transition: all 0.3s;
         }
         
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
         input:focus {
-            border-color: #a855f7;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
         }
         
         .login-screen {
@@ -113,467 +110,454 @@
             justify-content: center;
             height: 100vh;
             padding: 20px;
+            position: relative;
+            z-index: 10;
         }
         
         .login-box {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            border: 4px solid #06b6d4;
-            padding: 40px;
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
-            position: relative;
+            padding: 48px;
         }
-        
-        .corner {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border: 4px solid #a855f7;
-        }
-        
-        .corner-tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
-        .corner-tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
-        .corner-bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
-        .corner-br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
         
         .dashboard {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            padding: 16px;
+            padding: 24px;
+            position: relative;
+            z-index: 10;
         }
         
         .header {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(20px);
-            border: 2px solid #06b6d4;
-            padding: 16px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-            margin-bottom: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .settings-panel {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            border: 2px solid #a855f7;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+            padding: 20px 32px;
+            margin-bottom: 24px;
         }
         
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
             flex: 1;
-            overflow: hidden;
+            overflow-y: auto;
+            padding-bottom: 24px;
         }
         
-        .map-panel {
-            grid-column: span 2;
-        }
-        
-        .panel-content {
+        .card {
+            padding: 28px;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            transition: all 0.3s;
+            min-height: 200px;
         }
         
-        .panel-header {
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
-        .panel-body {
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        
+        .card-icon {
+            font-size: 28px;
+            opacity: 0.8;
+        }
+        
+        .card-body {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            overflow-y: auto;
         }
         
-        .panel-footer {
-            margin-top: 16px;
+        .large-value {
+            font-size: 64px;
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            gap: 12px;
         }
         
         .stat-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 8px 0;
-            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
         }
         
-        .stat-row:last-child {
-            border-bottom: none;
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.7;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 15px;
+            font-weight: 600;
         }
         
         .badge {
-            padding: 4px 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
-            color: black;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
         
-        .badge-green { background: #22c55e; }
-        
-        .alert-box {
-            padding: 12px;
-            margin-bottom: 8px;
-            border-left: 4px solid;
-            font-size: 12px;
-            font-weight: bold;
+        .badge-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
         }
         
-        .hidden { display: none; }
-        
-        .text-cyan { color: #06b6d4; }
-        .text-purple { color: #a855f7; }
-        .text-yellow { color: #eab308; }
-        .text-pink { color: #ec4899; }
-        .text-green { color: #22c55e; }
-        .text-red { color: #ef4444; }
-        .text-orange { color: #f97316; }
-        .text-blue { color: #3b82f6; }
-        
-        .border-cyan { border-color: #06b6d4; }
-        .border-purple { border-color: #a855f7; }
-        .border-yellow { border-color: #eab308; }
-        .border-pink { border-color: #ec4899; }
-        .border-green { border-color: #22c55e; }
-        .border-red { border-color: #ef4444; }
-        
-        .settings-btn {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #a855f7;
-            background: transparent;
-            color: #a855f7;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+        .badge-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
         }
         
-        .settings-btn:hover {
-            background: #a855f7;
-            color: black;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .pulse { animation: pulse 2s ease-in-out infinite; }
-        
-        .grid-2x2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-        
-        .mini-stat {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px;
-            border-radius: 4px;
-            text-align: center;
+        .badge-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
         
         #map {
             width: 100%;
-            height: 200px;
-            border-radius: 4px;
-            border: 1px solid #06b6d4;
+            height: 250px;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+        
+        .alert-box {
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid #10b981;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.2);
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+        }
+        
+        .hidden { display: none; }
+        
+        .settings-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .map-card {
+            grid-column: span 2;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
         }
         
         .loading {
             text-align: center;
-            color: #06b6d4;
             padding: 20px;
+            opacity: 0.6;
+            font-size: 14px;
         }
         
-        @media (max-width: 1400px) {
-            .grid-container {
-                grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(3, 1fr);
+        @media (max-width: 1200px) {
+            .map-card {
+                grid-column: span 1;
             }
-            .map-panel {
-                grid-column: span 3;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 16px;
             }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            .large-value {
+                font-size: 48px;
+            }
+        }
+        
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .mini-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .mini-stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        .mini-stat-value {
+            font-size: 16px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
+    <div class="animated-bg"></div>
     
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
-        <div class="login-box">
-            <div class="corner corner-tl"></div>
-            <div class="corner corner-tr"></div>
-            <div class="corner corner-bl"></div>
-            <div class="corner corner-br"></div>
-            
-            <div style="text-align: center; margin-bottom: 32px;">
-                <h1 class="gradient-text pulse" style="font-size: 36px; margin-bottom: 8px;">WEATHER TERMINAL v3.0</h1>
-                <div class="text-cyan" style="font-size: 14px;">REAL-TIME DATA SYSTEM</div>
+        <div class="login-box glass">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h1 style="font-size: 42px; font-weight: 300; margin-bottom: 8px;">Weather Terminal</h1>
+                <p style="opacity: 0.7; font-size: 15px;">Real-time weather intelligence</p>
             </div>
             
-            <div style="margin-bottom: 24px;">
-                <label class="text-cyan" style="display: block; margin-bottom: 8px;">⚡ OPERATOR NAME</label>
-                <input type="text" id="nameInput" placeholder="Enter your name..." />
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Your Name</label>
+                <input type="text" id="nameInput" placeholder="Enter your name" />
             </div>
             
-            <div style="margin-bottom: 24px;">
-                <label class="text-cyan" style="display: block; margin-bottom: 8px;">📍 LOCATION (City, Country)</label>
-                <input type="text" id="locationInput" placeholder="e.g., London, UK or Cambridge, UK" />
+            <div style="margin-bottom: 28px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Location</label>
+                <input type="text" id="locationInput" placeholder="e.g., London, UK" />
             </div>
             
             <button id="loginBtn" class="btn btn-primary" style="width: 100%;">
-                ACCESS TERMINAL &gt;&gt;
+                Get Started →
             </button>
             
-            <div style="text-align: center; margin-top: 24px; font-size: 12px;" class="text-purple">
-                ⚡ LIVE DATA CONNECTION ENABLED
-            </div>
+            <p style="text-align: center; margin-top: 24px; font-size: 12px; opacity: 0.6;">
+                Powered by live weather data APIs
+            </p>
         </div>
     </div>
     
     <!-- Main Dashboard -->
     <div id="dashboard" class="dashboard hidden">
-        <div class="header">
-            <div style="flex: 1;">
-                <h1 class="gradient-text" style="font-size: 28px; margin-bottom: 8px;">WEATHER COMMAND CENTER</h1>
-                <div style="display: flex; gap: 24px; font-size: 14px;" class="text-cyan">
-                    <span>⚡ OPERATOR: <span class="text-purple" id="displayName"></span></span>
-                    <span>📍 LOCATION: <span class="text-purple" id="displayLocation"></span></span>
-                </div>
+        <!-- Header -->
+        <div class="header glass">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">Weather Dashboard</h1>
+                <p style="opacity: 0.7; font-size: 14px;">
+                    <span id="displayName"></span> • <span id="displayLocation"></span>
+                </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 20px;">
                 <div style="text-align: right;">
-                    <div class="gradient-text" style="font-size: 28px; font-weight: bold;" id="timeDisplay"></div>
-                    <div class="text-cyan" style="font-size: 12px;" id="dateDisplay"></div>
+                    <div style="font-size: 24px; font-weight: 600;" id="timeDisplay">--:--</div>
+                    <div style="font-size: 12px; opacity: 0.7;" id="dateDisplay">-</div>
                 </div>
                 <button id="settingsBtn" class="settings-btn">⚙</button>
             </div>
         </div>
         
-        <div id="settingsPanel" class="settings-panel hidden">
-            <h3 class="text-purple" style="font-weight: bold; margin-bottom: 12px;">CHANGE LOCATION</h3>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="newLocationInput" placeholder="Enter new location..." style="flex: 1;" />
-                <button id="updateLocationBtn" class="btn btn-purple">UPDATE</button>
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel glass hidden">
+            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 16px;">Change Location</h3>
+            <div style="display: flex; gap: 12px;">
+                <input type="text" id="newLocationInput" placeholder="Enter new location" style="flex: 1;" />
+                <button id="updateLocationBtn" class="btn btn-primary">Update</button>
             </div>
         </div>
         
+        <!-- Cards Grid -->
         <div class="grid-container">
-            <!-- Temperature -->
-            <div class="panel border-cyan glow-cyan">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-cyan" style="font-size: 18px; font-weight: bold;">TEMPERATURE</h2>
-                        <span style="font-size: 24px;">📊</span>
-                    </div>
-                    <div class="panel-body">
-                        <div class="gradient-text" style="font-size: 64px; font-weight: bold; text-align: center;" id="tempMain">--°</div>
-                    </div>
-                    <div class="panel-footer">
+            <!-- Temperature Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">Temperature</div>
+                    <div class="card-icon">🌡️</div>
+                </div>
+                <div class="card-body">
+                    <div class="large-value" id="tempMain">--°</div>
+                    <div class="stat-grid">
                         <div class="stat-row">
-                            <span class="text-cyan">FEELS</span>
-                            <span style="font-weight: bold;" id="tempFeels">--°C</span>
+                            <span class="stat-label">Feels like</span>
+                            <span class="stat-value" id="tempFeels">--°</span>
                         </div>
                         <div class="stat-row">
-                            <span class="text-cyan">HIGH</span>
-                            <span class="text-red" style="font-weight: bold;" id="tempHigh">--°C</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="text-cyan">LOW</span>
-                            <span class="text-blue" style="font-weight: bold;" id="tempLow">--°C</span>
+                            <span class="stat-label">High / Low</span>
+                            <span class="stat-value"><span id="tempHigh">--</span> / <span id="tempLow">--</span></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Conditions -->
-            <div class="panel border-purple glow-purple">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-purple" style="font-size: 18px; font-weight: bold;">CONDITIONS</h2>
-                        <span style="font-size: 24px;">☁️</span>
-                    </div>
-                    <div class="panel-body">
-                        <div style="font-size: 24px; font-weight: bold; text-align: center;" id="conditions">Loading...</div>
-                    </div>
-                    <div class="panel-footer">
+            <!-- Conditions Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">Conditions</div>
+                    <div class="card-icon">☁️</div>
+                </div>
+                <div class="card-body">
+                    <div style="font-size: 28px; font-weight: 500; margin-bottom: 20px;" id="conditions">--</div>
+                    <div class="stat-grid">
                         <div class="stat-row">
-                            <span class="text-cyan">💧 HUMIDITY</span>
-                            <span style="font-weight: bold;" id="humidity">--%</span>
+                            <span class="stat-label">Humidity</span>
+                            <span class="stat-value" id="humidity">--%</span>
                         </div>
                         <div class="stat-row">
-                            <span class="text-cyan">💨 WIND</span>
-                            <span style="font-weight: bold;" id="wind">-- km/h</span>
+                            <span class="stat-label">Wind Speed</span>
+                            <span class="stat-value" id="wind">--</span>
                         </div>
                         <div class="stat-row">
-                            <span class="text-cyan">⚡ UV</span>
-                            <span class="text-yellow" style="font-weight: bold;" id="uv">--</span>
+                            <span class="stat-label">UV Index</span>
+                            <span class="stat-value" id="uv">--</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Air Quality -->
-            <div class="panel border-yellow glow-yellow">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-yellow" style="font-size: 18px; font-weight: bold;">AIR QUALITY</h2>
-                        <span style="font-size: 24px;">👁️</span>
-                    </div>
-                    <div class="panel-body" style="align-items: center;">
-                        <div style="font-size: 48px; font-weight: bold;" id="aqiNumber">--</div>
-                        <div id="aqiBadge" style="margin-top: 16px; padding: 8px 16px; font-weight: bold; color: white;">LOADING</div>
-                    </div>
-                    <div class="panel-footer">
-                        <div class="grid-2x2" style="font-size: 12px;">
-                            <div class="mini-stat">
-                                <div class="text-cyan">PM2.5</div>
-                                <div style="font-weight: bold;" id="pm25">--</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="text-cyan">PM10</div>
-                                <div style="font-weight: bold;" id="pm10">--</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="text-cyan">O3</div>
-                                <div style="font-weight: bold;" id="o3">--</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="text-cyan">NO2</div>
-                                <div style="font-weight: bold;" id="no2">--</div>
-                            </div>
+            <!-- Air Quality Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">Air Quality</div>
+                    <div class="card-icon">💨</div>
+                </div>
+                <div class="card-body">
+                    <div class="large-value" id="aqiNumber">--</div>
+                    <div id="aqiBadge" class="badge badge-success" style="display: inline-block; margin-bottom: 16px;">Loading</div>
+                    <div class="mini-grid">
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">PM2.5</div>
+                            <div class="mini-stat-value" id="pm25">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">PM10</div>
+                            <div class="mini-stat-value" id="pm10">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">O3</div>
+                            <div class="mini-stat-value" id="o3">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">NO2</div>
+                            <div class="mini-stat-value" id="no2">--</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Pollen -->
-            <div class="panel border-pink glow-pink">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-pink" style="font-size: 18px; font-weight: bold;">POLLEN</h2>
-                        <span style="font-size: 24px;">🌸</span>
-                    </div>
-                    <div class="panel-body" style="align-items: center;">
-                        <div id="pollenBadge" style="padding: 12px 24px; font-weight: bold; color: white; font-size: 20px; background: linear-gradient(90deg, #22c55e, #10b981);">SEASONAL</div>
-                    </div>
-                    <div class="panel-footer">
-                        <div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 14px;">
-                            <span class="text-cyan" style="width: 60px;">GRASS</span>
-                            <div style="flex: 1; height: 6px; background: rgba(0, 0, 0, 0.4); border-radius: 3px; overflow: hidden; margin: 0 12px;">
-                                <div id="grassBar" style="height: 100%; width: 50%; background: linear-gradient(90deg, #eab308, #f97316);"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 14px;">
-                            <span class="text-cyan" style="width: 60px;">TREE</span>
-                            <div style="flex: 1; height: 6px; background: rgba(0, 0, 0, 0.4); border-radius: 3px; overflow: hidden; margin: 0 12px;">
-                                <div id="treeBar" style="height: 100%; width: 50%; background: linear-gradient(90deg, #eab308, #f97316);"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; font-size: 14px;">
-                            <span class="text-cyan" style="width: 60px;">WEED</span>
-                            <div style="flex: 1; height: 6px; background: rgba(0, 0, 0, 0.4); border-radius: 3px; overflow: hidden; margin: 0 12px;">
-                                <div style="height: 100%; width: 20%; background: linear-gradient(90deg, #22c55e, #10b981);"></div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Alerts Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">Alerts</div>
+                    <div class="card-icon">⚠️</div>
                 </div>
-            </div>
-
-            <!-- System -->
-            <div class="panel border-green glow-green">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-green" style="font-size: 18px; font-weight: bold;">SYSTEM</h2>
-                        <span style="font-size: 24px;">⚙️</span>
-                    </div>
-                    <div class="panel-body">
-                        <div class="stat-row">
-                            <span class="text-cyan">WEATHER API</span>
-                            <span class="badge badge-green" id="weatherStatus">ONLINE</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="text-cyan">FLOOD API</span>
-                            <span class="badge badge-green" id="floodStatus">ONLINE</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="text-cyan">UPDATED</span>
-                            <span style="font-weight: bold; font-size: 12px;" id="updateTime">--:--</span>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <button id="refreshBtn" class="btn btn-green" style="width: 100%; font-size: 14px;">REFRESH</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alerts -->
-            <div class="panel border-red glow-red">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-red" style="font-size: 18px; font-weight: bold;">ALERTS</h2>
-                        <span class="pulse" style="font-size: 24px;">⚠️</span>
-                    </div>
-                    <div class="panel-body" id="alertsContainer" style="overflow-y: auto; justify-content: flex-start;">
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="alertsContainer">
                         <div class="loading">Loading alerts...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Map & Flood Data -->
-            <div class="panel border-cyan glow-cyan map-panel">
-                <div class="panel-content">
-                    <div class="panel-header">
-                        <h2 class="text-cyan" style="font-size: 18px; font-weight: bold;">LOCATION & FLOOD DATA</h2>
-                        <span style="font-size: 24px;">🗺️</span>
+            <!-- Map & Location Card -->
+            <div class="card glass-dark map-card">
+                <div class="card-header">
+                    <div class="card-title">Location</div>
+                    <div class="card-icon">📍</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;" id="mapLocation">--</div>
+                        <div style="font-size: 13px; opacity: 0.7;" id="mapCoords">--</div>
                     </div>
-                    <div class="panel-body" style="justify-content: flex-start; gap: 12px;">
-                        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; padding: 12px; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <span class="text-cyan" style="font-size: 12px;">CONFIRMED LOCATION:</span>
-                                    <div style="font-weight: bold; font-size: 16px;" id="mapLocation">--</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div class="text-cyan" style="font-size: 10px;">COORDINATES</div>
-                                    <div style="font-size: 11px; font-weight: bold;" id="mapCoords">--</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div id="map"></div>
-                        
-                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 12px; border-radius: 4px;">
-                            <div style="font-weight: bold; margin-bottom: 8px; color: #3b82f6;">💧 UK RIVER LEVELS (LIVE DATA)</div>
-                            <div id="riverData" style="font-size: 12px;">
-                                <div class="loading">Loading river data...</div>
-                            </div>
-                        </div>
-                        
-                        <div id="floodWarnings" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 12px; border-radius: 4px;">
-                            <div style="font-weight: bold; margin-bottom: 8px; color: #ef4444;">🌊 FLOOD WARNINGS (LIVE DATA)</div>
-                            <div id="floodData" style="font-size: 12px;">
-                                <div class="loading">Loading flood warnings...</div>
-                            </div>
-                        </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- River Levels Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">River Levels</div>
+                    <div class="card-icon">🌊</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="riverData">
+                        <div class="loading">Loading river data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flood Warnings Card -->
+            <div class="card glass-dark">
+                <div class="card-header">
+                    <div class="card-title">Flood Warnings</div>
+                    <div class="card-icon">⚡</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="floodData">
+                        <div class="loading">Loading flood warnings...</div>
                     </div>
                 </div>
             </div>
@@ -597,7 +581,6 @@
         const settingsPanel = document.getElementById('settingsPanel');
         const newLocationInput = document.getElementById('newLocationInput');
         const updateLocationBtn = document.getElementById('updateLocationBtn');
-        const refreshBtn = document.getElementById('refreshBtn');
         
         function loadFromStorage() {
             const savedName = localStorage.getItem('userName');
@@ -628,10 +611,10 @@
             }
         }
         
-        async function geocodeLocation(location) {
+        async function geocodeLocation(loc) {
             try {
                 const response = await fetch(
-                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=en&format=json`
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(loc)}&count=1&language=en&format=json`
                 );
                 const data = await response.json();
                 
@@ -639,21 +622,25 @@
                     locationCoords.lat = data.results[0].latitude;
                     locationCoords.lon = data.results[0].longitude;
                     
-                    if (!map) {
-                        map = L.map('map').setView([locationCoords.lat, locationCoords.lon], 10);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '© OpenStreetMap'
-                        }).addTo(map);
-                    } else {
-                        map.setView([locationCoords.lat, locationCoords.lon], 10);
-                    }
-                    
-                    if (marker) {
-                        map.removeLayer(marker);
-                    }
-                    
-                    marker = L.marker([locationCoords.lat, locationCoords.lon]).addTo(map);
-                    marker.bindPopup(`<b>${userLocation}</b>`).openPopup();
+                    setTimeout(() => {
+                        if (!map) {
+                            map = L.map('map').setView([locationCoords.lat, locationCoords.lon], 10);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '© OpenStreetMap'
+                            }).addTo(map);
+                        } else {
+                            map.setView([locationCoords.lat, locationCoords.lon], 10);
+                        }
+                        
+                        if (marker) {
+                            map.removeLayer(marker);
+                        }
+                        
+                        marker = L.marker([locationCoords.lat, locationCoords.lon]).addTo(map);
+                        marker.bindPopup(`<b>${userLocation}</b>`).openPopup();
+                        
+                        map.invalidateSize();
+                    }, 100);
                     
                     return true;
                 } else {
@@ -705,22 +692,19 @@
                 const data = await response.json();
                 
                 const riverHTML = data.items.slice(0, 5).map(station => {
-                    const level = station.measures ? 'Active' : 'N/A';
                     return `
-                        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
-                            <div style="font-weight: bold; color: #3b82f6;">${station.label || 'River Station'}</div>
-                            <div style="font-size: 10px; color: #06b6d4;">Station: ${station.stationReference || 'Unknown'}</div>
-                            <div style="font-size: 10px; margin-top: 4px;">
-                                <span style="padding: 2px 8px; background: #22c55e; color: black; font-weight: bold; border-radius: 2px;">MONITORING</span>
-                            </div>
+                        <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${station.label || 'River Station'}</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Station: ${station.stationReference || 'Unknown'}</div>
+                            <span class="badge badge-success" style="font-size: 11px;">MONITORING</span>
                         </div>
                     `;
                 }).join('');
                 
-                document.getElementById('riverData').innerHTML = riverHTML || '<div>No river data available for this area</div>';
+                document.getElementById('riverData').innerHTML = riverHTML || '<div class="loading">No river data available</div>';
             } catch (error) {
                 console.error('River data error:', error);
-                document.getElementById('riverData').innerHTML = '<div class="text-orange">Unable to load river data</div>';
+                document.getElementById('riverData').innerHTML = '<div class="loading">Unable to load river data</div>';
             }
         }
         
@@ -734,9 +718,12 @@
                 if (warnings.length > 0) {
                     const floodHTML = warnings.map(warning => {
                         return `
-                            <div style="margin-bottom: 8px; padding: 8px; background: rgba(239, 68, 68, 0.2); border-radius: 4px;">
-                                <div style="font-weight: bold; color: #ef4444;">${warning.description || 'Flood Warning'}</div>
-                                <div style="font-size: 10px; color: #f97316; margin-top: 4px;">${warning.message || 'Please stay alert'}</div>
+                            <div class="alert-box alert-danger">
+                                <span>⚠️</span>
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">${warning.description || 'Flood Warning'}</div>
+                                    <div style="font-size: 12px; opacity: 0.8;">${warning.message || 'Please stay alert'}</div>
+                                </div>
                             </div>
                         `;
                     }).join('');
@@ -744,16 +731,18 @@
                     document.getElementById('floodData').innerHTML = floodHTML;
                 } else {
                     document.getElementById('floodData').innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 12px; height: 12px; background: #22c55e; border-radius: 50%;"></div>
-                            <div style="color: #22c55e; font-weight: bold;">NO ACTIVE FLOOD WARNINGS</div>
+                        <div class="alert-box alert-success">
+                            <span>✓</span>
+                            <div>
+                                <div style="font-weight: 600;">No Active Flood Warnings</div>
+                                <div style="font-size: 12px; opacity: 0.8;">All monitored areas are at normal levels</div>
+                            </div>
                         </div>
-                        <div style="color: #22c55e; margin-top: 8px;">All monitored areas are at normal levels</div>
                     `;
                 }
             } catch (error) {
                 console.error('Flood warning error:', error);
-                document.getElementById('floodData').innerHTML = '<div class="text-orange">Unable to load flood warnings</div>';
+                document.getElementById('floodData').innerHTML = '<div class="loading">Unable to load flood warnings</div>';
             }
         }
         
@@ -767,26 +756,25 @@
             return codes[code] || 'Unknown';
         }
         
-        function getAQILevel(aqi) {
-            if (aqi <= 20) return { level: 'EXCELLENT', color: 'linear-gradient(90deg, #22c55e, #10b981)' };
-            if (aqi <= 40) return { level: 'GOOD', color: 'linear-gradient(90deg, #84cc16, #22c55e)' };
-            if (aqi <= 60) return { level: 'MODERATE', color: 'linear-gradient(90deg, #eab308, #f97316)' };
-            if (aqi <= 80) return { level: 'POOR', color: 'linear-gradient(90deg, #f97316, #ef4444)' };
-            return { level: 'HAZARDOUS', color: 'linear-gradient(90deg, #ef4444, #991b1b)' };
+        function getAQIInfo(aqi) {
+            if (aqi <= 20) return { level: 'EXCELLENT', class: 'badge-success' };
+            if (aqi <= 40) return { level: 'GOOD', class: 'badge-success' };
+            if (aqi <= 60) return { level: 'MODERATE', class: 'badge-warning' };
+            if (aqi <= 80) return { level: 'POOR', class: 'badge-warning' };
+            return { level: 'HAZARDOUS', class: 'badge-danger' };
         }
         
         function updateDisplay() {
             if (!weatherData) return;
             
             const now = new Date();
-            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB');
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
                 weekday: 'short', month: 'short', day: 'numeric' 
             });
-            document.getElementById('updateTime').textContent = now.toLocaleTimeString('en-GB');
             
-            document.getElementById('displayName').textContent = userName.toUpperCase();
-            document.getElementById('displayLocation').textContent = userLocation.toUpperCase();
+            document.getElementById('displayName').textContent = userName;
+            document.getElementById('displayLocation').textContent = userLocation;
             
             document.getElementById('tempMain').textContent = weatherData.temp + '°';
             document.getElementById('tempFeels').textContent = weatherData.feelsLike + '°C';
@@ -798,18 +786,18 @@
             document.getElementById('wind').textContent = weatherData.windSpeed + ' km/h';
             document.getElementById('uv').textContent = weatherData.uvIndex;
             
-            const aqiInfo = getAQILevel(weatherData.aqi);
+            const aqiInfo = getAQIInfo(weatherData.aqi);
             document.getElementById('aqiNumber').textContent = weatherData.aqi;
             const aqiBadge = document.getElementById('aqiBadge');
             aqiBadge.textContent = aqiInfo.level;
-            aqiBadge.style.background = aqiInfo.color;
+            aqiBadge.className = 'badge ' + aqiInfo.class;
             
             document.getElementById('pm25').textContent = weatherData.pm25;
             document.getElementById('pm10').textContent = weatherData.pm10;
             document.getElementById('o3').textContent = weatherData.o3;
             document.getElementById('no2').textContent = weatherData.no2;
             
-            document.getElementById('mapLocation').textContent = userLocation.toUpperCase();
+            document.getElementById('mapLocation').textContent = userLocation;
             document.getElementById('mapCoords').textContent = `${locationCoords.lat.toFixed(4)}°, ${locationCoords.lon.toFixed(4)}°`;
             
             const alertsContainer = document.getElementById('alertsContainer');
@@ -817,32 +805,48 @@
             
             if (weatherData.uvIndex > 6) {
                 alertsContainer.innerHTML += `
-                    <div class="alert-box" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308; color: #eab308;">
-                        ⚡ HIGH UV INDEX
+                    <div class="alert-box alert-warning">
+                        <span>⚡</span>
+                        <div>
+                            <div style="font-weight: 600;">High UV Index</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Sun protection recommended</div>
+                        </div>
                     </div>
                 `;
             }
             
             if (weatherData.aqi > 60) {
                 alertsContainer.innerHTML += `
-                    <div class="alert-box" style="background: rgba(249, 115, 22, 0.2); border-color: #f97316; color: #f97316;">
-                        👁️ POOR AIR QUALITY
+                    <div class="alert-box alert-warning">
+                        <span>💨</span>
+                        <div>
+                            <div style="font-weight: 600;">Poor Air Quality</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Limit outdoor activity</div>
+                        </div>
                     </div>
                 `;
             }
             
             if (weatherData.windSpeed > 40) {
                 alertsContainer.innerHTML += `
-                    <div class="alert-box" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444;">
-                        💨 HIGH WIND WARNING
+                    <div class="alert-box alert-danger">
+                        <span>🌪️</span>
+                        <div>
+                            <div style="font-weight: 600;">High Wind Warning</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Take precautions</div>
+                        </div>
                     </div>
                 `;
             }
             
             if (weatherData.uvIndex <= 6 && weatherData.aqi <= 60 && weatherData.windSpeed <= 40) {
                 alertsContainer.innerHTML += `
-                    <div class="alert-box" style="background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #22c55e;">
-                        📊 ALL SYSTEMS NOMINAL
+                    <div class="alert-box alert-success">
+                        <span>✓</span>
+                        <div>
+                            <div style="font-weight: 600;">All Clear</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Conditions are favorable</div>
+                        </div>
                     </div>
                 `;
             }
@@ -853,47 +857,55 @@
             dashboard.classList.remove('hidden');
             setInterval(() => {
                 const now = new Date();
-                document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB');
+                document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
                     weekday: 'short', month: 'short', day: 'numeric' 
                 });
             }, 1000);
         }
         
-        loginBtn.addEventListener('click', async function() {
-            console.log('Button clicked');
-            const name = nameInput.value.trim();
-            const loc = locationInput.value.trim();
-            
-            console.log('Name:', name, 'Location:', loc);
-            
-            if (name && loc) {
-                loginBtn.disabled = true;
-                loginBtn.textContent = 'INITIALIZING...';
+        // Event Listeners
+        console.log('Setting up event listeners...');
+        
+        if (loginBtn) {
+            console.log('Login button found');
+            loginBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('Button clicked!');
                 
-                userName = name;
-                userLocation = loc;
-                saveToStorage();
+                const name = nameInput.value.trim();
+                const loc = locationInput.value.trim();
                 
-                try {
-                    const success = await geocodeLocation(userLocation);
-                    if (success) {
-                        showDashboard();
-                        await fetchAllData();
-                    } else {
+                console.log('Name:', name, 'Location:', loc);
+                
+                if (name && loc) {
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Loading...';
+                    
+                    userName = name;
+                    userLocation = loc;
+                    saveToStorage();
+                    
+                    try {
+                        const success = await geocodeLocation(userLocation);
+                        if (success) {
+                            showDashboard();
+                            await fetchAllData();
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        alert('Error: ' + error.message);
+                    } finally {
                         loginBtn.disabled = false;
-                        loginBtn.textContent = 'ACCESS TERMINAL >>';
+                        loginBtn.textContent = 'Get Started →';
                     }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    alert('Error: ' + error.message);
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'ACCESS TERMINAL >>';
+                } else {
+                    alert('Please enter both name and location');
                 }
-            } else {
-                alert('Please enter both name and location');
-            }
-        });
+            });
+        } else {
+            console.error('Login button not found!');
+        }
         
         nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') loginBtn.click();
@@ -921,14 +933,7 @@
             if (e.key === 'Enter') updateLocationBtn.click();
         });
         
-        refreshBtn.addEventListener('click', async () => {
-            refreshBtn.disabled = true;
-            refreshBtn.textContent = 'UPDATING...';
-            await fetchAllData();
-            refreshBtn.disabled = false;
-            refreshBtn.textContent = 'REFRESH';
-        });
-        
+        // Initialize
         loadFromStorage();
     </script>
 </body>
