@@ -144,12 +144,12 @@
         
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-auto-rows: auto;
             gap: 24px;
             flex: 1;
             overflow-y: auto;
             padding-bottom: 24px;
-            align-items: start;
         }
         
         .card {
@@ -157,8 +157,6 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s;
-            min-height: auto;
-            height: auto;
         }
         
         .card:hover {
@@ -1016,14 +1014,25 @@
         }
         
         async function fetchAllData() {
+            console.log('Fetching all data...');
             try {
                 await geocodeLocation(userLocation);
+                console.log('Geocoding complete, coords:', locationCoords);
+                
                 await fetchWeather();
+                console.log('Weather data:', weatherData);
+                
                 await fetchRiverData();
+                console.log('River data fetched');
+                
                 await fetchFloodWarnings();
+                console.log('Flood warnings fetched');
+                
                 updateDisplay();
+                console.log('Display updated');
             } catch (error) {
                 console.error('Error fetching data:', error);
+                alert('Error loading data: ' + error.message);
             }
         }
         
@@ -1124,8 +1133,8 @@
         
         function calculateMoonPhase() {
             const date = new Date();
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
             const day = date.getDate();
             
             let c = 0, e = 0, jd = 0, b = 0;
@@ -1135,7 +1144,7 @@
                 month += 12;
             }
             
-            ++month;
+            month++;
             c = 365.25 * year;
             e = 30.6 * month;
             jd = c + e + day - 694039.09;
@@ -1303,7 +1312,131 @@
         }
         
         function updateDisplay() {
-            if (!weatherData) return;
+            console.log('Updating display with weather data:', weatherData);
+            if (!weatherData) {
+                console.error('No weather data available');
+                return;
+            }
+            
+            const now = new Date();
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
+                weekday: 'short', month: 'short', day: 'numeric' 
+            });
+            
+            document.getElementById('displayName').textContent = userName;
+            document.getElementById('displayLocation').textContent = userLocation;
+            
+            document.getElementById('tempMain').textContent = weatherData.temp + '°';
+            document.getElementById('tempFeels').textContent = weatherData.feelsLike + '°C';
+            document.getElementById('tempHigh').textContent = weatherData.maxTemp + '°C';
+            document.getElementById('tempLow').textContent = weatherData.minTemp + '°C';
+            
+            document.getElementById('conditions').textContent = getWeatherDescription(weatherData.weatherCode);
+            document.getElementById('humidity').textContent = weatherData.humidity + '%';
+            document.getElementById('wind').textContent = weatherData.windSpeed + ' km/h';
+            document.getElementById('uv').textContent = weatherData.uvIndex;
+            
+            const aqiInfo = getAQIInfo(weatherData.aqi);
+            document.getElementById('aqiNumber').textContent = weatherData.aqi;
+            const aqiBadge = document.getElementById('aqiBadge');
+            aqiBadge.textContent = aqiInfo.level;
+            aqiBadge.className = 'badge ' + aqiInfo.class;
+            
+            document.getElementById('pm25').textContent = weatherData.pm25;
+            document.getElementById('pm10').textContent = weatherData.pm10;
+            document.getElementById('o3').textContent = weatherData.o3;
+            document.getElementById('no2').textContent = weatherData.no2;
+            
+            document.getElementById('mapLocation').textContent = userLocation;
+            document.getElementById('mapCoords').textContent = `${locationCoords.lat.toFixed(4)}°, ${locationCoords.lon.toFixed(4)}°`;
+            
+            // Sun & Moon
+            if (weatherData.sunrise) {
+                document.getElementById('sunrise').textContent = weatherData.sunrise;
+                document.getElementById('sunset').textContent = weatherData.sunset;
+                document.getElementById('moonPhase').textContent = weatherData.moonPhase;
+            }
+            
+            // More Details
+            if (weatherData.windDirection !== undefined) {
+                document.getElementById('windDir').textContent = getWindDirection(weatherData.windDirection);
+                document.getElementById('pressure').textContent = weatherData.pressure + ' hPa';
+                document.getElementById('visibility').textContent = weatherData.visibility + ' km';
+                document.getElementById('precipitation').textContent = weatherData.precipProb + '%';
+            }
+            
+            // 7-Day Forecast
+            if (weatherData.forecast && weatherData.forecast.length > 0) {
+                const forecastHTML = weatherData.forecast.map(day => {
+                    return `
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px;">${day.day}</div>
+                            <div style="font-size: 32px; margin: 8px 0;">${getWeatherEmoji(day.code)}</div>
+                            <div style="font-size: 18px; font-weight: 600; margin: 4px 0;">${day.max}°</div>
+                            <div style="font-size: 14px; opacity: 0.7;">${day.min}°</div>
+                            <div style="font-size: 11px; margin-top: 8px; opacity: 0.7;">💧 ${day.precipProb}%</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('forecastData').innerHTML = forecastHTML;
+            }
+            
+            // Alerts
+            const alertsContainer = document.getElementById('alertsContainer');
+            alertsContainer.innerHTML = '';
+            
+            if (weatherData.uvIndex > 6) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-warning">
+                        <span>⚡</span>
+                        <div>
+                            <div style="font-weight: 600;">High UV Index</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Sun protection recommended</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.aqi > 60) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-warning">
+                        <span>💨</span>
+                        <div>
+                            <div style="font-weight: 600;">Poor Air Quality</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Limit outdoor activity</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.windSpeed > 40) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-danger">
+                        <span>🌪️</span>
+                        <div>
+                            <div style="font-weight: 600;">High Wind Warning</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Take precautions</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weatherData.uvIndex <= 6 && weatherData.aqi <= 60 && weatherData.windSpeed <= 40) {
+                alertsContainer.innerHTML += `
+                    <div class="alert-box alert-success">
+                        <span>✓</span>
+                        <div>
+                            <div style="font-weight: 600;">All Clear</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Conditions are favorable</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            console.log('Display update complete');
+        }
             
             const now = new Date();
             document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
