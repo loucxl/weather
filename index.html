@@ -752,4 +752,63 @@
             dashboard.classList.remove('hidden');
             setInterval(() => {
                 const now = new Date();
-                document.getElementById('timeDisplay').textContent =
+                document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
+            }, 1000);
+        }
+        
+        loginBtn.addEventListener('click', async function() {
+            const name = nameInput.value.trim();
+            const loc = locationInput.value.trim();
+            
+            if (name && loc) {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Loading...';
+                
+                userName = name;
+                userLocation = loc;
+                saveToStorage();
+                
+                const success = await geocodeLocation(userLocation);
+                if (success) {
+                    showDashboard();
+                    await fetchAllData();
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Get Started →';
+            } else {
+                alert('Please enter both name and location');
+            }
+        });
+        
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        
+        locationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('hidden');
+        });
+        
+        updateLocationBtn.addEventListener('click', async () => {
+            if (newLocationInput.value.trim()) {
+                userLocation = newLocationInput.value.trim();
+                saveToStorage();
+                settingsPanel.classList.add('hidden');
+                newLocationInput.value = '';
+                await fetchAllData();
+            }
+        });
+        
+        newLocationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') updateLocationBtn.click();
+        });
+        
+        loadFromStorage();
+    </script>
+</body>
+</html>
