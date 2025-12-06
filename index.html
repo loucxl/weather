@@ -144,11 +144,12 @@
         
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
             flex: 1;
             overflow-y: auto;
             padding-bottom: 24px;
+            align-items: start;
         }
         
         .card {
@@ -156,7 +157,8 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s;
-            min-height: 200px;
+            min-height: auto;
+            height: auto;
         }
         
         .card:hover {
@@ -189,6 +191,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: 0;
         }
         
         .large-value {
@@ -300,7 +303,69 @@
         }
         
         .map-card {
+            grid-column: span 1;
+        }
+        
+        .forecast-card {
             grid-column: span 2;
+        }
+        
+        .customize-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .customize-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .customize-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .widget-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .widget-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .widget-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .widget-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .widget-toggle label {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .progress-bar {
@@ -325,7 +390,7 @@
         }
         
         @media (max-width: 1200px) {
-            .map-card {
+            .map-card, .forecast-card {
                 grid-column: span 1;
             }
         }
@@ -417,6 +482,7 @@
                     <div style="font-size: 24px; font-weight: 600;" id="timeDisplay">--:--</div>
                     <div style="font-size: 12px; opacity: 0.7;" id="dateDisplay">-</div>
                 </div>
+                <button id="customizeBtn" class="customize-btn">📊 Customize</button>
                 <button id="settingsBtn" class="settings-btn">⚙</button>
             </div>
         </div>
@@ -430,10 +496,253 @@
             </div>
         </div>
         
+        <!-- Customize Panel -->
+        <div id="customizePanel" class="customize-panel hidden">
+            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 18px;">Choose What to Display</h3>
+            <p style="opacity: 0.7; font-size: 14px; margin-bottom: 20px;">Select which widgets you want to see on your dashboard</p>
+            <div class="widget-options">
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-temp" checked>
+                    <label for="widget-temp">🌡️ Temperature</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-conditions" checked>
+                    <label for="widget-conditions">☁️ Conditions</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-air" checked>
+                    <label for="widget-air">💨 Air Quality</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-alerts" checked>
+                    <label for="widget-alerts">⚠️ Alerts</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-map" checked>
+                    <label for="widget-map">📍 Map</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-rivers" checked>
+                    <label for="widget-rivers">🌊 River Levels</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-floods" checked>
+                    <label for="widget-floods">⚡ Flood Warnings</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-forecast" checked>
+                    <label for="widget-forecast">📅 7-Day Forecast</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-sun" checked>
+                    <label for="widget-sun">🌅 Sun & Moon</label>
+                </div>
+                <div class="widget-toggle">
+                    <input type="checkbox" id="widget-details" checked>
+                    <label for="widget-details">📊 Details</label>
+                </div>
+            </div>
+            <button id="applyCustomize" class="btn btn-primary" style="margin-top: 20px;">Apply Changes</button>
+        </div>
+        
         <!-- Cards Grid -->
         <div class="grid-container">
             <!-- Temperature Card -->
-            <div class="card glass-dark">
+            <div class="card glass-dark" id="card-temp">
+                <div class="card-header">
+                    <div class="card-title">Temperature</div>
+                    <div class="card-icon">🌡️</div>
+                </div>
+                <div class="card-body">
+                    <div class="large-value" id="tempMain">--°</div>
+                    <div class="stat-grid">
+                        <div class="stat-row">
+                            <span class="stat-label">Feels like</span>
+                            <span class="stat-value" id="tempFeels">--°</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">High / Low</span>
+                            <span class="stat-value"><span id="tempHigh">--</span> / <span id="tempLow">--</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conditions Card -->
+            <div class="card glass-dark" id="card-conditions">
+                <div class="card-header">
+                    <div class="card-title">Conditions</div>
+                    <div class="card-icon">☁️</div>
+                </div>
+                <div class="card-body">
+                    <div style="font-size: 28px; font-weight: 500; margin-bottom: 20px;" id="conditions">--</div>
+                    <div class="stat-grid">
+                        <div class="stat-row">
+                            <span class="stat-label">Humidity</span>
+                            <span class="stat-value" id="humidity">--%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Wind Speed</span>
+                            <span class="stat-value" id="wind">--</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">UV Index</span>
+                            <span class="stat-value" id="uv">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Air Quality Card -->
+            <div class="card glass-dark" id="card-air">
+                <div class="card-header">
+                    <div class="card-title">Air Quality</div>
+                    <div class="card-icon">💨</div>
+                </div>
+                <div class="card-body">
+                    <div class="large-value" id="aqiNumber">--</div>
+                    <div id="aqiBadge" class="badge badge-success" style="display: inline-block; margin-bottom: 16px;">Loading</div>
+                    <div class="mini-grid">
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">PM2.5</div>
+                            <div class="mini-stat-value" id="pm25">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">PM10</div>
+                            <div class="mini-stat-value" id="pm10">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">O3</div>
+                            <div class="mini-stat-value" id="o3">--</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">NO2</div>
+                            <div class="mini-stat-value" id="no2">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Card -->
+            <div class="card glass-dark" id="card-alerts">
+                <div class="card-header">
+                    <div class="card-title">Alerts</div>
+                    <div class="card-icon">⚠️</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="alertsContainer">
+                        <div class="loading">Loading alerts...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map & Location Card -->
+            <div class="card glass-dark map-card" id="card-map">
+                <div class="card-header">
+                    <div class="card-title">Location</div>
+                    <div class="card-icon">📍</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;" id="mapLocation">--</div>
+                        <div style="font-size: 13px; opacity: 0.7;" id="mapCoords">--</div>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- River Levels Card -->
+            <div class="card glass-dark" id="card-rivers">
+                <div class="card-header">
+                    <div class="card-title">River Levels</div>
+                    <div class="card-icon">🌊</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="riverData">
+                        <div class="loading">Loading river data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flood Warnings Card -->
+            <div class="card glass-dark" id="card-floods">
+                <div class="card-header">
+                    <div class="card-title">Flood Warnings</div>
+                    <div class="card-icon">⚡</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start; overflow-y: auto;">
+                    <div id="floodData">
+                        <div class="loading">Loading flood warnings...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 7-Day Forecast Card -->
+            <div class="card glass-dark forecast-card" id="card-forecast">
+                <div class="card-header">
+                    <div class="card-title">7-Day Forecast</div>
+                    <div class="card-icon">📅</div>
+                </div>
+                <div class="card-body" style="justify-content: flex-start;">
+                    <div id="forecastData" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px;">
+                        <div class="loading">Loading forecast...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sun & Moon Card -->
+            <div class="card glass-dark" id="card-sun">
+                <div class="card-header">
+                    <div class="card-title">Sun & Moon</div>
+                    <div class="card-icon">🌅</div>
+                </div>
+                <div class="card-body">
+                    <div class="stat-grid">
+                        <div class="stat-row">
+                            <span class="stat-label">🌅 Sunrise</span>
+                            <span class="stat-value" id="sunrise">--:--</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">🌇 Sunset</span>
+                            <span class="stat-value" id="sunset">--:--</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Moon Phase</span>
+                            <span class="stat-value" id="moonPhase">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- More Details Card -->
+            <div class="card glass-dark" id="card-details">
+                <div class="card-header">
+                    <div class="card-title">Details</div>
+                    <div class="card-icon">📊</div>
+                </div>
+                <div class="card-body">
+                    <div class="stat-grid">
+                        <div class="stat-row">
+                            <span class="stat-label">🧭 Wind Direction</span>
+                            <span class="stat-value" id="windDir">--</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">🔽 Pressure</span>
+                            <span class="stat-value" id="pressure">-- hPa</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">👁️ Visibility</span>
+                            <span class="stat-value" id="visibility">-- km</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">💧 Precipitation</span>
+                            <span class="stat-value" id="precipitation">--%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
                 <div class="card-header">
                     <div class="card-title">Temperature</div>
                     <div class="card-icon">🌡️</div>
@@ -646,6 +955,48 @@
         const settingsPanel = document.getElementById('settingsPanel');
         const newLocationInput = document.getElementById('newLocationInput');
         const updateLocationBtn = document.getElementById('updateLocationBtn');
+        const customizeBtn = document.getElementById('customizeBtn');
+        const customizePanel = document.getElementById('customizePanel');
+        const applyCustomize = document.getElementById('applyCustomize');
+        
+        // Widget visibility settings
+        let widgetSettings = {
+            temp: true,
+            conditions: true,
+            air: true,
+            alerts: true,
+            map: true,
+            rivers: true,
+            floods: true,
+            forecast: true,
+            sun: true,
+            details: true
+        };
+        
+        function loadWidgetSettings() {
+            const saved = localStorage.getItem('widgetSettings');
+            if (saved) {
+                widgetSettings = JSON.parse(saved);
+                applyWidgetVisibility();
+            }
+        }
+        
+        function saveWidgetSettings() {
+            localStorage.setItem('widgetSettings', JSON.stringify(widgetSettings));
+        }
+        
+        function applyWidgetVisibility() {
+            Object.keys(widgetSettings).forEach(key => {
+                const card = document.getElementById(`card-${key}`);
+                const checkbox = document.getElementById(`widget-${key}`);
+                if (card) {
+                    card.style.display = widgetSettings[key] ? 'flex' : 'none';
+                }
+                if (checkbox) {
+                    checkbox.checked = widgetSettings[key];
+                }
+            });
+        }
         
         function loadFromStorage() {
             const savedName = localStorage.getItem('userName');
@@ -987,6 +1338,32 @@
             document.getElementById('mapLocation').textContent = userLocation;
             document.getElementById('mapCoords').textContent = `${locationCoords.lat.toFixed(4)}°, ${locationCoords.lon.toFixed(4)}°`;
             
+            // Sun & Moon
+            document.getElementById('sunrise').textContent = weatherData.sunrise;
+            document.getElementById('sunset').textContent = weatherData.sunset;
+            document.getElementById('moonPhase').textContent = weatherData.moonPhase;
+            
+            // More Details
+            document.getElementById('windDir').textContent = getWindDirection(weatherData.windDirection);
+            document.getElementById('pressure').textContent = weatherData.pressure + ' hPa';
+            document.getElementById('visibility').textContent = weatherData.visibility + ' km';
+            document.getElementById('precipitation').textContent = weatherData.precipProb + '%';
+            
+            // 7-Day Forecast
+            const forecastHTML = weatherData.forecast.map(day => {
+                return `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 12px; text-align: center;">
+                        <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px;">${day.day}</div>
+                        <div style="font-size: 32px; margin: 8px 0;">${getWeatherEmoji(day.code)}</div>
+                        <div style="font-size: 18px; font-weight: 600; margin: 4px 0;">${day.max}°</div>
+                        <div style="font-size: 14px; opacity: 0.7;">${day.min}°</div>
+                        <div style="font-size: 11px; margin-top: 8px; opacity: 0.7;">💧 ${day.precipProb}%</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('forecastData').innerHTML = forecastHTML;
+            
             const alertsContainer = document.getElementById('alertsContainer');
             alertsContainer.innerHTML = '';
             
@@ -1104,6 +1481,24 @@
         
         settingsBtn.addEventListener('click', () => {
             settingsPanel.classList.toggle('hidden');
+            customizePanel.classList.add('hidden');
+        });
+        
+        customizeBtn.addEventListener('click', () => {
+            customizePanel.classList.toggle('hidden');
+            settingsPanel.classList.add('hidden');
+        });
+        
+        applyCustomize.addEventListener('click', () => {
+            Object.keys(widgetSettings).forEach(key => {
+                const checkbox = document.getElementById(`widget-${key}`);
+                if (checkbox) {
+                    widgetSettings[key] = checkbox.checked;
+                }
+            });
+            saveWidgetSettings();
+            applyWidgetVisibility();
+            customizePanel.classList.add('hidden');
         });
         
         updateLocationBtn.addEventListener('click', async () => {
@@ -1122,6 +1517,7 @@
         
         // Initialize
         loadFromStorage();
+        loadWidgetSettings();
     </script>
 </body>
 </html>
