@@ -106,25 +106,24 @@
 
         .location-input-wrapper {
             position: relative;
-			z-index: 30;
+            z-index: 40;
         }
 
         .suggestions {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    margin-top: 6px;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(16px);
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-    max-height: 220px;
-    overflow-y: auto;
-    z-index: 40;      /* suggestions above everything else */
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
-}
-
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 6px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+        }
 
         .suggestion-item {
             padding: 10px 14px;
@@ -162,7 +161,6 @@
             padding: 20px;
             position: relative;
             z-index: 10;
-            overflow-y: auto;
         }
         
         .login-box {
@@ -177,7 +175,7 @@
             height: 100vh;
             padding: 24px;
             position: relative;
-            z-index: 1;
+            z-index: 10;
         }
         
         .header {
@@ -186,13 +184,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
         }
         
         .settings-panel {
-			position: relative;
             padding: 20px 32px;
             margin-bottom: 24px;
-			z-index: 1;
+            position: relative;
+            z-index: 20;
         }
         
         .grid-container {
@@ -202,6 +201,8 @@
             flex: 1;
             overflow-y: auto;
             padding-bottom: 24px;
+            position: relative;
+            z-index: 1;
         }
         
         .card {
@@ -398,65 +399,6 @@
             font-size: 13px;
         }
         
-        @media (max-width: 1200px) {
-            .map-card {
-                grid-column: span 1;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                overflow: auto;
-            }
-
-            .dashboard {
-                padding: 16px;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-                padding: 16px 18px;
-            }
-
-            .header > div:last-child {
-                justify-content: center;
-            }
-            
-            .large-value {
-                font-size: 44px;
-            }
-
-            .card {
-                padding: 18px;
-                min-height: 0;
-            }
-
-            .card-header {
-                margin-bottom: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .login-box {
-                padding: 32px 20px;
-            }
-
-            .grid-container {
-                gap: 16px;
-            }
-
-            .badge {
-                font-size: 10px;
-                padding: 4px 10px;
-            }
-
-            #map {
-                height: 200px;
-            }
-        }
-        
         .mini-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -479,6 +421,101 @@
         .mini-stat-value {
             font-size: 15px;
             font-weight: 600;
+        }
+
+        /* ---- Mobile tweaks ---- */
+
+        @media (max-width: 768px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+            }
+
+            .login-screen {
+                align-items: flex-start;
+                padding-top: 40px;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .login-box {
+                padding: 32px 20px;
+            }
+
+            .dashboard {
+                padding: 16px;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                padding: 16px 18px;
+            }
+
+            .header > div:last-child {
+                align-self: stretch;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                flex: 1;
+                overflow: visible;
+            }
+
+            .card {
+                padding: 18px;
+                min-height: 0;
+            }
+
+            .card-header {
+                margin-bottom: 12px;
+            }
+
+            .large-value {
+                font-size: 44px;
+            }
+
+            #map {
+                height: 200px;
+            }
+
+            .badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px !important;
+            }
+
+            .large-value {
+                font-size: 38px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-value {
+                font-size: 13px;
+            }
+
+            #map {
+                height: 180px;
+            }
         }
     </style>
 </head>
@@ -729,7 +766,6 @@
             localStorage.setItem('userLocation', userLocation);
         }
 
-        // Normalise a Nominatim result into our "place" shape
         function normalizeNominatimPlace(p) {
             const addr = p.address || {};
             const name = addr.city || addr.town || addr.village || addr.hamlet || p.display_name.split(',')[0];
@@ -786,14 +822,12 @@
             saveToStorage();
         }
 
-        // Use Nominatim (OpenStreetMap) for suggestions, UK-only
         async function fetchLocationSuggestions(query) {
             if (!query || query.length < 2) return [];
             try {
                 const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&countrycodes=gb&q=${encodeURIComponent(query)}`;
                 const response = await fetch(url, {
                     headers: {
-                        // Hint: browsers ignore custom UA, but this is fine for light personal use
                         'Accept-Language': 'en-GB,en'
                     }
                 });
@@ -853,7 +887,6 @@
             }
         }
         
-        // Geocode using Nominatim as well
         async function geocodeLocation(loc) {
             try {
                 const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=gb&q=${encodeURIComponent(loc)}`;
@@ -1156,7 +1189,7 @@
             if (e.key === 'Enter') loginBtn.click();
         });
 
-        // Type-ahead for login location (Nominatim)
+        // Type-ahead for login location
         locationInput.addEventListener('input', () => {
             selectedPlaceForLogin = null;
             clearTimeout(locationSearchTimeout);
@@ -1178,7 +1211,7 @@
             settingsPanel.classList.toggle('hidden');
         });
 
-        // Type-ahead for settings new location (Nominatim)
+        // Type-ahead for settings new location
         newLocationInput.addEventListener('input', () => {
             selectedPlaceForSettings = null;
             clearTimeout(newLocationSearchTimeout);
