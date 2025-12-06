@@ -112,6 +112,7 @@
             padding: 20px;
             position: relative;
             z-index: 10;
+            overflow-y: auto; /* mobile-safe scrolling */
         }
         
         .login-box {
@@ -144,7 +145,7 @@
         
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* more mobile-friendly */
             gap: 24px;
             flex: 1;
             overflow-y: auto;
@@ -298,23 +299,30 @@
             background: rgba(255, 255, 255, 0.2);
             transform: rotate(90deg);
         }
+
+        .reset-btn {
+            height: 48px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+        }
         
         .map-card {
             grid-column: span 2;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.3s;
         }
         
         .loading {
@@ -343,6 +351,12 @@
             
             .large-value {
                 font-size: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 32px 20px;
             }
         }
         
@@ -379,7 +393,7 @@
         <div class="login-box glass">
             <div style="text-align: center; margin-bottom: 40px;">
                 <h1 style="font-size: 42px; font-weight: 300; margin-bottom: 8px;">Weather Terminal</h1>
-                <p style="opacity: 0.7; font-size: 15px;">Real-time weather intelligence</p>
+                <p style="opacity: 0.7; font-size: 15px;">Real-time weather intelligence (UK only)</p>
             </div>
             
             <div style="margin-bottom: 20px;">
@@ -388,8 +402,8 @@
             </div>
             
             <div style="margin-bottom: 28px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Location</label>
-                <input type="text" id="locationInput" placeholder="e.g., London, UK" />
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.8;">Location (UK only)</label>
+                <input type="text" id="locationInput" placeholder="e.g., London, UK or SW1A 1AA" />
             </div>
             
             <button id="loginBtn" class="btn btn-primary" style="width: 100%;">
@@ -397,7 +411,7 @@
             </button>
             
             <p style="text-align: center; margin-top: 24px; font-size: 12px; opacity: 0.6;">
-                Powered by live weather data APIs
+                Powered by live UK weather & flood data
             </p>
         </div>
     </div>
@@ -412,20 +426,21 @@
                     <span id="displayName"></span> • <span id="displayLocation"></span>
                 </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="text-align: right;">
                     <div style="font-size: 24px; font-weight: 600;" id="timeDisplay">--:--</div>
                     <div style="font-size: 12px; opacity: 0.7;" id="dateDisplay">-</div>
                 </div>
+                <button id="resetBtn" class="reset-btn">Reset</button>
                 <button id="settingsBtn" class="settings-btn">⚙</button>
             </div>
         </div>
         
         <!-- Settings Panel -->
         <div id="settingsPanel" class="settings-panel glass hidden">
-            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 16px;">Change Location</h3>
+            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 16px;">Change Location (UK only)</h3>
             <div style="display: flex; gap: 12px;">
-                <input type="text" id="newLocationInput" placeholder="Enter new location" style="flex: 1;" />
+                <input type="text" id="newLocationInput" placeholder="Enter new UK location" style="flex: 1;" />
                 <button id="updateLocationBtn" class="btn btn-primary">Update</button>
             </div>
         </div>
@@ -571,6 +586,7 @@
         let locationCoords = { lat: 0, lon: 0 };
         let map = null;
         let marker = null;
+        let clockInterval = null;
         
         const loginScreen = document.getElementById('loginScreen');
         const dashboard = document.getElementById('dashboard');
@@ -581,16 +597,19 @@
         const settingsPanel = document.getElementById('settingsPanel');
         const newLocationInput = document.getElementById('newLocationInput');
         const updateLocationBtn = document.getElementById('updateLocationBtn');
+        const resetBtn = document.getElementById('resetBtn');
         
         function loadFromStorage() {
             const savedName = localStorage.getItem('userName');
             const savedLocation = localStorage.getItem('userLocation');
             
-            if (savedName && savedLocation) {
+            if (savedName) {
                 userName = savedName;
+                nameInput.value = savedName;
+            }
+            if (savedLocation) {
                 userLocation = savedLocation;
-                showDashboard();
-                fetchAllData();
+                locationInput.value = savedLocation;
             }
         }
         
@@ -601,7 +620,8 @@
         
         async function fetchAllData() {
             try {
-                await geocodeLocation(userLocation);
+                const ok = await geocodeLocation(userLocation);
+                if (!ok) return;
                 await fetchWeather();
                 await fetchRiverData();
                 await fetchFloodWarnings();
@@ -619,8 +639,22 @@
                 const data = await response.json();
                 
                 if (data.results && data.results.length > 0) {
-                    locationCoords.lat = data.results[0].latitude;
-                    locationCoords.lon = data.results[0].longitude;
+                    const place = data.results[0];
+
+                    // UK-only guard
+                    if (place.country_code && place.country_code.toUpperCase() !== 'GB') {
+                        alert('This dashboard currently supports UK locations only. Please enter a UK city, town, or postcode.');
+                        return false;
+                    }
+
+                    locationCoords.lat = place.latitude;
+                    locationCoords.lon = place.longitude;
+
+                    // nicer display location
+                    const prettyLoc = `${place.name}${place.admin1 ? ', ' + place.admin1 : ''}, ${place.country}`;
+                    document.getElementById('displayLocation').textContent = prettyLoc;
+                    document.getElementById('mapLocation').textContent = prettyLoc;
+                    document.getElementById('mapCoords').textContent = `${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°`;
                     
                     setTimeout(() => {
                         if (!map) {
@@ -637,18 +671,19 @@
                         }
                         
                         marker = L.marker([locationCoords.lat, locationCoords.lon]).addTo(map);
-                        marker.bindPopup(`<b>${userLocation}</b>`).openPopup();
+                        marker.bindPopup(`<b>${prettyLoc}</b>`).openPopup();
                         
                         map.invalidateSize();
                     }, 100);
                     
                     return true;
                 } else {
-                    alert('Location not found. Please try again.');
+                    alert('Location not found. Please enter a UK city, town, or postcode.');
                     return false;
                 }
             } catch (error) {
                 console.error('Geocoding error:', error);
+                alert('Unable to look up that location right now.');
                 return false;
             }
         }
@@ -688,18 +723,8 @@
         
         async function fetchRiverData() {
             try {
-                // Fetch stations within approximately 50km of the location
                 const lat = locationCoords.lat;
                 const lon = locationCoords.lon;
-                
-                // Calculate bounding box (roughly 50km radius)
-                const latOffset = 0.45; // approximately 50km
-                const lonOffset = 0.7;  // approximately 50km (adjusted for latitude)
-                
-                const minLat = lat - latOffset;
-                const maxLat = lat + latOffset;
-                const minLon = lon - lonOffset;
-                const maxLon = lon + lonOffset;
                 
                 const response = await fetch(
                     `https://environment.data.gov.uk/flood-monitoring/id/stations?lat=${lat}&long=${lon}&dist=50&_limit=50`
@@ -707,7 +732,6 @@
                 const data = await response.json();
                 
                 if (data.items && data.items.length > 0) {
-                    // Sort by distance (if available) and take closest 5
                     const nearestStations = data.items.slice(0, 5);
                     
                     const riverHTML = nearestStations.map(station => {
@@ -728,7 +752,7 @@
                     document.getElementById('riverData').innerHTML = `
                         <div style="opacity: 0.7; text-align: center; padding: 20px;">
                             <div style="font-size: 24px; margin-bottom: 8px;">🌊</div>
-                            <div>No monitoring stations found within 50km of ${userLocation}</div>
+                            <div>No monitoring stations found within 50km of your UK location</div>
                             <div style="font-size: 12px; margin-top: 8px; opacity: 0.6;">Try a location near a major UK river</div>
                         </div>
                     `;
@@ -810,7 +834,6 @@
             });
             
             document.getElementById('displayName').textContent = userName;
-            document.getElementById('displayLocation').textContent = userLocation;
             
             document.getElementById('tempMain').textContent = weatherData.temp + '°';
             document.getElementById('tempFeels').textContent = weatherData.feelsLike + '°C';
@@ -832,66 +855,14 @@
             document.getElementById('pm10').textContent = weatherData.pm10;
             document.getElementById('o3').textContent = weatherData.o3;
             document.getElementById('no2').textContent = weatherData.no2;
-            
-            document.getElementById('mapLocation').textContent = userLocation;
-            document.getElementById('mapCoords').textContent = `${locationCoords.lat.toFixed(4)}°, ${locationCoords.lon.toFixed(4)}°`;
-            
-            const alertsContainer = document.getElementById('alertsContainer');
-            alertsContainer.innerHTML = '';
-            
-            if (weatherData.uvIndex > 6) {
-                alertsContainer.innerHTML += `
-                    <div class="alert-box alert-warning">
-                        <span>⚡</span>
-                        <div>
-                            <div style="font-weight: 600;">High UV Index</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Sun protection recommended</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (weatherData.aqi > 60) {
-                alertsContainer.innerHTML += `
-                    <div class="alert-box alert-warning">
-                        <span>💨</span>
-                        <div>
-                            <div style="font-weight: 600;">Poor Air Quality</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Limit outdoor activity</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (weatherData.windSpeed > 40) {
-                alertsContainer.innerHTML += `
-                    <div class="alert-box alert-danger">
-                        <span>🌪️</span>
-                        <div>
-                            <div style="font-weight: 600;">High Wind Warning</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Take precautions</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (weatherData.uvIndex <= 6 && weatherData.aqi <= 60 && weatherData.windSpeed <= 40) {
-                alertsContainer.innerHTML += `
-                    <div class="alert-box alert-success">
-                        <span>✓</span>
-                        <div>
-                            <div style="font-weight: 600;">All Clear</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Conditions are favorable</div>
-                        </div>
-                    </div>
-                `;
-            }
         }
         
         function showDashboard() {
             loginScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
-            setInterval(() => {
+            
+            if (clockInterval) clearInterval(clockInterval);
+            clockInterval = setInterval(() => {
                 const now = new Date();
                 document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-GB', { 
@@ -899,49 +870,69 @@
                 });
             }, 1000);
         }
+
+        function resetApp() {
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userLocation');
+
+            userName = '';
+            userLocation = '';
+            weatherData = null;
+            locationCoords = { lat: 0, lon: 0 };
+
+            if (map) {
+                map.remove();
+                map = null;
+                marker = null;
+            }
+
+            if (clockInterval) {
+                clearInterval(clockInterval);
+                clockInterval = null;
+            }
+
+            document.getElementById('displayName').textContent = '';
+            document.getElementById('displayLocation').textContent = '';
+            nameInput.value = '';
+            locationInput.value = '';
+            newLocationInput.value = '';
+
+            dashboard.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+        }
         
         // Event Listeners
-        console.log('Setting up event listeners...');
-        
-        if (loginBtn) {
-            console.log('Login button found');
-            loginBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                console.log('Button clicked!');
+        loginBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const name = nameInput.value.trim();
+            const loc = locationInput.value.trim();
+            
+            if (name && loc) {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Loading...';
                 
-                const name = nameInput.value.trim();
-                const loc = locationInput.value.trim();
+                userName = name;
+                userLocation = loc;
+                saveToStorage();
                 
-                console.log('Name:', name, 'Location:', loc);
-                
-                if (name && loc) {
-                    loginBtn.disabled = true;
-                    loginBtn.textContent = 'Loading...';
-                    
-                    userName = name;
-                    userLocation = loc;
-                    saveToStorage();
-                    
-                    try {
-                        const success = await geocodeLocation(userLocation);
-                        if (success) {
-                            showDashboard();
-                            await fetchAllData();
-                        }
-                    } catch (error) {
-                        console.error('Login error:', error);
-                        alert('Error: ' + error.message);
-                    } finally {
-                        loginBtn.disabled = false;
-                        loginBtn.textContent = 'Get Started →';
+                try {
+                    const success = await geocodeLocation(userLocation);
+                    if (success) {
+                        showDashboard();
+                        await fetchAllData();
                     }
-                } else {
-                    alert('Please enter both name and location');
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Get Started →';
                 }
-            });
-        } else {
-            console.error('Login button not found!');
-        }
+            } else {
+                alert('Please enter both name and a UK location');
+            }
+        });
         
         nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') loginBtn.click();
@@ -960,13 +951,22 @@
                 userLocation = newLocationInput.value.trim();
                 saveToStorage();
                 settingsPanel.classList.add('hidden');
+                const ok = await geocodeLocation(userLocation);
                 newLocationInput.value = '';
-                await fetchAllData();
+                if (ok) {
+                    await fetchAllData();
+                }
             }
         });
         
         newLocationInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') updateLocationBtn.click();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            const confirmReset = confirm('This will clear your saved name and location and restart the dashboard. Continue?');
+            if (!confirmReset) return;
+            resetApp();
         });
         
         // Initialize
