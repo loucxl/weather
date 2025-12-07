@@ -866,29 +866,31 @@
             .card { padding: 16px; }
             .card-wide { grid-column: 1; }
             
-            /* FORECAST FIX - EXACT COPY OF WORKING VERSION */
-            #forecastContainer {
-                display: block !important;
-                width: 100% !important;
-            }
+            /* FORECAST FIX - NUCLEAR OPTION - COMPLETE OVERRIDE */
+            .card-wide .forecast-scroll,
+            #forecastContainer,
             .forecast-scroll {
+                all: unset !important;
+                display: block !important;
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch !important;
                 margin: 0 -16px !important;
                 padding: 0 16px 12px 16px !important;
-                display: block !important;
                 white-space: nowrap !important;
-                width: auto !important;
             }
             .forecast-day {
+                all: unset !important;
                 display: inline-block !important;
-                flex: none !important;
                 min-width: 100px !important;
                 width: 100px !important;
                 padding: 16px 12px !important;
                 margin-right: 12px !important;
                 vertical-align: top !important;
                 white-space: normal !important;
+                background: rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important;
+                text-align: center !important;
+                position: relative !important;
             }
             .forecast-day:last-child {
                 margin-right: 0 !important;
@@ -2282,6 +2284,19 @@
             // Force reflow to ensure mobile CSS applies
             if (window.innerWidth <= 768) {
                 const container = document.getElementById('forecastContainer');
+                const scroll = container;
+                console.log('=== MOBILE FORECAST DEBUG ===');
+                console.log('Window width:', window.innerWidth);
+                console.log('Container display:', window.getComputedStyle(container).display);
+                console.log('Container overflow-x:', window.getComputedStyle(container).overflowX);
+                console.log('Container white-space:', window.getComputedStyle(container).whiteSpace);
+                console.log('Forecast days count:', container.children.length);
+                if (container.children.length > 0) {
+                    const firstDay = container.children[0];
+                    console.log('First day display:', window.getComputedStyle(firstDay).display);
+                    console.log('First day width:', window.getComputedStyle(firstDay).width);
+                }
+                console.log('=============================');
                 void container.offsetHeight; // Force reflow
             }
         }
