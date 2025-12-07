@@ -524,7 +524,7 @@
         .forecast-day {
             display: inline-block;
             width: 110px;
-            padding: 14px 10px;
+            padding: 32px 12px 14px 12px;
             margin-right: 12px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
@@ -534,6 +534,30 @@
             white-space: normal;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+        }
+        
+        .forecast-day-content {
+            cursor: pointer;
+        }
+        
+        .forecast-share-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(255,255,255,0.25);
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+            padding: 0;
         }
 
         .forecast-day:last-child {
@@ -845,18 +869,36 @@
             /* FORECAST FIX */
             .forecast-scroll {
                 display: flex !important;
-                overflow-x: auto !important;
+                flex-direction: row !important;
+                overflow-x: scroll !important;
+                overflow-y: visible !important;
                 -webkit-overflow-scrolling: touch !important;
                 gap: 10px !important;
                 padding-bottom: 12px !important;
+                white-space: normal !important;
             }
             .forecast-day {
                 flex: 0 0 100px !important;
                 min-width: 100px !important;
+                max-width: 100px !important;
+                width: 100px !important;
                 padding: 32px 10px 12px 10px !important;
+                margin-right: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .forecast-share-btn {
+                top: 4px !important;
+                right: 4px !important;
+                width: 24px !important;
+                height: 24px !important;
+                font-size: 12px !important;
             }
             .forecast-icon { font-size: 26px !important; }
             .forecast-temp { font-size: 16px !important; }
+            .forecast-date { font-size: 10px !important; }
+            .forecast-condition { font-size: 9px !important; }
+            .forecast-temp-range { font-size: 10px !important; }
             
             /* Weather Summary */
             #summaryIcon { font-size: 40px !important; }
@@ -2123,11 +2165,9 @@
                 const currentDayClass = isToday ? 'current-day' : '';
 
                 return `
-                    <div class="forecast-day ${currentDayClass}" style="position: relative; padding-top: 32px;">
-                        <button class="forecast-share-btn" data-day-index="${index}"
-                                style="position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.25); border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 10; padding: 0;"
-                                title="Share this day">📤</button>
-                        <div class="forecast-day-content" data-day-index="${index}" style="cursor: pointer;">
+                    <div class="forecast-day ${currentDayClass}">
+                        <button class="forecast-share-btn" data-day-index="${index}">📤</button>
+                        <div class="forecast-day-content" data-day-index="${index}">
                             <div class="forecast-date">${dayName}<br>${dateStr}</div>
                             <div class="forecast-icon">${icon}</div>
                             <div class="forecast-temp">${day.maxTemp}°</div>
@@ -2153,7 +2193,7 @@
                 });
                 
                 btn.addEventListener('mouseout', () => {
-                    btn.style.background = 'rgba(255,255,255,0.2)';
+                    btn.style.background = 'rgba(255,255,255,0.25)';
                     btn.style.transform = 'scale(1)';
                 });
             });
