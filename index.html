@@ -2266,6 +2266,58 @@
             document.getElementById('moonIcon').textContent = sunMoonData.moonIcon || '🌙';
             document.getElementById('moonPhase').textContent = sunMoonData.moonPhase || 'Unknown';
             document.getElementById('moonIllumination').textContent = `${sunMoonData.moonIllumination}% illuminated`;
+            
+            // Update daylight progress card
+            updateDaylightProgress();
+        }
+
+        function updateDaylightProgress() {
+            if (!sunMoonData || !sunMoonData.sunrise || !sunMoonData.sunset) return;
+            
+            const now = new Date();
+            const sunriseTime = parseSunTime(sunMoonData.sunrise);
+            const sunsetTime = parseSunTime(sunMoonData.sunset);
+            
+            document.getElementById('progressSunrise').textContent = sunMoonData.sunrise;
+            document.getElementById('progressSunset').textContent = sunMoonData.sunset;
+            
+            // Calculate progress
+            const totalDaylight = sunsetTime - sunriseTime;
+            const elapsed = now - sunriseTime;
+            const remaining = sunsetTime - now;
+            
+            let progressPercent = 0;
+            let remainingText = '';
+            
+            if (now < sunriseTime) {
+                // Before sunrise
+                progressPercent = 0;
+                const untilSunrise = sunriseTime - now;
+                const hours = Math.floor(untilSunrise / (1000 * 60 * 60));
+                const mins = Math.floor((untilSunrise % (1000 * 60 * 60)) / (1000 * 60));
+                remainingText = `Sunrise in ${hours}h ${mins}m`;
+            } else if (now > sunsetTime) {
+                // After sunset
+                progressPercent = 100;
+                remainingText = 'Sun has set';
+            } else {
+                // During daylight
+                progressPercent = (elapsed / totalDaylight) * 100;
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                remainingText = `${hours}h ${mins}m remaining`;
+            }
+            
+            document.getElementById('daylightBar').style.width = progressPercent + '%';
+            document.getElementById('daylightRemaining').textContent = remainingText;
+        }
+        
+        function parseSunTime(timeStr) {
+            // Parse time string like "07:49" or "15:54"
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hours, minutes, 0, 0);
+            return date;
         }
 
         function renderRiverData() {
