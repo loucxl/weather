@@ -999,6 +999,141 @@
 
             /* Modal mobile styles */
             .modal-content {
+                width: 95%;
+                max-height: 85vh;
+                margin: 30px auto;
+                padding: 20px;
+            }
+            
+            .modal-title {
+                font-size: 18px;
+            }
+            
+            .hourly-item {
+                padding: 12px 10px;
+                gap: 8px;
+            }
+            
+            .hourly-time {
+                font-size: 13px;
+                min-width: 50px;
+            }
+            
+            .hourly-temp {
+                font-size: 16px;
+            }
+            
+            .hourly-icon {
+                font-size: 24px;
+            }
+            
+            .hourly-condition {
+                font-size: 11px;
+            }
+            
+            /* Weather Summary Mobile */
+            .glass:has(#summaryIcon) {
+                padding: 16px 18px !important;
+                margin-bottom: 16px !important;
+            }
+            
+            #summaryIcon {
+                font-size: 40px !important;
+            }
+            
+            #summaryTitle {
+                font-size: 17px !important;
+                margin-bottom: 6px !important;
+            }
+            
+            #summaryText {
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+            
+            #shareBtn {
+                width: 100%;
+                margin-top: 12px;
+                padding: 14px 20px !important;
+                font-size: 15px !important;
+            }
+            
+            /* Header buttons mobile */
+            #notificationBtn, #settingsBtn {
+                min-width: 44px !important;
+                min-height: 44px !important;
+                font-size: 20px !important;
+            }
+            
+            .header > div:first-child {
+                width: 100%;
+            }
+            
+            #timeDisplay {
+                font-size: 22px !important;
+            }
+            
+            #dateDisplay {
+                font-size: 12px !important;
+            }
+            
+            /* Forecast share buttons mobile */
+            .forecast-share-btn {
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 15px !important;
+                top: 6px !important;
+                right: 6px !important;
+            }
+            
+            /* Cards mobile padding */
+            .card {
+                padding: 16px !important;
+            }
+            
+            .card-title {
+                font-size: 12px !important;
+            }
+            
+            /* Metric rows mobile */
+            .metric-row {
+                padding: 10px 0;
+            }
+            
+            .metric-label {
+                font-size: 12px;
+            }
+            
+            .metric-value {
+                font-size: 16px;
+            }
+            
+            /* Wind compass mobile */
+            #windCompass {
+                font-size: 20px !important;
+            }
+            
+            /* Login mobile */
+            .login-container {
+                padding: 16px;
+            }
+            
+            .login-box {
+                padding: 28px 20px !important;
+            }
+            
+            .login-box h1 {
+                font-size: 28px !important;
+            }
+            
+            /* Forecast scroll edge-to-edge */
+            .forecast-scroll {
+                margin-left: -16px;
+                margin-right: -16px;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .modal-content {
                 margin: 10% auto;
                 width: 95%;
                 max-height: 85vh;
@@ -1072,6 +1207,39 @@
             }
         }
 
+        /* Tablet (iPad) Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px 24px;
+            }
+            
+            .dashboard {
+                padding: 20px;
+            }
+            
+            .large-number {
+                font-size: 56px;
+            }
+            
+            .forecast-day {
+                width: 105px;
+            }
+            
+            .modal-content {
+                width: 80%;
+                max-width: 600px;
+            }
+        }
+
         /* iPhone SE and small phones */
         @media (max-width: 375px) {
             h1 {
@@ -1116,6 +1284,46 @@
 
             .forecast-temp-range {
                 margin: 2px 0;
+            }
+        }
+
+        /* Touch device improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                min-height: 48px;
+                padding: 14px 24px;
+            }
+            
+            .forecast-day {
+                min-height: 160px;
+            }
+            
+            .forecast-share-btn:active {
+                background: rgba(255, 255, 255, 0.5) !important;
+                transform: scale(0.95);
+            }
+            
+            .card:active {
+                transform: scale(0.98);
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+            
+            /* Larger tap targets */
+            button, a, .clickable {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Remove hover effects on touch */
+            .card:hover {
+                transform: none;
+            }
+            
+            .forecast-day:hover {
+                transform: none;
             }
         }
 
@@ -2233,15 +2441,47 @@
                 const currentDayClass = isToday ? 'current-day' : '';
 
                 return `
-                    <div class="forecast-day ${currentDayClass}" onclick="showHourlyForecast(${index})">
-                        <div class="forecast-date">${dayName}<br>${dateStr}</div>
-                        <div class="forecast-icon">${icon}</div>
-                        <div class="forecast-temp">${day.maxTemp}°</div>
-                        <div class="forecast-temp-range">${day.minTemp}°</div>
-                        <div class="forecast-condition">${condition}</div>
+                    <div class="forecast-day ${currentDayClass}" style="position: relative;">
+                        <button class="forecast-share-btn" data-day-index="${index}"
+                                style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 10;"
+                                title="Share this day">📤</button>
+                        <div class="forecast-day-content" data-day-index="${index}" style="cursor: pointer;">
+                            <div class="forecast-date">${dayName}<br>${dateStr}</div>
+                            <div class="forecast-icon">${icon}</div>
+                            <div class="forecast-temp">${day.maxTemp}°</div>
+                            <div class="forecast-temp-range">${day.minTemp}°</div>
+                            <div class="forecast-condition">${condition}</div>
+                        </div>
                     </div>
                 `;
             }).join('');
+            
+            // Add event listeners after rendering
+            document.querySelectorAll('.forecast-share-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const dayIndex = parseInt(btn.getAttribute('data-day-index'));
+                    shareForecastDay(dayIndex);
+                });
+                
+                btn.addEventListener('mouseover', () => {
+                    btn.style.background = 'rgba(255,255,255,0.4)';
+                    btn.style.transform = 'scale(1.1)';
+                });
+                
+                btn.addEventListener('mouseout', () => {
+                    btn.style.background = 'rgba(255,255,255,0.2)';
+                    btn.style.transform = 'scale(1)';
+                });
+            });
+            
+            document.querySelectorAll('.forecast-day-content').forEach(content => {
+                content.addEventListener('click', (e) => {
+                    const dayIndex = parseInt(content.getAttribute('data-day-index'));
+                    showHourlyForecast(dayIndex);
+                });
+            });
         }
 
         // Show hourly forecast modal
@@ -2675,42 +2915,185 @@
                 return;
             }
             
-            const canvas = generateShareImage();
-            
-            // Convert canvas to blob
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], 'weather.png', { type: 'image/png' });
+            try {
+                const canvas = generateShareImage();
                 
-                // Check if Web Share API is available (mobile)
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            title: `Weather in ${userLocation}`,
-                            text: `${weatherData.temp}°C and ${getWeatherDescription(weatherData.weatherCode)}`,
-                            files: [file]
-                        });
-                    } catch (error) {
-                        if (error.name !== 'AbortError') {
-                            console.error('Share failed:', error);
-                            downloadImage(canvas);
-                        }
+                // Convert canvas to blob
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert('Failed to generate image');
+                        return;
                     }
-                } else {
-                    // Fallback: download image
-                    downloadImage(canvas);
-                }
-            }, 'image/png');
+                    
+                    const file = new File([blob], 'weather.png', { type: 'image/png' });
+                    
+                    // Check if Web Share API is available (mobile)
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            // Try sharing with files first
+                            if (navigator.canShare({ files: [file] })) {
+                                await navigator.share({
+                                    title: `Weather in ${userLocation}`,
+                                    text: `${weatherData.temp}°C and ${getWeatherDescription(weatherData.weatherCode)}`,
+                                    files: [file]
+                                });
+                            } else {
+                                // Fallback to sharing without file
+                                await navigator.share({
+                                    title: `Weather in ${userLocation}`,
+                                    text: `${weatherData.temp}°C and ${getWeatherDescription(weatherData.weatherCode)}. Check out the full forecast!`
+                                });
+                                // Also download the image
+                                downloadImageBlob(blob, 'weather.png');
+                            }
+                        } catch (error) {
+                            if (error.name !== 'AbortError') {
+                                console.error('Share failed:', error);
+                                downloadImageBlob(blob, 'weather.png');
+                            }
+                        }
+                    } else {
+                        // Fallback: download image
+                        downloadImageBlob(blob, 'weather.png');
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('Error generating share image:', error);
+                alert('Failed to generate share image. Please try again.');
+            }
         }
         
-        function downloadImage(canvas) {
-            // Create download link
-            const link = document.createElement('a');
-            link.download = `weather-${userLocation.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        function downloadImageBlob(blob, filename) {
+            try {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Show notification
+                alert('Weather image downloaded! Check your downloads folder.');
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Download failed. Please try again or check your browser permissions.');
+            }
+        }
+        
+        function shareForecastDay(dayIndex) {
+            if (!forecastData || !forecastData[dayIndex]) {
+                alert('Forecast data not available');
+                return;
+            }
             
-            // Show notification
-            alert('Weather image downloaded! You can now share it in your messages.');
+            try {
+                const day = forecastData[dayIndex];
+                const canvas = document.getElementById('shareCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Get gradient based on weather code
+                const weatherCode = day.weatherCode;
+                let gradient;
+                
+                if (weatherCode === 0 || weatherCode === 1) {
+                    gradient = ctx.createLinearGradient(0, 0, 800, 400);
+                    gradient.addColorStop(0, '#56CCF2');
+                    gradient.addColorStop(1, '#2F80ED');
+                } else if (weatherCode >= 51 && weatherCode <= 67) {
+                    gradient = ctx.createLinearGradient(0, 0, 800, 400);
+                    gradient.addColorStop(0, '#4B79A1');
+                    gradient.addColorStop(1, '#283E51');
+                } else if (weatherCode >= 71 && weatherCode <= 77) {
+                    gradient = ctx.createLinearGradient(0, 0, 800, 400);
+                    gradient.addColorStop(0, '#E0EAFC');
+                    gradient.addColorStop(1, '#CFDEF3');
+                } else {
+                    gradient = ctx.createLinearGradient(0, 0, 800, 400);
+                    gradient.addColorStop(0, '#667eea');
+                    gradient.addColorStop(1, '#764ba2');
+                }
+                
+                // Fill background
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 800, 400);
+                
+                // Add semi-transparent overlay
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fillRect(40, 40, 720, 320);
+                
+                // Set text color
+                const textColor = (weatherCode >= 71 && weatherCode <= 77) ? '#2C3E50' : '#FFFFFF';
+                ctx.fillStyle = textColor;
+                
+                // Draw location
+                ctx.font = 'bold 24px Inter, sans-serif';
+                ctx.fillText(userLocation, 80, 100);
+                
+                // Draw date
+                const date = new Date(day.date);
+                const dayName = date.toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' });
+                ctx.font = '28px Inter, sans-serif';
+                ctx.fillText(dayName, 80, 145);
+                
+                // Draw weather icon
+                ctx.font = '80px Arial';
+                ctx.fillText(getWeatherIcon(day.weatherCode), 80, 250);
+                
+                // Draw temperature range
+                ctx.font = 'bold 56px Inter, sans-serif';
+                ctx.fillText(`${day.maxTemp}° / ${day.minTemp}°`, 200, 230);
+                
+                // Draw condition
+                ctx.font = '32px Inter, sans-serif';
+                ctx.fillText(getWeatherDescription(day.weatherCode), 200, 270);
+                
+                // Draw branding
+                ctx.font = '16px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fillText('Weather Command Center • Forecast', 80, 340);
+                
+                // Share or download
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert('Failed to generate forecast image');
+                        return;
+                    }
+                    
+                    const filename = `forecast-${date.toISOString().split('T')[0]}.png`;
+                    const file = new File([blob], filename, { type: 'image/png' });
+                    
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            if (navigator.canShare({ files: [file] })) {
+                                await navigator.share({
+                                    title: `Forecast for ${dayName}`,
+                                    text: `${day.maxTemp}° / ${day.minTemp}° - ${getWeatherDescription(day.weatherCode)}`,
+                                    files: [file]
+                                });
+                            } else {
+                                // Share without file, then download
+                                await navigator.share({
+                                    title: `Forecast for ${dayName}`,
+                                    text: `${day.maxTemp}° / ${day.minTemp}° - ${getWeatherDescription(day.weatherCode)}`
+                                });
+                                downloadImageBlob(blob, filename);
+                            }
+                        } catch (error) {
+                            if (error.name !== 'AbortError') {
+                                console.error('Share failed:', error);
+                                downloadImageBlob(blob, filename);
+                            }
+                        }
+                    } else {
+                        downloadImageBlob(blob, filename);
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('Error sharing forecast:', error);
+                alert('Failed to share forecast. Please try again.');
+            }
         }
         
         function updateWeatherBackground(weatherCode) {
