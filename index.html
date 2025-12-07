@@ -1053,8 +1053,8 @@
         // Calculate Moon Phase
         function calculateMoonPhase(date) {
             // Simplified moon phase calculation
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
             const day = date.getDate();
 
             let c = 0;
