@@ -737,8 +737,15 @@
                     addressdetails: '1',
                     limit: '5'
                 });
-                const resp = await fetch(url);
-                if (!resp.ok) return [];
+                const resp = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'WeatherDashboard/1.0'
+                    }
+                });
+                if (!resp.ok) {
+                    console.error('Nominatim HTTP error:', resp.status);
+                    return [];
+                }
                 const data = await resp.json();
                 return data;
             } catch (err) {
@@ -815,7 +822,16 @@
                     limit: '1'
                 });
                 
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'WeatherDashboard/1.0'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
@@ -830,7 +846,7 @@
                 }
             } catch (error) {
                 console.error('Geocoding error:', error);
-                alert('Error finding location. Please try again.');
+                alert('Error finding location: ' + error.message + '\n\nPlease try selecting a location from the suggestions dropdown instead.');
                 return false;
             }
         }
@@ -941,9 +957,17 @@
         // Fetch Sun & Moon Data
         async function fetchSunMoonData() {
             try {
+                // Add small delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 // Using sunrise-sunset.org API for sun times
                 const sunUrl = `https://api.sunrise-sunset.org/json?lat=${locationCoords.lat}&lng=${locationCoords.lon}&formatted=0`;
                 const sunResp = await fetch(sunUrl);
+                
+                if (!sunResp.ok) {
+                    throw new Error('Sun API error: ' + sunResp.status);
+                }
+                
                 const sunData = await sunResp.json();
 
                 if (sunData.status === 'OK') {
@@ -954,6 +978,8 @@
                         sunrise: sunrise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
                         sunset: sunset.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                     };
+                } else {
+                    throw new Error('Invalid sun data response');
                 }
 
                 // Calculate moon phase (simplified)
@@ -967,6 +993,13 @@
                 renderSunMoon();
             } catch (error) {
                 console.error('Sun/Moon fetch error:', error);
+                // Set fallback data
+                sunMoonData = {
+                    sunrise: '--:--',
+                    sunset: '--:--',
+                    ...calculateMoonPhase(new Date())
+                };
+                renderSunMoon();
             }
         }
 
@@ -1032,11 +1065,21 @@
         // Fetch River Data
         async function fetchRiverData() {
             try {
+                // Add small delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
                 // UK Environment Agency API for river levels
-                // This is a mock implementation - you'll need to register for actual API access
                 const url = `https://environment.data.gov.uk/flood-monitoring/id/stations?lat=${locationCoords.lat}&long=${locationCoords.lon}&dist=30`;
                 
                 const response = await fetch(url);
+                
+                if (!response.ok) {
+                    console.error('River API HTTP error:', response.status);
+                    riverData = [];
+                    renderRiverData();
+                    return;
+                }
+                
                 const data = await response.json();
 
                 if (data.items && data.items.length > 0) {
