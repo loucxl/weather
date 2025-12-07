@@ -955,7 +955,19 @@
             }
 
             #map {
-                min-height: 250px;
+                min-height: 200px !important;
+                max-height: 200px !important;
+                height: 200px !important;
+            }
+            
+            /* Better card spacing */
+            .card {
+                margin-bottom: 0 !important;
+            }
+            
+            .grid-container {
+                gap: 14px !important;
+                padding-bottom: 60px !important;
             }
 
             .info-grid {
@@ -969,6 +981,21 @@
 
             .moon-icon {
                 font-size: 56px;
+            }
+            
+            .moon-phase {
+                margin-top: 16px !important;
+                padding-top: 16px !important;
+            }
+            
+            .moon-name {
+                font-size: 14px !important;
+                margin-top: 8px !important;
+            }
+            
+            .moon-illumination {
+                font-size: 12px !important;
+                margin-top: 4px !important;
             }
 
             .river-list {
@@ -1079,11 +1106,12 @@
             
             /* Forecast share buttons mobile */
             .forecast-share-btn {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 15px !important;
-                top: 6px !important;
-                right: 6px !important;
+                background: rgba(255,255,255,0.3) !important;
+            }
+            
+            .forecast-share-btn:active {
+                background: rgba(255,255,255,0.5) !important;
+                transform: scale(0.9) !important;
             }
             
             /* Cards mobile padding */
@@ -2441,9 +2469,9 @@
                 const currentDayClass = isToday ? 'current-day' : '';
 
                 return `
-                    <div class="forecast-day ${currentDayClass}" style="position: relative;">
+                    <div class="forecast-day ${currentDayClass}" style="position: relative; padding-top: 32px;">
                         <button class="forecast-share-btn" data-day-index="${index}"
-                                style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 10;"
+                                style="position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.25); border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 10; padding: 0;"
                                 title="Share this day">📤</button>
                         <div class="forecast-day-content" data-day-index="${index}" style="cursor: pointer;">
                             <div class="forecast-date">${dayName}<br>${dateStr}</div>
