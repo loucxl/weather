@@ -867,6 +867,10 @@
             .card-wide { grid-column: 1; }
             
             /* FORECAST FIX - EXACT COPY OF WORKING VERSION */
+            #forecastContainer {
+                display: block !important;
+                width: 100% !important;
+            }
             .forecast-scroll {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch !important;
@@ -874,6 +878,7 @@
                 padding: 0 16px 12px 16px !important;
                 display: block !important;
                 white-space: nowrap !important;
+                width: auto !important;
             }
             .forecast-day {
                 display: inline-block !important;
@@ -2273,6 +2278,12 @@
                     showHourlyForecast(dayIndex);
                 });
             });
+            
+            // Force reflow to ensure mobile CSS applies
+            if (window.innerWidth <= 768) {
+                const container = document.getElementById('forecastContainer');
+                void container.offsetHeight; // Force reflow
+            }
         }
 
         // Show hourly forecast modal
