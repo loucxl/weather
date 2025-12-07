@@ -1363,11 +1363,12 @@
                     <div id="timeDisplay" style="font-size: 28px; font-weight: 700;">--:--</div>
                     <div id="dateDisplay" style="font-size: 13px; opacity: 0.7;">Loading...</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <button id="notificationBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Enable notifications">🔔</button>
-                    <span style="font-size: 14px; font-weight: 500; opacity: 0.9;">More Options</span>
-                    <button id="settingsBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;">⚙️</button>
-                </div>
+               <div style="display: flex; align-items: center; gap: 12px;">
+    <button id="refreshBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Refresh App">🔄</button>
+    <button id="notificationBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Enable notifications">🔔</button>
+    <span style="font-size: 14px; font-weight: 500; opacity: 0.9;">More Options</span>
+    <button id="settingsBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;">⚙️</button>
+</div>
             </div>
         </div>
 
@@ -3385,6 +3386,13 @@
 
         // Initialize
         loadFromStorage();
+        // ✅ Force Refresh Button (for iPhone Home Screen mode)
+const refreshBtn = document.getElementById('refreshBtn');
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        location.reload(true);
+    });
+}
     </script>
 </body>
 </html>
