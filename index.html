@@ -683,6 +683,14 @@
             margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            z-index: 10;
+            margin: -24px -24px 20px -24px;
+            padding: 20px 24px 16px 24px;
+            border-radius: 16px 16px 0 0;
         }
 
         .modal-title {
@@ -1622,6 +1630,9 @@
             </div>
             <div class="hourly-list" id="hourlyContainer">
                 <!-- Hourly forecast items will be inserted here -->
+            </div>
+            <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <button class="btn btn-primary" onclick="closeHourlyModal()" style="min-width: 200px;">Close</button>
             </div>
         </div>
     </div>
