@@ -1118,8 +1118,12 @@
 
             .modal-content {
                 width: 95%;
-                margin: 20px auto;
+                margin: auto;
                 max-height: 90vh;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
             .hourly-item {
@@ -2526,18 +2530,6 @@
             
             document.getElementById('hourlyModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
-            // Scroll modal into view on mobile
-            setTimeout(() => {
-                const modal = document.getElementById('hourlyModal');
-                const modalContent = modal.querySelector('.modal-content');
-                if (window.innerWidth <= 768) {
-                    // On mobile, scroll to top of page so modal is visible
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    // Or alternatively, center the modal in viewport
-                    // modalContent.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 50);
         }
 
         // Close modal
