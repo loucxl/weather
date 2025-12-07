@@ -432,6 +432,23 @@
             flex-direction: column;
             gap: 12px;
             margin-top: 16px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .river-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .river-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .river-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
         }
 
         .river-item {
@@ -871,13 +888,20 @@
         async function fetchAllData() {
             try {
                 initMap();
-                await Promise.all([
-                    fetchWeatherData(),
-                    fetchForecastData(),
-                    fetchSunMoonData(),
-                    fetchRiverData()
-                ]);
+                
+                // Fetch sequentially with delays to avoid overwhelming APIs
+                await fetchWeatherData();
                 updateDisplay();
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchForecastData();
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchSunMoonData();
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchRiverData();
+                
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -900,13 +924,24 @@
                     current: 'european_aqi,pm10,pm2_5,ozone,nitrogen_dioxide'
                 });
 
+                console.log('Fetching weather data...');
                 const [weatherResp, aqiResp] = await Promise.all([
                     fetch(weatherUrl),
                     fetch(aqiUrl)
                 ]);
 
+                if (!weatherResp.ok) {
+                    throw new Error(`Weather API error: ${weatherResp.status}`);
+                }
+                if (!aqiResp.ok) {
+                    throw new Error(`AQI API error: ${aqiResp.status}`);
+                }
+
                 const weather = await weatherResp.json();
                 const aqi = await aqiResp.json();
+
+                console.log('Weather data received:', weather);
+                console.log('AQI data received:', aqi);
 
                 weatherData = {
                     temp: Math.round(weather.current.temperature_2m),
@@ -916,15 +951,18 @@
                     weatherCode: weather.current.weather_code,
                     humidity: weather.current.relative_humidity_2m,
                     windSpeed: Math.round(weather.current.wind_speed_10m),
-                    uvIndex: weather.current.uv_index || 0,
-                    aqi: aqi.current.european_aqi || 0,
-                    pm25: aqi.current.pm2_5 ? aqi.current.pm2_5.toFixed(1) : '0',
-                    pm10: aqi.current.pm10 ? aqi.current.pm10.toFixed(1) : '0',
-                    o3: aqi.current.ozone ? aqi.current.ozone.toFixed(1) : '0',
-                    no2: aqi.current.nitrogen_dioxide ? aqi.current.nitrogen_dioxide.toFixed(1) : '0'
+                    uvIndex: Math.round(weather.current.uv_index || 0),
+                    aqi: Math.round(aqi.current.european_aqi || 0),
+                    pm25: aqi.current.pm2_5 ? aqi.current.pm2_5.toFixed(1) : '0.0',
+                    pm10: aqi.current.pm10 ? aqi.current.pm10.toFixed(1) : '0.0',
+                    o3: aqi.current.ozone ? aqi.current.ozone.toFixed(1) : '0.0',
+                    no2: aqi.current.nitrogen_dioxide ? aqi.current.nitrogen_dioxide.toFixed(1) : '0.0'
                 };
+
+                console.log('Processed weather data:', weatherData);
             } catch (error) {
                 console.error('Weather fetch error:', error);
+                alert('Error loading weather data: ' + error.message);
             }
         }
 
@@ -938,8 +976,15 @@
                     timezone: 'Europe/London'
                 });
 
+                console.log('Fetching forecast data...');
                 const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Forecast API error: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('Forecast data received:', data);
 
                 forecastData = data.daily.time.slice(0, 7).map((date, i) => ({
                     date: date,
@@ -948,9 +993,11 @@
                     minTemp: Math.round(data.daily.temperature_2m_min[i])
                 }));
 
+                console.log('Processed forecast data:', forecastData);
                 renderForecast();
             } catch (error) {
                 console.error('Forecast fetch error:', error);
+                document.getElementById('forecastContainer').innerHTML = '<div style="opacity: 0.6; padding: 20px;">Error loading forecast</div>';
             }
         }
 
