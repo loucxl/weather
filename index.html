@@ -908,12 +908,25 @@
 
             .card-wide {
                 grid-column: span 1;
+                overflow-x: visible !important;
+                overflow-y: visible !important;
+            }
+            
+            /* Specifically for forecast card */
+            #forecastContainer {
+                overflow-x: scroll !important;
+                overflow-y: visible !important;
             }
 
             .card {
                 min-height: auto;
-                padding: 20px;
+                padding: 18px;
                 height: auto;
+                overflow: visible !important;
+            }
+            
+            .card-wide {
+                overflow: visible !important;
             }
 
             .large-number {
@@ -1188,26 +1201,47 @@
             
             /* Forecast scroll edge-to-edge */
             .forecast-scroll {
-                margin-left: -12px;
-                margin-right: -12px;
-                padding-left: 12px;
-                padding-right: 12px;
-                padding-bottom: 12px;
+                margin-left: -18px !important;
+                margin-right: -18px !important;
+                padding-left: 18px !important;
+                padding-right: 18px !important;
+                padding-bottom: 16px !important;
                 overflow-x: scroll !important;
                 overflow-y: visible !important;
                 -webkit-overflow-scrolling: touch !important;
                 scroll-behavior: smooth;
+                display: block !important;
+                white-space: nowrap !important;
+                touch-action: pan-x !important;
             }
             
+            /* Show scrollbar on mobile for better UX */
             .forecast-scroll::-webkit-scrollbar {
-                display: none;
+                height: 4px !important;
+                display: block !important;
+            }
+            
+            .forecast-scroll::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1) !important;
+            }
+            
+            .forecast-scroll::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.4) !important;
+                border-radius: 2px !important;
             }
             
             .forecast-day {
                 width: 100px !important;
                 min-width: 100px !important;
+                max-width: 100px !important;
                 padding: 12px 8px !important;
                 margin-right: 10px !important;
+                display: inline-block !important;
+                vertical-align: top !important;
+            }
+            
+            .forecast-day:last-child {
+                margin-right: 0 !important;
             }
             .modal-content {
                 margin: 10% auto;
