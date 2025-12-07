@@ -496,6 +496,151 @@
             margin-top: 4px;
         }
 
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-close:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .hourly-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hourly-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 60px 80px;
+            align-items: center;
+            gap: 16px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .hourly-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hourly-time {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .hourly-condition {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .hourly-icon {
+            font-size: 24px;
+        }
+
+        .hourly-temp {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .hourly-details {
+            font-size: 12px;
+            opacity: 0.7;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .forecast-day {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .forecast-day:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .forecast-day:active {
+            transform: translateY(-2px);
+        }
+
         /* Mobile & Tablet Responsive Styles */
         @media (max-width: 768px) {
             body {
@@ -614,6 +759,55 @@
             /* Fix for iOS Safari bottom bar */
             .dashboard {
                 padding-bottom: env(safe-area-inset-bottom, 16px);
+            }
+
+            /* Modal mobile styles */
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                max-height: 85vh;
+                padding: 24px;
+            }
+
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .modal-close {
+                font-size: 28px;
+                width: 36px;
+                height: 36px;
+            }
+
+            .hourly-item {
+                grid-template-columns: 70px 1fr 50px;
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .hourly-details {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-direction: row;
+                gap: 12px;
+                margin-top: 4px;
+            }
+
+            .hourly-time {
+                font-size: 14px;
+            }
+
+            .hourly-temp {
+                font-size: 18px;
+            }
+
+            .hourly-icon {
+                font-size: 20px;
+            }
+
+            .hourly-condition {
+                font-size: 13px;
+                gap: 8px;
             }
 
             /* Improve touch targets */
@@ -884,6 +1078,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Hourly Forecast Modal -->
+    <div id="hourlyModal" class="modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modalDate">Hourly Forecast</div>
+                    <div style="font-size: 13px; opacity: 0.7; margin-top: 4px;" id="modalSubtitle"></div>
+                </div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="hourly-list" id="hourlyContainer">
+                <!-- Hourly forecast items will be inserted here -->
+            </div>
+        </div>
+    </div>
     
     <script>
         // DOM Elements
@@ -906,6 +1116,7 @@
         let locationCoords = { lat: 0, lon: 0 };
         let weatherData = null;
         let forecastData = null;
+        let hourlyForecastData = null;
         let sunMoonData = null;
         let riverData = null;
         let map = null;
@@ -1190,7 +1401,9 @@
                     latitude: locationCoords.lat,
                     longitude: locationCoords.lon,
                     daily: 'weather_code,temperature_2m_max,temperature_2m_min',
-                    timezone: 'Europe/London'
+                    hourly: 'temperature_2m,weather_code,precipitation_probability,wind_speed_10m',
+                    timezone: 'Europe/London',
+                    forecast_days: 7
                 });
 
                 console.log('Fetching forecast data...');
@@ -1209,6 +1422,15 @@
                     maxTemp: Math.round(data.daily.temperature_2m_max[i]),
                     minTemp: Math.round(data.daily.temperature_2m_min[i])
                 }));
+
+                // Store hourly data for modal
+                hourlyForecastData = {
+                    times: data.hourly.time,
+                    temps: data.hourly.temperature_2m,
+                    codes: data.hourly.weather_code,
+                    precipitation: data.hourly.precipitation_probability,
+                    windSpeed: data.hourly.wind_speed_10m
+                };
 
                 console.log('Processed forecast data:', forecastData);
                 renderForecast();
@@ -1373,7 +1595,7 @@
                 return;
             }
 
-            container.innerHTML = forecastData.map(day => {
+            container.innerHTML = forecastData.map((day, index) => {
                 const date = new Date(day.date);
                 const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' });
                 const dateStr = date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
@@ -1381,7 +1603,7 @@
                 const icon = getWeatherIcon(day.weatherCode);
 
                 return `
-                    <div class="forecast-day">
+                    <div class="forecast-day" onclick="showHourlyForecast(${index})">
                         <div class="forecast-date">${dayName}<br>${dateStr}</div>
                         <div class="forecast-icon">${icon}</div>
                         <div class="forecast-temp">${day.maxTemp}°</div>
@@ -1390,6 +1612,66 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // Show hourly forecast modal
+        function showHourlyForecast(dayIndex) {
+            if (!hourlyForecastData || !forecastData) return;
+
+            const selectedDay = forecastData[dayIndex];
+            const date = new Date(selectedDay.date);
+            const dayName = date.toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' });
+
+            document.getElementById('modalDate').textContent = dayName;
+            document.getElementById('modalSubtitle').textContent = 'Hourly Forecast';
+
+            // Get hourly data for this specific day
+            const dayStart = new Date(selectedDay.date);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(selectedDay.date);
+            dayEnd.setHours(23, 59, 59, 999);
+
+            const hourlyContainer = document.getElementById('hourlyContainer');
+            const hourlyItems = [];
+
+            hourlyForecastData.times.forEach((timeStr, i) => {
+                const hourTime = new Date(timeStr);
+                
+                if (hourTime >= dayStart && hourTime <= dayEnd) {
+                    const hour = hourTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                    const temp = Math.round(hourlyForecastData.temps[i]);
+                    const code = hourlyForecastData.codes[i];
+                    const precip = hourlyForecastData.precipitation[i] || 0;
+                    const wind = Math.round(hourlyForecastData.windSpeed[i]);
+                    const icon = getWeatherIcon(code);
+                    const condition = getWeatherDescription(code);
+
+                    hourlyItems.push(`
+                        <div class="hourly-item">
+                            <div class="hourly-time">${hour}</div>
+                            <div class="hourly-condition">
+                                <span class="hourly-icon">${icon}</span>
+                                <span>${condition}</span>
+                            </div>
+                            <div class="hourly-temp">${temp}°</div>
+                            <div class="hourly-details">
+                                <span>💧 ${precip}%</span>
+                                <span>💨 ${wind} km/h</span>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+
+            hourlyContainer.innerHTML = hourlyItems.join('');
+            document.getElementById('hourlyModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeHourlyModal() {
+            document.getElementById('hourlyModal').style.display = 'none';
+            document.body.style.overflow = '';
         }
 
         function renderSunMoon() {
@@ -1690,6 +1972,22 @@
             const confirmReset = confirm('This will clear your saved name and location and restart the dashboard. Continue?');
             if (!confirmReset) return;
             resetApp();
+        });
+
+        // Modal close events
+        document.getElementById('closeModal').addEventListener('click', closeHourlyModal);
+        
+        document.getElementById('hourlyModal').addEventListener('click', (e) => {
+            if (e.target.id === 'hourlyModal') {
+                closeHourlyModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('hourlyModal').style.display === 'block') {
+                closeHourlyModal();
+            }
         });
 
         hideSuggestionsOnClickOutside();
