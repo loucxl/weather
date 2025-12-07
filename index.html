@@ -1009,12 +1009,15 @@
             }
 
             .moon-icon {
-                font-size: 56px;
+                font-size: 48px !important;
+                margin: 12px 0 !important;
             }
             
             .moon-phase {
                 margin-top: 16px !important;
                 padding-top: 16px !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                text-align: center !important;
             }
             
             .moon-name {
@@ -1025,6 +1028,7 @@
             .moon-illumination {
                 font-size: 12px !important;
                 margin-top: 4px !important;
+                opacity: 0.8 !important;
             }
 
             .river-list {
@@ -1199,26 +1203,20 @@
                 font-size: 28px !important;
             }
             
-            /* Forecast scroll edge-to-edge */
+            /* Forecast scroll - FLEXBOX FIX */
             .forecast-scroll {
-                margin-left: -18px !important;
-                margin-right: -18px !important;
-                padding-left: 18px !important;
-                padding-right: 18px !important;
-                padding-bottom: 16px !important;
-                overflow-x: scroll !important;
+                overflow-x: auto !important;
                 overflow-y: visible !important;
+                margin: 16px -16px 0 -16px !important;
+                padding: 0 16px 12px 16px !important;
                 -webkit-overflow-scrolling: touch !important;
-                scroll-behavior: smooth;
-                display: block !important;
-                white-space: nowrap !important;
-                touch-action: pan-x !important;
+                display: flex !important;
+                gap: 10px !important;
+                white-space: normal !important;
             }
             
-            /* Show scrollbar on mobile for better UX */
             .forecast-scroll::-webkit-scrollbar {
-                height: 4px !important;
-                display: block !important;
+                height: 3px !important;
             }
             
             .forecast-scroll::-webkit-scrollbar-track {
@@ -1227,17 +1225,16 @@
             
             .forecast-scroll::-webkit-scrollbar-thumb {
                 background: rgba(255, 255, 255, 0.4) !important;
-                border-radius: 2px !important;
             }
             
             .forecast-day {
+                flex: 0 0 100px !important;
                 width: 100px !important;
                 min-width: 100px !important;
                 max-width: 100px !important;
-                padding: 12px 8px !important;
-                margin-right: 10px !important;
-                display: inline-block !important;
-                vertical-align: top !important;
+                padding: 32px 10px 12px 10px !important;
+                margin-right: 0 !important;
+                display: block !important;
             }
             
             .forecast-day:last-child {
