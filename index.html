@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    
+    <!-- iOS Home Screen Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Weather Command">
+    
+    <!-- App Icons -->
+    <link rel="apple-touch-icon" href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEAAQADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAQFAgMGBwEI/8QAQBAAAQMDAwIDBgQEBQQCAwAAAQACAwQFEQYSITFBBxNRFCJhcYGRMqGx0QhCwfAVI1Lh8TNicqIWNJKCssL/xAAaAQEAAwEBAQAAAAAAAAAAAAAAAQIDBAUG/8QAKREAAgICAgEEAgICAwEAAAAAAAECAxEhBBIxBRNBURQiMmEVI4Gx/9oADAMBAAIRAxEAPwD1BERAREQBERRAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERARAREQBERAEREAREQBERAEREAREQBERARAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEX8/fxIeLl80Gv6nTGjq+pt2mNQzNEWw+VOD+F7v3b1T6PsJdK+ENy1xdqV4rr3K+KPD/AGl0j8u+QAOJ/S/ozyXltnb3c/Qdh8YtZ0+hJ3UtfVOqJYgH+8cvcPC7H+HfxLq9fWqptN+qn1t1oH7d7j77Wk+64/sdv6LJ0S9oRZpZjD3+D6sssnQR1ELZY5Wh7HgOa4HII9V/N3j746VOrLvP/itC+CzU7yYd47DkuPfv0Xtf8ItzrJNBVliq5Oe0pnBjiSejh/Yr3yWgRERlREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERYvewOaC4AnrlAZrXLURwgF7gA44Gep/Nb19V+f0ZXvWdN6cZTMe2PzHxgjqcdz8cL4iKo5k1UuKR5nN9S5m67dN22OeSpLZHRBnfgfuufREZqWJpbIiZqxERnRERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB/9k=">
+    <link rel="icon" type="image/jpeg" href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEAAQADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAQFAgMGBwEI/8QAQBAAAQMDAwIDBgQEBQQCAwAAAQACAwQFEQYSITFBBxNRFCJhcYGRMqGx0QhCwfAVI1Lh8TNicqIWNJKCssL/xAAaAQEAAwEBAQAAAAAAAAAAAAAAAQIDBAUG/8QAKREAAgICAgEEAgICAwEAAAAAAAECAxEhBBIxBRNBURQiMmEVI4Gx/9oADAMBAAIRAxEAPwD1BERAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERARAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEX8/fxIeLl80Gv6nTGjNQzNEWw+VOD+F7v3b1T6PsJdK+ENy1xdqV4rr3K+KPD/AGl0j8u+QAOJ/S/ozyXltnb3c/Qdh8YtZ0+hJ3UtfVOqJYgH+8cvcPC7H+HfxLq9fWqptN+qn1t1oH7d7j77Wk+64/sdv6LJ0S9oRZpZjD3+D6sssnQR1ELZY5Wh7HgOa4HII9V/N3j746VOrLvP/itC+CzU7yYd47DkuPfv0Xtf8ItzrJNBVliq5Oe0pnBjiSejh/Yr3yWgRERlREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB/9k=">
+    
     <title>Weather Command Center</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -35,37 +43,308 @@
         }
 
         /* Weather-based background themes */
+        /* ===== BEAUTIFUL WEATHER THEMES ===== */
+        
         body.weather-clear-day {
-            background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%);
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #B0E0E6 100%);
+            animation: skyPulse 10s ease-in-out infinite;
+        }
+        
+        body.weather-clear-day::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            pointer-events: none;
+            z-index: 0;
         }
 
         body.weather-clear-night {
-            background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+            background: linear-gradient(to bottom, #0B1026 0%, #1a1f3a 50%, #2C3E50 100%);
         }
 
         body.weather-cloudy {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(to bottom, #757F9A 0%, #8e9aaf 50%, #B0BEC5 100%);
+        }
+        
+        body.weather-cloudy::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            pointer-events: none;
+            z-index: 0;
         }
 
         body.weather-rainy {
-            background: linear-gradient(135deg, #4B79A1 0%, #283E51 100%);
+            background: linear-gradient(to bottom, #4A5568 0%, #5a6a7f 50%, #6B7C93 100%);
         }
 
         body.weather-stormy {
-            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            background: linear-gradient(to bottom, #2C3E50 0%, #34495E 50%, #3E5266 100%);
         }
 
         body.weather-snowy {
-            background: linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 100%);
+            background: linear-gradient(to bottom, #D4E4F7 0%, #E8F4F8 50%, #F0F8FF 100%);
+        }
+        
+        body.weather-snowy::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            z-index: 0;
         }
 
         body.weather-foggy {
-            background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%);
+            background: linear-gradient(to bottom, #8B9DA5 0%, #a5b5bd 50%, #BDC3C7 100%);
+            position: relative;
+        }
+        
+        body.weather-foggy::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body.weather-foggy::after {
+            content: '';
+            position: fixed;
+            bottom: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%),
+                radial-gradient(ellipse at 70% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+            animation: fogWave 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+            filter: blur(50px);
         }
 
         body.weather-sunset {
-            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 50%, #2BFF88 100%);
+            background: linear-gradient(to bottom, #FF6B6B 0%, #FFB347 25%, #FFE66D 50%, #A8DADC 75%, #457B9D 100%);
         }
+        
+        @keyframes skyPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.05); }
+        }
+        
+        /* ===== PREMIUM WEATHER ANIMATIONS ===== */
+        
+        /* CLOUDY - Soft drifting clouds */
+        body.weather-cloudy::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='400' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='100' cy='100' rx='100' ry='50' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='180' cy='90' rx='120' ry='60' fill='rgba(255,255,255,0.25)'/%3E%3Cellipse cx='140' cy='110' rx='90' ry='45' fill='rgba(255,255,255,0.35)'/%3E%3C/svg%3E");
+            background-size: 400px 200px;
+            background-repeat: repeat-x;
+            animation: cloudScroll 60s linear infinite;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.6;
+        }
+        
+        @keyframes cloudScroll {
+            from { background-position: 0 0; }
+            to { background-position: 400px 0; }
+        }
+        
+        /* RAINY - Diagonal rain streaks */
+        body.weather-rainy::before {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: -10%;
+            width: 120%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                -25deg,
+                transparent,
+                transparent 10px,
+                rgba(180, 200, 220, 0.1) 10px,
+                rgba(180, 200, 220, 0.15) 11px,
+                transparent 11px,
+                transparent 40px
+            );
+            animation: rainDiagonal 0.5s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        body.weather-rainy::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, rgba(70, 90, 110, 0.3), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes rainDiagonal {
+            from { transform: translateY(0); }
+            to { transform: translateY(40px); }
+        }
+        
+        /* SNOWY - Gentle falling snow */
+        body.weather-snowy {
+            position: relative;
+        }
+        
+        body.weather-snowy::before {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            background-image: 
+                radial-gradient(circle at 10% 10%, white 1px, transparent 1px),
+                radial-gradient(circle at 30% 30%, white 1.5px, transparent 1.5px),
+                radial-gradient(circle at 50% 50%, white 2px, transparent 2px),
+                radial-gradient(circle at 70% 70%, white 1px, transparent 1px),
+                radial-gradient(circle at 90% 90%, white 1.5px, transparent 1.5px);
+            background-size: 100px 100px, 150px 150px, 200px 200px, 120px 120px, 180px 180px;
+            background-position: 0 0, 40px 60px, 80px 30px, 20px 90px, 110px 20px;
+            animation: snowfall 15s linear infinite;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.8;
+        }
+        
+        @keyframes snowfall {
+            from { transform: translateY(0); }
+            to { transform: translateY(100px); }
+        }
+        
+        @keyframes fogWave {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(10%, 5%) scale(1.1); }
+        }
+        
+        /* CLEAR NIGHT - Starfield */
+        body.weather-clear-night::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 10% 20%, white 1px, transparent 1px),
+                radial-gradient(circle at 80% 10%, white 1px, transparent 1px),
+                radial-gradient(circle at 30% 40%, white 1.5px, transparent 1.5px),
+                radial-gradient(circle at 60% 30%, white 1px, transparent 1px),
+                radial-gradient(circle at 90% 50%, white 1px, transparent 1px),
+                radial-gradient(circle at 20% 60%, white 1.5px, transparent 1.5px),
+                radial-gradient(circle at 50% 70%, white 1px, transparent 1px),
+                radial-gradient(circle at 75% 80%, white 1px, transparent 1px),
+                radial-gradient(circle at 40% 85%, white 1.5px, transparent 1.5px);
+            background-size: 200px 200px, 250px 250px, 300px 300px;
+            background-position: 0 0, 100px 50px, 50px 150px;
+            animation: starTwinkle 3s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes starTwinkle {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* CLEAR DAY - Sun rays */
+        body.weather-clear-day::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            right: 10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 100, 0.4) 0%, rgba(255, 255, 150, 0.2) 30%, transparent 70%);
+            animation: sunRays 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+            border-radius: 50%;
+        }
+        
+        @keyframes sunRays {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+            50% { transform: scale(1.1) rotate(45deg); opacity: 0.8; }
+        }
+        
+        /* STORMY - Lightning effect */
+        body.weather-stormy::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(200, 220, 255, 0.4), transparent 50%);
+            animation: lightning 6s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+        }
+        
+        body.weather-stormy::after {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: -10%;
+            width: 120%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                -25deg,
+                transparent,
+                transparent 10px,
+                rgba(150, 160, 180, 0.08) 10px,
+                rgba(150, 160, 180, 0.12) 11px,
+                transparent 11px,
+                transparent 40px
+            );
+            animation: stormRain 0.4s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes lightning {
+            0%, 85%, 87%, 89%, 100% { opacity: 0; }
+            86%, 88% { opacity: 1; }
+        }
+        
+        @keyframes stormRain {
+            from { transform: translateY(0); }
+            to { transform: translateY(40px); }
+        }
+        
+        /* SUNSET - No animation needed, gradient is beautiful */
         
         .animated-bg {
             position: fixed;
@@ -1363,18 +1642,17 @@
                     <div id="timeDisplay" style="font-size: 28px; font-weight: 700;">--:--</div>
                     <div id="dateDisplay" style="font-size: 13px; opacity: 0.7;">Loading...</div>
                 </div>
-               <div style="display: flex; align-items: center; gap: 12px;">
-    <button id="refreshBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Refresh App">🔄</button>
-    <button id="notificationBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Enable notifications">🔔</button>
-    <span style="font-size: 14px; font-weight: 500; opacity: 0.9;">More Options</span>
-    <button id="settingsBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;">⚙️</button>
-</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button id="notificationBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Enable notifications">🔔</button>
+                    <button id="refreshBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;" title="Refresh weather data">🔄</button>
+                    <span style="font-size: 14px; font-weight: 500; opacity: 0.9;">More Options</span>
+                    <button id="settingsBtn" class="btn btn-primary" style="min-width: 48px; min-height: 48px;">⚙️</button>
+                </div>
             </div>
         </div>
 
         <!-- Weather Summary -->
         <div class="glass" style="padding: 20px 32px; margin-bottom: 24px; position: relative;">
-		<span class="card-title">Weather at a glance</span>
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="font-size: 48px;" id="summaryIcon">🌤️</div>
                 <div style="flex: 1;">
@@ -1438,14 +1716,6 @@
 
                     <div class="setting-item">
                         <label class="setting-label">
-                            <input type="checkbox" id="toggleActivities">
-                            <span>Activity Recommendations</span>
-                        </label>
-                        <div class="setting-description">Best times for outdoor activities</div>
-                    </div>
-
-                    <div class="setting-item">
-                        <label class="setting-label">
                             <input type="checkbox" id="toggleRadar">
                             <span>Weather Radar</span>
                         </label>
@@ -1460,13 +1730,6 @@
                         <div class="setting-description">Visual timeline of sunrise to sunset</div>
                     </div>
 
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="toggleWebcams">
-                            <span>Local Webcams</span>
-                        </label>
-                        <div class="setting-description">Live weather webcams nearby</div>
-                    </div>
 
                     <div class="setting-item">
                         <label class="setting-label">
@@ -1476,13 +1739,6 @@
                         <div class="setting-description">Weekly/monthly totals and records</div>
                     </div>
 
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="toggleDarkMode">
-                            <span>Dark Mode</span>
-                        </label>
-                        <div class="setting-description">Toggle dark theme (coming soon)</div>
-                    </div>
                 </div>
             </div>
 
@@ -1702,23 +1958,6 @@
                 </div>
             </div>
 
-            <!-- Activity Recommendations -->
-            <div class="card glass" id="cardActivities" style="display: none;">
-                <div class="card-header">
-                    <span class="card-title">Activity Guide</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
-                    <div style="padding: 10px; background: rgba(34, 197, 94, 0.2); border-radius: 8px; border-left: 3px solid #22c55e;">
-                        <div style="font-weight: 600; font-size: 13px;">🚴 Great for Cycling</div>
-                        <div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Light winds, dry conditions</div>
-                    </div>
-                    <div style="padding: 10px; background: rgba(34, 197, 94, 0.2); border-radius: 8px; border-left: 3px solid #22c55e;">
-                        <div style="font-weight: 600; font-size: 13px;">📷 Good for Photography</div>
-                        <div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Golden hour at 16:12</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Weather Radar -->
             <div class="card glass card-wide" id="cardRadar" style="display: none;">
                 <div class="card-header">
@@ -1749,20 +1988,6 @@
                     </div>
                     <div style="text-align: center; margin-top: 12px; font-size: 13px;">
                         <span id="daylightRemaining">--h --m remaining</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Local Webcams -->
-            <div class="card glass card-wide" id="cardWebcams" style="display: none;">
-                <div class="card-header">
-                    <span class="card-title">Local Webcams</span>
-                </div>
-                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; height: 250px; display: flex; align-items: center; justify-content: center; opacity: 0.6;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 12px;">📹</div>
-                        <div>Live weather webcams</div>
-                        <div style="font-size: 12px; margin-top: 4px;">Coming soon</div>
                     </div>
                 </div>
             </div>
@@ -1851,12 +2076,9 @@
             pollen: false,
             astronomy: false,
             historical: false,
-            activities: false,
             radar: false,
             daylightProgress: false,
-            webcams: false,
-            weatherStats: false,
-            darkMode: false
+            weatherStats: false
         };
 
         // Utility: Save/Load from localStorage
@@ -1904,12 +2126,9 @@
             document.getElementById('togglePollen').checked = features.pollen;
             document.getElementById('toggleAstronomy').checked = features.astronomy;
             document.getElementById('toggleHistorical').checked = features.historical;
-            document.getElementById('toggleActivities').checked = features.activities;
             document.getElementById('toggleRadar').checked = features.radar;
             document.getElementById('toggleDaylightProgress').checked = features.daylightProgress;
-            document.getElementById('toggleWebcams').checked = features.webcams;
             document.getElementById('toggleWeatherStats').checked = features.weatherStats;
-            document.getElementById('toggleDarkMode').checked = features.darkMode;
         }
 
         function saveFeatureSettings() {
@@ -1917,12 +2136,9 @@
             features.pollen = document.getElementById('togglePollen').checked;
             features.astronomy = document.getElementById('toggleAstronomy').checked;
             features.historical = document.getElementById('toggleHistorical').checked;
-            features.activities = document.getElementById('toggleActivities').checked;
             features.radar = document.getElementById('toggleRadar').checked;
             features.daylightProgress = document.getElementById('toggleDaylightProgress').checked;
-            features.webcams = document.getElementById('toggleWebcams').checked;
             features.weatherStats = document.getElementById('toggleWeatherStats').checked;
-            features.darkMode = document.getElementById('toggleDarkMode').checked;
             
             saveToStorage();
             updateCardVisibility();
@@ -1947,10 +2163,8 @@
             document.getElementById('cardPollen').style.display = features.pollen ? 'flex' : 'none';
             document.getElementById('cardAstronomy').style.display = features.astronomy ? 'flex' : 'none';
             document.getElementById('cardHistorical').style.display = features.historical ? 'flex' : 'none';
-            document.getElementById('cardActivities').style.display = features.activities ? 'flex' : 'none';
             document.getElementById('cardRadar').style.display = features.radar ? 'flex' : 'none';
             document.getElementById('cardDaylightProgress').style.display = features.daylightProgress ? 'flex' : 'none';
-            document.getElementById('cardWebcams').style.display = features.webcams ? 'flex' : 'none';
             document.getElementById('cardWeatherStats').style.display = features.weatherStats ? 'flex' : 'none';
         }
 
@@ -2325,14 +2539,37 @@
 
             const illumination = Math.round(jd * 100);
 
-            // Approximate moonrise/moonset (simplified - actual calculation is complex)
-            const moonrise = new Date();
-            moonrise.setHours(Math.floor(Math.random() * 4) + 20); // Random evening time
-            moonrise.setMinutes(Math.floor(Math.random() * 60));
-
-            const moonset = new Date();
-            moonset.setHours(Math.floor(Math.random() * 4) + 6); // Random morning time
-            moonset.setMinutes(Math.floor(Math.random() * 60));
+            // Calculate moonrise/moonset based on moon phase
+            // The moon rises ~50 minutes later each day
+            // Phase determines the general time:
+            // - New Moon (b=0): rises ~6am, sets ~6pm (with sun)
+            // - First Quarter (b=2): rises ~12pm, sets ~12am
+            // - Full Moon (b=4): rises ~6pm, sets ~6am (opposite sun)
+            // - Last Quarter (b=6): rises ~12am, sets ~12pm
+            
+            const baseTime = new Date(date);
+            const moonrise = new Date(baseTime);
+            const moonset = new Date(baseTime);
+            
+            // Calculate moonrise hour based on phase (0-7)
+            // Phase 0 (New): 6am, Phase 2 (First Q): 12pm, Phase 4 (Full): 6pm, Phase 6 (Last Q): 12am
+            let moonriseHour;
+            if (b === 0) moonriseHour = 6;        // New moon - rises with sun
+            else if (b === 1) moonriseHour = 9;   // Waxing crescent
+            else if (b === 2) moonriseHour = 12;  // First quarter - rises at noon
+            else if (b === 3) moonriseHour = 15;  // Waxing gibbous
+            else if (b === 4) moonriseHour = 18;  // Full moon - rises at sunset
+            else if (b === 5) moonriseHour = 21;  // Waning gibbous
+            else if (b === 6) moonriseHour = 0;   // Last quarter - rises at midnight
+            else moonriseHour = 3;                // Waning crescent
+            
+            moonrise.setHours(moonriseHour);
+            moonrise.setMinutes(Math.round(jd * 60));
+            moonrise.setSeconds(0);
+            
+            // Moonset is approximately 12-13 hours after moonrise
+            // But if moonrise is late (evening/night), moonset is next day
+            moonset.setTime(moonrise.getTime() + (12.5 * 60 * 60 * 1000));
 
             return {
                 moonPhase: phases[b].name,
@@ -3107,6 +3344,7 @@
             }
         }
         
+        
         function checkRainAlert() {
             if (!hourlyForecastData || !notificationsEnabled) return;
             
@@ -3299,6 +3537,37 @@
             settingsPanel.classList.toggle('hidden');
         });
         
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('refreshBtn');
+            const originalText = btn.textContent;
+            
+            // Animate the button
+            btn.textContent = '⏳';
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            
+            try {
+                // Refresh all data
+                await fetchAllData();
+                
+                // Success animation
+                btn.textContent = '✅';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }, 1000);
+            } catch (error) {
+                // Error animation
+                btn.textContent = '❌';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }, 1000);
+            }
+        });
+        
         document.getElementById('notificationBtn').addEventListener('click', () => {
             requestNotifications();
         });
@@ -3386,13 +3655,6 @@
 
         // Initialize
         loadFromStorage();
-        // ✅ Force Refresh Button (for iPhone Home Screen mode)
-const refreshBtn = document.getElementById('refreshBtn');
-if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
-        location.reload(true);
-    });
-}
     </script>
 </body>
 </html>
