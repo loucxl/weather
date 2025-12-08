@@ -3646,35 +3646,18 @@
             settingsPanel.classList.toggle('hidden');
         });
         
-        document.getElementById('refreshBtn').addEventListener('click', async () => {
+        document.getElementById('refreshBtn').addEventListener('click', () => {
             const btn = document.getElementById('refreshBtn');
-            const originalText = btn.textContent;
             
             // Animate the button
             btn.textContent = '⏳';
             btn.disabled = true;
             btn.style.opacity = '0.6';
             
-            try {
-                // Refresh all data
-                await fetchAllData();
-                
-                // Success animation
-                btn.textContent = '✅';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                }, 1000);
-            } catch (error) {
-                // Error animation
-                btn.textContent = '❌';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                }, 1000);
-            }
+            // Reload the page after short delay for animation
+            setTimeout(() => {
+                location.reload();
+            }, 300);
         });
         
         document.getElementById('notificationBtn').addEventListener('click', () => {
