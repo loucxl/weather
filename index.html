@@ -1637,8 +1637,6 @@ body.weather-foggy::before {
             }
         }
     </style>
-    <!-- SunCalc - Accurate sun/moon calculations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 </head>
 <body>
     <div class="animated-bg"></div>
@@ -1695,7 +1693,7 @@ body.weather-foggy::before {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div>
                     <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">🎨 Weather Animation Tester</div>
-                    <div style="font-size: 11px; opacity: 0.8;">Test different weather themes and animations</div>
+                    <div style="font-size: 11px; opacity: 0.8;">Test different weather themes and animations, menu being removed soon.</div>
                 </div>
                 <button id="hideTestPanel" style="background: rgba(255,255,255,0.2); border: none; padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">Hide</button>
             </div>
@@ -2131,7 +2129,7 @@ body.weather-foggy::before {
         // For accurate moon data (moonrise, moonset, phase), you need a free API key
         // Sign up at: https://ipgeolocation.io (Free - 1000 requests/day, no credit card)
         // Add your API key below to enable real moon data
-        const ASTRONOMY_API_KEY = ''; // Leave empty to use calculations, or add key for real data
+        const ASTRONOMY_API_KEY = '5f54a5fc99d746eca18c9eb4f89ca8db'; // API key added - moon data enabled!
         
         // Global variables
         let locationCoords = { lat: 0, lon: 0 };
@@ -2667,49 +2665,299 @@ body.weather-foggy::before {
         }
 
         // Fetch Sun & Moon Data
+        
+        // ===== EMBEDDED ASTRONOMY CALCULATIONS (SunCalc-based) =====
+        // Accurate sun and moon rise/set calculations for any location
+        
+        const PI = Math.PI;
+        const rad = PI / 180;
+        const dayMs = 1000 * 60 * 60 * 24;
+        const J1970 = 2440588;
+        const J2000 = 2451545;
+        
+        function toJulian(date) { return date.valueOf() / dayMs - 0.5 + J1970; }
+        function fromJulian(j) { return new Date((j + 0.5 - J1970) * dayMs); }
+        function toDays(date) { return toJulian(date) - J2000; }
+        
+        const e = rad * 23.4397; // obliquity of the Earth
+        
+        function rightAscension(l, b) { return Math.atan2(Math.sin(l) * Math.cos(e) - Math.tan(b) * Math.sin(e), Math.cos(l)); }
+        function declination(l, b) { return Math.asin(Math.sin(b) * Math.cos(e) + Math.cos(b) * Math.sin(e) * Math.sin(l)); }
+        function azimuth(H, phi, dec) { return Math.atan2(Math.sin(H), Math.cos(H) * Math.sin(phi) - Math.tan(dec) * Math.cos(phi)); }
+        function altitude(H, phi, dec) { return Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(H)); }
+        function siderealTime(d, lw) { return rad * (280.16 + 360.9856235 * d) - lw; }
+        
+        function getSunCoords(d) {
+            const M = rad * (357.5291 + 0.98560028 * d);
+            const C = rad * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M));
+            const P = rad * 102.9372;
+            const L = M + C + P + PI;
+            return {dec: declination(L, 0), ra: rightAscension(L, 0)};
+        }
+        
+        function getMoonCoords(d) {
+            const L = rad * (218.316 + 13.176396 * d);
+            const M = rad * (134.963 + 13.064993 * d);
+            const F = rad * (93.272 + 13.229350 * d);
+            const l  = L + rad * 6.289 * Math.sin(M);
+            const b  = rad * 5.128 * Math.sin(F);
+            const dt = 385001 - 20905 * Math.cos(M);
+            return {ra: rightAscension(l, b), dec: declination(l, b), dist: dt};
+        }
+        
+        function getMoonIllumination(date) {
+            const d = toDays(date || new Date());
+            const s = getSunCoords(d);
+            const m = getMoonCoords(d);
+            const sdist = 149598000;
+            const phi = Math.acos(Math.sin(s.dec) * Math.sin(m.dec) + Math.cos(s.dec) * Math.cos(m.dec) * Math.cos(s.ra - m.ra));
+            const inc = Math.atan2(sdist * Math.sin(phi), m.dist - sdist * Math.cos(phi));
+            const angle = Math.atan2(Math.cos(s.dec) * Math.sin(s.ra - m.ra), Math.sin(s.dec) * Math.cos(m.dec) - Math.cos(s.dec) * Math.sin(m.dec) * Math.cos(s.ra - m.ra));
+            return {
+                fraction: (1 + Math.cos(inc)) / 2,
+                phase: 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / PI,
+                angle: angle
+            };
+        }
+        
+        function hoursLater(date, h) {
+            return new Date(date.valueOf() + h * dayMs / 24);
+        }
+        
+        function getMoonTimes(date, lat, lng) {
+            const t = new Date(date);
+            t.setHours(0, 0, 0, 0);
+            
+            const hc = 0.133 * rad;
+            let h0 = getMoonPosition(t, lat, lng).altitude - hc;
+            let rise, set, ye;
+            
+            for (let i = 1; i <= 24; i += 2) {
+                const h1 = getMoonPosition(hoursLater(t, i), lat, lng).altitude - hc;
+                const h2 = getMoonPosition(hoursLater(t, i + 1), lat, lng).altitude - hc;
+                
+                const a = (h0 + h2) / 2 - h1;
+                const b = (h2 - h0) / 2;
+                const xe = -b / (2 * a);
+                const ye = (a * xe + b) * xe + h1;
+                const d = b * b - 4 * a * h1;
+                let roots = 0;
+                
+                if (d >= 0) {
+                    const dx = Math.sqrt(d) / (Math.abs(a) * 2);
+                    let x1 = xe - dx;
+                    let x2 = xe + dx;
+                    if (Math.abs(x1) <= 1) roots++;
+                    if (Math.abs(x2) <= 1) roots++;
+                    if (x1 < -1) x1 = x2;
+                    
+                    if (roots === 1) {
+                        if (h0 < 0) rise = i + x1;
+                        else set = i + x1;
+                    } else if (roots === 2) {
+                        rise = i + (ye < 0 ? x2 : x1);
+                        set = i + (ye < 0 ? x1 : x2);
+                    }
+                    
+                    if (rise && set) break;
+                }
+                
+                h0 = h2;
+            }
+            
+            const result = {};
+            if (rise) result.rise = hoursLater(t, rise);
+            if (set) result.set = hoursLater(t, set);
+            return result;
+        }
+        
+        function getMoonPosition(date, lat, lng) {
+            const lw = rad * -lng;
+            const phi = rad * lat;
+            const d = toDays(date);
+            const c = getMoonCoords(d);
+            const H = siderealTime(d, lw) - c.ra;
+            let h = altitude(H, phi, c.dec);
+            h = h + rad * 0.017 / Math.tan(h + rad * 10.26 / (h + rad * 5.10));
+            return {
+                azimuth: azimuth(H, phi, c.dec),
+                altitude: h,
+                distance: c.dist
+            };
+        }
+        
+        function getSunTimes(date, lat, lng) {
+            const lw = rad * -lng;
+            const phi = rad * lat;
+            const d = toDays(date);
+            const n = Math.round(d - 0.0009 - lw / (2 * PI));
+            const ds = 0.0009 + lw / (2 * PI) + n;
+            const M = rad * (357.5291 + 0.98560028 * ds);
+            const C = rad * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M));
+            const L = M + C + rad * (102.9372 + 180);
+            const dec = declination(L, 0);
+            const Jnoon = J2000 + ds + 0.0053 * Math.sin(M) - 0.0069 * Math.sin(2 * L);
+            const h0 = (rad * -0.833 - Math.sin(phi) * Math.sin(dec)) / (Math.cos(phi) * Math.cos(dec));
+            const Jset = Jnoon + Math.acos(h0) / (2 * PI);
+            const Jrise = Jnoon - Math.acos(h0) / (2 * PI);
+            return {
+                sunrise: fromJulian(Jrise),
+                sunset: fromJulian(Jset)
+            };
+        }
+        
+        // ===== END ASTRONOMY CALCULATIONS =====
+        
         async function fetchSunMoonData() {
             try {
                 // Add small delay to avoid rate limiting
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
-                // If API key is provided, use ipgeolocation.io for accurate moon data
-                if (ASTRONOMY_API_KEY && ASTRONOMY_API_KEY.length > 0) {
-                    const url = `https://api.ipgeolocation.io/astronomy?apiKey=${ASTRONOMY_API_KEY}&lat=${locationCoords.lat}&long=${locationCoords.lon}`;
-                    
-                    const response = await fetch(url);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('Astronomy API data:', data);
-                        
-                        sunMoonData = {
-                            sunrise: data.sunrise || '--:--',
-                            sunset: data.sunset || '--:--',
-                            moonrise: data.moonrise || '--:--',
-                            moonset: data.moonset || '--:--',
-                            moonPhase: data.moon_phase || 'Unknown',
-                            moonIcon: getMoonIcon(data.moon_phase),
-                            moonIllumination: Math.round(parseFloat(data.moon_illumination || 0))
-                        };
-                        
-                        renderSunMoon();
-                        return;
+                // Use sunrise-sunset.org for accurate sun times (always fetch - it's fast)
+                const sunUrl = `https://api.sunrise-sunset.org/json?lat=${locationCoords.lat}&lng=${locationCoords.lon}&formatted=0&date=today`;
+                const sunResp = await fetch(sunUrl);
+                
+                let sunrise = '--:--';
+                let sunset = '--:--';
+                
+                if (sunResp.ok) {
+                    const sunData = await sunResp.json();
+                    if (sunData.status === 'OK') {
+                        const sunriseTime = new Date(sunData.results.sunrise);
+                        const sunsetTime = new Date(sunData.results.sunset);
+                        sunrise = sunriseTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                        sunset = sunsetTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                     }
                 }
                 
-                // Use SunCalc library for accurate calculations (no API needed!)
-                const now = new Date();
+                // If API key provided, get moon data (with daily caching)
+                if (ASTRONOMY_API_KEY && ASTRONOMY_API_KEY.length > 0) {
+                    try {
+                        // Check if we have cached moon data from today
+                        const today = new Date().toDateString();
+                        const cacheVersion = 'v2'; // Increment to force cache refresh
+                        const cacheKey = 'moonData_' + cacheVersion + '_' + locationCoords.lat.toFixed(2) + '_' + locationCoords.lon.toFixed(2);
+                        const cacheTimeKey = cacheKey + '_date';
+                        const cachedDate = localStorage.getItem(cacheTimeKey);
+                        const cachedData = localStorage.getItem(cacheKey);
+                        
+                        let moonData = null;
+                        
+                        // Use cache if it's from today
+                        if (cachedDate === today && cachedData) {
+                            console.log('Using cached moon data (saves API request!)');
+                            moonData = JSON.parse(cachedData);
+                        } else {
+                            // Fetch fresh data (only once per day!)
+                            console.log('Fetching fresh moon data from API (1 request for the day)');
+                            const astroUrl = `https://api.ipgeolocation.io/astronomy?apiKey=${ASTRONOMY_API_KEY}&lat=${locationCoords.lat}&long=${locationCoords.lon}`;
+                            const astroResp = await fetch(astroUrl);
+                            
+                            if (astroResp.ok) {
+                                moonData = await astroResp.json();
+                                console.log('API Astronomy data:', moonData);
+                                
+                                // Cache the data for today
+                                localStorage.setItem(cacheKey, JSON.stringify(moonData));
+                                localStorage.setItem(cacheTimeKey, today);
+                                console.log('Moon data cached until tomorrow');
+                            }
+                        }
+                        
+                        if (moonData) {
+                            console.log('Raw API moon times:', {
+                                moonrise: moonData.moonrise,
+                                moonset: moonData.moonset,
+                                timezone: moonData.timezone
+                            });
+                            
+                            // Convert API times to proper format
+                            // API returns times like "09:13 PM" - need to convert to 24hr
+                            function convertTo24Hour(timeStr) {
+                                if (!timeStr || timeStr === '--:--') return '--:--';
+                                
+                                // If already in 24hr format (HH:MM), return as is
+                                if (/^\d{2}:\d{2}$/.test(timeStr)) {
+                                    return timeStr;
+                                }
+                                
+                                // Handle 12hr format with AM/PM
+                                const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                                if (match) {
+                                    let hours = parseInt(match[1]);
+                                    const minutes = match[2];
+                                    const period = match[3].toUpperCase();
+                                    
+                                    if (period === 'PM' && hours !== 12) {
+                                        hours += 12;
+                                    } else if (period === 'AM' && hours === 12) {
+                                        hours = 0;
+                                    }
+                                    
+                                    return `${String(hours).padStart(2, '0')}:${minutes}`;
+                                }
+                                
+                                return timeStr; // Return as-is if can't parse
+                            }
+                            
+                            const moonriseConverted = convertTo24Hour(moonData.moonrise);
+                            const moonsetConverted = convertTo24Hour(moonData.moonset);
+                            
+                            console.log('Converted moon times:', {
+                                moonrise: moonriseConverted,
+                                moonset: moonsetConverted
+                            });
+                            
+                            // Get moon illumination for phase
+                            const moonIllum = getMoonIllumination(new Date());
+                            const phase = moonIllum.phase;
+                            let phaseName, phaseIcon;
+                            if (phase < 0.03 || phase > 0.97) {
+                                phaseName = 'New Moon';
+                                phaseIcon = '🌑';
+                            } else if (phase < 0.22) {
+                                phaseName = 'Waxing Crescent';
+                                phaseIcon = '🌒';
+                            } else if (phase < 0.28) {
+                                phaseName = 'First Quarter';
+                                phaseIcon = '🌓';
+                            } else if (phase < 0.47) {
+                                phaseName = 'Waxing Gibbous';
+                                phaseIcon = '🌔';
+                            } else if (phase < 0.53) {
+                                phaseName = 'Full Moon';
+                                phaseIcon = '🌕';
+                            } else if (phase < 0.72) {
+                                phaseName = 'Waning Gibbous';
+                                phaseIcon = '🌖';
+                            } else if (phase < 0.78) {
+                                phaseName = 'Last Quarter';
+                                phaseIcon = '🌗';
+                            } else {
+                                phaseName = 'Waning Crescent';
+                                phaseIcon = '🌘';
+                            }
+                            
+                            sunMoonData = {
+                                sunrise: sunrise,
+                                sunset: sunset,
+                                moonrise: moonriseConverted,
+                                moonset: moonsetConverted,
+                                moonPhase: phaseName,
+                                moonIcon: phaseIcon,
+                                moonIllumination: Math.round(moonIllum.fraction * 100)
+                            };
+                            
+                            renderSunMoon();
+                            return;
+                        }
+                    } catch (apiError) {
+                        console.error('API astronomy error:', apiError);
+                    }
+                }
                 
-                // Get sun times
-                const sunTimes = SunCalc.getSunTimes(now, locationCoords.lat, locationCoords.lon);
-                
-                // Get moon times  
-                const moonTimes = SunCalc.getMoonTimes(now, locationCoords.lat, locationCoords.lon);
-                
-                // Get moon illumination and phase
-                const moonIllum = SunCalc.getMoonIllumination(now);
-                
-                // Convert phase (0-1) to phase name
+                // Without API key - show phase only, require API for times
+                const moonIllum = getMoonIllumination(new Date());
                 const phase = moonIllum.phase;
                 let phaseName, phaseIcon;
                 if (phase < 0.03 || phase > 0.97) {
@@ -2739,10 +2987,10 @@ body.weather-foggy::before {
                 }
                 
                 sunMoonData = {
-                    sunrise: sunTimes.sunrise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                    sunset: sunTimes.sunset.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                    moonrise: moonTimes.rise ? moonTimes.rise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'No rise',
-                    moonset: moonTimes.set ? moonTimes.set.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'No set',
+                    sunrise: sunrise,
+                    sunset: sunset,
+                    moonrise: 'API needed',
+                    moonset: 'API needed',
                     moonPhase: phaseName,
                     moonIcon: phaseIcon,
                     moonIllumination: Math.round(moonIllum.fraction * 100)
@@ -2751,7 +2999,6 @@ body.weather-foggy::before {
                 renderSunMoon();
             } catch (error) {
                 console.error('Sun/Moon fetch error:', error);
-                // Set fallback data
                 sunMoonData = {
                     sunrise: '--:--',
                     sunset: '--:--',
@@ -3057,15 +3304,25 @@ body.weather-foggy::before {
             document.getElementById('sunrise').textContent = sunMoonData.sunrise || '--:--';
             document.getElementById('sunset').textContent = sunMoonData.sunset || '--:--';
             
-            // Show moonrise/moonset (now accurate!)
+            // Show moonrise/moonset
             const moonriseEl = document.getElementById('moonrise');
             const moonsetEl = document.getElementById('moonset');
             
-            moonriseEl.textContent = sunMoonData.moonrise || '--:--';
-            moonriseEl.title = '';
+            if (sunMoonData.moonrise === 'API needed') {
+                moonriseEl.innerHTML = '<a href="https://ipgeolocation.io" target="_blank" style="color: #60a5fa; text-decoration: underline; font-size: 12px;">Get API</a>';
+                moonriseEl.title = 'Free API key required for accurate moon times';
+            } else {
+                moonriseEl.textContent = sunMoonData.moonrise;
+                moonriseEl.title = '';
+            }
             
-            moonsetEl.textContent = sunMoonData.moonset || '--:--';
-            moonsetEl.title = '';
+            if (sunMoonData.moonset === 'API needed') {
+                moonsetEl.innerHTML = '<a href="https://ipgeolocation.io" target="_blank" style="color: #60a5fa; text-decoration: underline; font-size: 12px;">Get API</a>';
+                moonsetEl.title = 'Free API key required for accurate moon times';
+            } else {
+                moonsetEl.textContent = sunMoonData.moonset;
+                moonsetEl.title = '';
+            }
             
             document.getElementById('moonIcon').textContent = sunMoonData.moonIcon || '🌙';
             document.getElementById('moonPhase').textContent = sunMoonData.moonPhase || 'Unknown';
