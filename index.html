@@ -43,308 +43,345 @@
         }
 
         /* Weather-based background themes */
-        /* ===== BEAUTIFUL WEATHER THEMES ===== */
-        
-        body.weather-clear-day {
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #B0E0E6 100%);
-            animation: skyPulse 10s ease-in-out infinite;
-        }
-        
-        body.weather-clear-day::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.25);
-            pointer-events: none;
-            z-index: 0;
-        }
+/* ===== PREMIUM WEATHER THEMES & ANIMATIONS ===== */
 
-        body.weather-clear-night {
-            background: linear-gradient(to bottom, #0B1026 0%, #1a1f3a 50%, #2C3E50 100%);
-        }
+/* Base themes with rich gradients */
+body.weather-clear-day {
+    background: linear-gradient(180deg, 
+        #4A90E2 0%,
+        #7BB8E8 30%,
+        #B8D4E9 60%,
+        #E8F4F8 100%
+    );
+    animation: skyBreathe 15s ease-in-out infinite;
+}
 
-        body.weather-cloudy {
-            background: linear-gradient(to bottom, #757F9A 0%, #8e9aaf 50%, #B0BEC5 100%);
-        }
-        
-        body.weather-cloudy::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.25);
-            pointer-events: none;
-            z-index: 0;
-        }
+body.weather-clear-night {
+    background: linear-gradient(180deg,
+        #020111 0%,
+        #0F1B4C 40%,
+        #1C2951 70%,
+        #2C3E50 100%
+    );
+}
 
-        body.weather-rainy {
-            background: linear-gradient(to bottom, #4A5568 0%, #5a6a7f 50%, #6B7C93 100%);
-        }
+body.weather-cloudy {
+    background: linear-gradient(180deg,
+        #536976 0%,
+        #717E8C 50%,
+        #8A96A0 100%
+    );
+}
 
-        body.weather-stormy {
-            background: linear-gradient(to bottom, #2C3E50 0%, #34495E 50%, #3E5266 100%);
-        }
+body.weather-rainy {
+    background: linear-gradient(180deg,
+        #2C3E50 0%,
+        #3A4D5D 50%,
+        #4A5C6A 100%
+    );
+}
 
-        body.weather-snowy {
-            background: linear-gradient(to bottom, #D4E4F7 0%, #E8F4F8 50%, #F0F8FF 100%);
-        }
-        
-        body.weather-snowy::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            pointer-events: none;
-            z-index: 0;
-        }
+body.weather-stormy {
+    background: linear-gradient(180deg,
+        #1A1A2E 0%,
+        #16213E 50%,
+        #0F3460 100%
+    );
+}
 
-        body.weather-foggy {
-            background: linear-gradient(to bottom, #8B9DA5 0%, #a5b5bd 50%, #BDC3C7 100%);
-            position: relative;
-        }
-        
-        body.weather-foggy::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.35);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        body.weather-foggy::after {
-            content: '';
-            position: fixed;
-            bottom: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(ellipse at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%),
-                radial-gradient(ellipse at 70% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
-            animation: fogWave 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 2;
-            filter: blur(50px);
-        }
+body.weather-snowy {
+    background: linear-gradient(180deg,
+        #C9D6FF 0%,
+        #E2E2E2 50%,
+        #F0F4F8 100%
+    );
+}
 
-        body.weather-sunset {
-            background: linear-gradient(to bottom, #FF6B6B 0%, #FFB347 25%, #FFE66D 50%, #A8DADC 75%, #457B9D 100%);
-        }
-        
-        @keyframes skyPulse {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.05); }
-        }
-        
-        /* ===== PREMIUM WEATHER ANIMATIONS ===== */
-        
-        /* CLOUDY - Soft drifting clouds */
-        body.weather-cloudy::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                url("data:image/svg+xml,%3Csvg width='400' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='100' cy='100' rx='100' ry='50' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='180' cy='90' rx='120' ry='60' fill='rgba(255,255,255,0.25)'/%3E%3Cellipse cx='140' cy='110' rx='90' ry='45' fill='rgba(255,255,255,0.35)'/%3E%3C/svg%3E");
-            background-size: 400px 200px;
-            background-repeat: repeat-x;
-            animation: cloudScroll 60s linear infinite;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0.6;
-        }
-        
-        @keyframes cloudScroll {
-            from { background-position: 0 0; }
-            to { background-position: 400px 0; }
-        }
-        
-        /* RAINY - Diagonal rain streaks */
-        body.weather-rainy::before {
-            content: '';
-            position: fixed;
-            top: -100%;
-            left: -10%;
-            width: 120%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                -25deg,
-                transparent,
-                transparent 10px,
-                rgba(180, 200, 220, 0.1) 10px,
-                rgba(180, 200, 220, 0.15) 11px,
-                transparent 11px,
-                transparent 40px
-            );
-            animation: rainDiagonal 0.5s linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        body.weather-rainy::after {
-            content: '';
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(to top, rgba(70, 90, 110, 0.3), transparent);
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        @keyframes rainDiagonal {
-            from { transform: translateY(0); }
-            to { transform: translateY(40px); }
-        }
-        
-        /* SNOWY - Gentle falling snow */
-        body.weather-snowy {
-            position: relative;
-        }
-        
-        body.weather-snowy::before {
-            content: '';
-            position: fixed;
-            top: -100%;
-            left: 0;
-            width: 100%;
-            height: 200%;
-            background-image: 
-                radial-gradient(circle at 10% 10%, white 1px, transparent 1px),
-                radial-gradient(circle at 30% 30%, white 1.5px, transparent 1.5px),
-                radial-gradient(circle at 50% 50%, white 2px, transparent 2px),
-                radial-gradient(circle at 70% 70%, white 1px, transparent 1px),
-                radial-gradient(circle at 90% 90%, white 1.5px, transparent 1.5px);
-            background-size: 100px 100px, 150px 150px, 200px 200px, 120px 120px, 180px 180px;
-            background-position: 0 0, 40px 60px, 80px 30px, 20px 90px, 110px 20px;
-            animation: snowfall 15s linear infinite;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0.8;
-        }
-        
-        @keyframes snowfall {
-            from { transform: translateY(0); }
-            to { transform: translateY(100px); }
-        }
-        
-        @keyframes fogWave {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(10%, 5%) scale(1.1); }
-        }
-        
-        /* CLEAR NIGHT - Starfield */
-        body.weather-clear-night::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                radial-gradient(circle at 10% 20%, white 1px, transparent 1px),
-                radial-gradient(circle at 80% 10%, white 1px, transparent 1px),
-                radial-gradient(circle at 30% 40%, white 1.5px, transparent 1.5px),
-                radial-gradient(circle at 60% 30%, white 1px, transparent 1px),
-                radial-gradient(circle at 90% 50%, white 1px, transparent 1px),
-                radial-gradient(circle at 20% 60%, white 1.5px, transparent 1.5px),
-                radial-gradient(circle at 50% 70%, white 1px, transparent 1px),
-                radial-gradient(circle at 75% 80%, white 1px, transparent 1px),
-                radial-gradient(circle at 40% 85%, white 1.5px, transparent 1.5px);
-            background-size: 200px 200px, 250px 250px, 300px 300px;
-            background-position: 0 0, 100px 50px, 50px 150px;
-            animation: starTwinkle 3s ease-in-out infinite alternate;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        @keyframes starTwinkle {
-            0% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        /* CLEAR DAY - Sun rays */
-        body.weather-clear-day::before {
-            content: '';
-            position: fixed;
-            top: -10%;
-            right: 10%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255, 255, 100, 0.4) 0%, rgba(255, 255, 150, 0.2) 30%, transparent 70%);
-            animation: sunRays 8s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 2;
-            border-radius: 50%;
-        }
-        
-        @keyframes sunRays {
-            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
-            50% { transform: scale(1.1) rotate(45deg); opacity: 0.8; }
-        }
-        
-        /* STORMY - Lightning effect */
-        body.weather-stormy::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at 50% 0%, rgba(200, 220, 255, 0.4), transparent 50%);
-            animation: lightning 6s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0;
-        }
-        
-        body.weather-stormy::after {
-            content: '';
-            position: fixed;
-            top: -100%;
-            left: -10%;
-            width: 120%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                -25deg,
-                transparent,
-                transparent 10px,
-                rgba(150, 160, 180, 0.08) 10px,
-                rgba(150, 160, 180, 0.12) 11px,
-                transparent 11px,
-                transparent 40px
-            );
-            animation: stormRain 0.4s linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        @keyframes lightning {
-            0%, 85%, 87%, 89%, 100% { opacity: 0; }
-            86%, 88% { opacity: 1; }
-        }
-        
-        @keyframes stormRain {
-            from { transform: translateY(0); }
-            to { transform: translateY(40px); }
-        }
-        
-        /* SUNSET - No animation needed, gradient is beautiful */
+body.weather-foggy {
+    background: linear-gradient(180deg,
+        #7F8C8D 0%,
+        #95A5A6 50%,
+        #AAB7B8 100%
+    );
+}
+
+body.weather-sunset {
+    background: linear-gradient(180deg,
+        #FF6B6B 0%,
+        #FFB347 20%,
+        #FFDD94 40%,
+        #A8DADC 60%,
+        #457B9D 80%,
+        #1D3557 100%
+    );
+    animation: sunsetGlow 10s ease-in-out infinite;
+}
+
+@keyframes skyBreathe {
+    0%, 100% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.1) saturate(1.05); }
+}
+
+@keyframes sunsetGlow {
+    0%, 100% { filter: brightness(1) saturate(1.1); }
+    50% { filter: brightness(1.15) saturate(1.2); }
+}
+
+/* Dark overlays for readability */
+body.weather-clear-day::after,
+body.weather-cloudy::after,
+body.weather-snowy::after,
+body.weather-foggy::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== ADVANCED ANIMATIONS ===== */
+
+/* CLEAR DAY - Dynamic sun with rays */
+body.weather-clear-day::before {
+    content: '';
+    position: fixed;
+    top: 8%;
+    right: 12%;
+    width: 180px;
+    height: 180px;
+    background: 
+        radial-gradient(circle, 
+            rgba(255, 220, 100, 0.9) 0%,
+            rgba(255, 200, 80, 0.6) 40%,
+            rgba(255, 180, 60, 0.3) 70%,
+            transparent 100%
+        );
+    border-radius: 50%;
+    animation: sunPulse 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 
+        0 0 60px rgba(255, 220, 100, 0.6),
+        0 0 120px rgba(255, 200, 80, 0.3);
+}
+
+@keyframes sunPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* CLEAR NIGHT - Layered twinkling stars */
+body.weather-clear-night::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent),
+        radial-gradient(1px 1px at 15% 60%, white, transparent);
+    background-size: 300px 300px, 400px 400px, 250px 250px, 350px 350px;
+    background-position: 0 0, 50px 60px, 130px 270px, 70px 100px;
+    animation: twinkleFast 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+body.weather-clear-night::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 40% 20%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.7), transparent);
+    background-size: 500px 500px;
+    animation: twinkleSlow 5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes twinkleFast {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+@keyframes twinkleSlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+}
+
+/* CLOUDY - Multiple cloud layers */
+body.weather-cloudy::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse 400px 120px at 20% 30%, rgba(255,255,255,0.25), transparent),
+        radial-gradient(ellipse 350px 100px at 70% 50%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(ellipse 300px 90px at 40% 70%, rgba(255,255,255,0.3), transparent);
+    animation: cloudsDrift1 40s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes cloudsDrift1 {
+    0%, 100% { transform: translateX(-5%); }
+    50% { transform: translateX(5%); }
+}
+
+/* RAINY - Realistic falling raindrops */
+body.weather-rainy::before {
+    content: '';
+    position: fixed;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background-image:
+        radial-gradient(ellipse 1px 8px at 20% 30%, rgba(174, 194, 224, 0.7), transparent),
+        radial-gradient(ellipse 1px 10px at 60% 70%, rgba(174, 194, 224, 0.8), transparent),
+        radial-gradient(ellipse 1px 6px at 50% 50%, rgba(174, 194, 224, 0.6), transparent),
+        radial-gradient(ellipse 1px 9px at 80% 10%, rgba(174, 194, 224, 0.7), transparent),
+        radial-gradient(ellipse 1px 7px at 30% 80%, rgba(174, 194, 224, 0.65), transparent),
+        radial-gradient(ellipse 1px 8px at 15% 40%, rgba(174, 194, 224, 0.75), transparent),
+        radial-gradient(ellipse 1px 10px at 70% 20%, rgba(174, 194, 224, 0.8), transparent),
+        radial-gradient(ellipse 1px 7px at 45% 90%, rgba(174, 194, 224, 0.7), transparent);
+    background-size: 120px 120px;
+    background-position: 0 0, 30px 40px, 60px 20px, 15px 70px, 45px 10px, 75px 55px, 20px 85px, 55px 35px;
+    animation: rainFall 1.5s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+body.weather-rainy::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25%;
+    background: linear-gradient(to top, 
+        rgba(100, 120, 140, 0.3) 0%,
+        rgba(120, 140, 160, 0.1) 50%,
+        transparent 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes rainFall {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(120px); }
+}
+
+/* STORMY - Heavy rain with lightning flashes */
+body.weather-stormy {
+    position: relative;
+}
+
+/* Lightning flash */
+body.weather-stormy::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 20%,
+        rgba(255, 255, 255, 0.5),
+        rgba(200, 220, 255, 0.3) 30%,
+        transparent 60%
+    );
+    opacity: 0;
+    animation: stormLightning 7s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Heavy rain drops */
+body.weather-stormy::after {
+    content: '';
+    position: fixed;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background-image:
+        radial-gradient(ellipse 1.5px 10px at 20% 30%, rgba(200, 220, 255, 0.8), transparent),
+        radial-gradient(ellipse 1px 12px at 60% 70%, rgba(200, 220, 255, 0.9), transparent),
+        radial-gradient(ellipse 1.5px 8px at 50% 50%, rgba(200, 220, 255, 0.7), transparent),
+        radial-gradient(ellipse 1px 11px at 80% 10%, rgba(200, 220, 255, 0.85), transparent),
+        radial-gradient(ellipse 1.5px 9px at 30% 80%, rgba(200, 220, 255, 0.75), transparent),
+        radial-gradient(ellipse 1px 10px at 15% 40%, rgba(200, 220, 255, 0.8), transparent),
+        radial-gradient(ellipse 1.5px 12px at 70% 20%, rgba(200, 220, 255, 0.9), transparent),
+        radial-gradient(ellipse 1px 9px at 45% 90%, rgba(200, 220, 255, 0.75), transparent),
+        radial-gradient(ellipse 1.5px 11px at 35% 60%, rgba(200, 220, 255, 0.85), transparent),
+        radial-gradient(ellipse 1px 10px at 65% 45%, rgba(200, 220, 255, 0.8), transparent);
+    background-size: 120px 120px;
+    background-position: 0 0, 25px 35px, 55px 15px, 10px 65px, 40px 5px, 70px 50px, 15px 80px, 50px 30px, 30px 55px, 60px 10px;
+    animation: heavyStormRain 1s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes stormLightning {
+    0%, 82%, 84%, 86%, 100% { opacity: 0; }
+    83%, 85% { opacity: 1; }
+    83.5%, 85.5% { opacity: 0.5; }
+}
+
+@keyframes heavyStormRain {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(120px); }
+}
+
+/* SNOWY - Layered falling snowflakes */
+body.weather-snowy::before {
+    content: '';
+    position: fixed;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    background-image:
+        radial-gradient(circle, white 2px, transparent 2px),
+        radial-gradient(circle, white 1.5px, transparent 1.5px),
+        radial-gradient(circle, white 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.8) 1.5px, transparent 1.5px);
+    background-size: 100px 100px, 130px 130px, 80px 80px, 150px 150px;
+    background-position: 0 0, 40px 60px, 80px 30px, 20px 90px;
+    animation: snowfall1 12s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.9;
+}
+
+@keyframes snowfall1 {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100px); }
+}
+
+/* FOGGY - Dense rolling fog */
+body.weather-foggy::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 600px 400px at 30% 50%, rgba(255,255,255,0.15), transparent 70%),
+        radial-gradient(ellipse 700px 450px at 70% 30%, rgba(255,255,255,0.12), transparent 70%),
+        radial-gradient(ellipse 500px 350px at 50% 70%, rgba(255,255,255,0.18), transparent 70%);
+    animation: fogRoll 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+    filter: blur(60px);
+}
+
+@keyframes fogRoll {
+    0%, 100% { transform: translate(0, 0); opacity: 0.8; }
+    50% { transform: translate(5%, 3%); opacity: 1; }
+}
         
         .animated-bg {
             position: fixed;
@@ -1600,6 +1637,8 @@
             }
         }
     </style>
+    <!-- SunCalc - Accurate sun/moon calculations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 </head>
 <body>
     <div class="animated-bg"></div>
@@ -1651,6 +1690,28 @@
             </div>
         </div>
 
+        <!-- ANIMATION TEST PANEL -->
+        <div class="glass" style="padding: 16px; margin-bottom: 16px; background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2)); border: 2px solid rgba(138, 43, 226, 0.4);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">🎨 Weather Animation Tester</div>
+                    <div style="font-size: 11px; opacity: 0.8;">Test different weather themes and animations</div>
+                </div>
+                <button id="hideTestPanel" style="background: rgba(255,255,255,0.2); border: none; padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">Hide</button>
+            </div>
+            <div id="weatherTestButtons" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button onclick="testWeatherAnimation('clear-day')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">☀️ Clear Day</button>
+                <button onclick="testWeatherAnimation('clear-night')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">🌙 Clear Night</button>
+                <button onclick="testWeatherAnimation('cloudy')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">☁️ Cloudy</button>
+                <button onclick="testWeatherAnimation('rainy')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">🌧️ Rainy</button>
+                <button onclick="testWeatherAnimation('snowy')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">❄️ Snowy</button>
+                <button onclick="testWeatherAnimation('foggy')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">🌫️ Foggy</button>
+                <button onclick="testWeatherAnimation('stormy')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">⛈️ Stormy</button>
+                <button onclick="testWeatherAnimation('sunset')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px;">🌅 Sunset</button>
+                <button onclick="testWeatherAnimation('reset')" class="btn btn-primary" style="padding: 10px 14px; font-size: 13px; background: rgba(34, 197, 94, 0.4);">↺ Reset</button>
+            </div>
+        </div>
+
         <!-- Weather Summary -->
         <div class="glass" style="padding: 20px 32px; margin-bottom: 24px; position: relative;">
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -1693,9 +1754,9 @@
                     <div class="setting-item">
                         <label class="setting-label">
                             <input type="checkbox" id="togglePollen">
-                            <span>Pollen Forecast</span>
+                            <span>Air Quality & Allergens</span>
                         </label>
-                        <div class="setting-description">Daily pollen count for allergens</div>
+                        <div class="setting-description">Live air quality metrics and particle levels</div>
                     </div>
 
                     <div class="setting-item">
@@ -1779,7 +1840,7 @@
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">Wind Speed</span>
-                    <span class="metric-value" id="wind">-- km/h</span>
+                    <span class="metric-value" id="wind">-- mph</span>
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">Wind Direction</span>
@@ -1882,38 +1943,41 @@
             <!-- Weather Alerts -->
             <div class="card glass" id="cardWeatherAlerts" style="display: none;">
                 <div class="card-header">
-                    <span class="card-title">Weather Alerts</span>
-                    <span class="badge badge-success">All Clear</span>
+                    <span class="card-title">Weather Warnings</span>
+                    <span class="badge" id="alertsBadge">Loading...</span>
                 </div>
-                <div style="padding: 20px; text-align: center; opacity: 0.8; font-size: 14px;">
-                    <div style="font-size: 32px; margin-bottom: 12px;">✅</div>
-                    <div>No severe weather warnings</div>
-                    <div style="font-size: 12px; opacity: 0.6; margin-top: 8px;">UK Met Office</div>
+                <div id="alertsContent" style="padding: 20px; text-align: center; opacity: 0.8; font-size: 14px;">
+                    <div style="font-size: 32px; margin-bottom: 12px;">⏳</div>
+                    <div>Checking for warnings...</div>
                 </div>
             </div>
 
-            <!-- Pollen Forecast -->
+            <!-- Air Quality & Allergens -->
             <div class="card glass" id="cardPollen" style="display: none;">
                 <div class="card-header">
-                    <span class="card-title">Pollen Forecast</span>
-                    <span class="badge badge-warning">Moderate</span>
+                    <span class="card-title">Air Quality & Allergens</span>
+                    <span class="badge" id="pollenBadge">--</span>
                 </div>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Grass</span>
-                        <span class="info-value">🌾 Medium</span>
+                        <span class="info-label">Ozone (O₃)</span>
+                        <span class="info-value" id="pollenO3">-- µg/m³</span>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 2px;">Ground-level gas that worsens asthma</div>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Tree</span>
-                        <span class="info-value">🌳 Low</span>
+                        <span class="info-label">PM10 Particles</span>
+                        <span class="info-value" id="pollenPM10">-- µg/m³</span>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 2px;">Coarse dust, pollen & mold spores</div>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Weed</span>
-                        <span class="info-value">🌿 Low</span>
+                        <span class="info-label">PM2.5 Particles</span>
+                        <span class="info-value" id="pollenPM25">-- µg/m³</span>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 2px;">Fine smoke & combustion particles</div>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Overall</span>
-                        <span class="info-value">⚠️ Moderate</span>
+                        <span class="info-label">Air Quality Index</span>
+                        <span class="info-value" id="pollenAQI">-- AQI</span>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 2px;">Overall outdoor air safety rating</div>
                     </div>
                 </div>
             </div>
@@ -2063,6 +2127,13 @@
         // State
         let userName = '';
         let userLocation = '';
+        // ===== API CONFIGURATION =====
+        // For accurate moon data (moonrise, moonset, phase), you need a free API key
+        // Sign up at: https://ipgeolocation.io (Free - 1000 requests/day, no credit card)
+        // Add your API key below to enable real moon data
+        const ASTRONOMY_API_KEY = ''; // Leave empty to use calculations, or add key for real data
+        
+        // Global variables
         let locationCoords = { lat: 0, lon: 0 };
         let weatherData = null;
         let forecastData = null;
@@ -2426,6 +2497,40 @@
             }
         }
 
+        // Weather warnings - CORS prevents direct fetch, so provide link instead
+        async function fetchWeatherWarnings() {
+            try {
+                // Met Office RSS feed is blocked by CORS in browsers
+                // Instead, show a helpful message with a direct link
+                renderWeatherWarnings(null);
+            } catch (error) {
+                console.error('Weather warnings fetch error:', error);
+                renderWeatherWarnings(null);
+            }
+        }
+        
+        function renderWeatherWarnings(warnings) {
+            const badge = document.getElementById('alertsBadge');
+            const content = document.getElementById('alertsContent');
+            
+            // Since we can't fetch due to CORS, provide a helpful alternative
+            badge.textContent = 'Check Online';
+            badge.className = 'badge badge-moderate';
+            content.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🌐</div>
+                    <div style="margin-bottom: 12px;">Live weather warnings require checking the Met Office directly</div>
+                    <a href="https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings" 
+                       target="_blank" 
+                       class="btn btn-primary" 
+                       style="display: inline-block; margin-top: 8px; text-decoration: none;">
+                        View UK Weather Warnings
+                    </a>
+                    <div style="font-size: 11px; opacity: 0.6; margin-top: 12px;">Opens Met Office website</div>
+                </div>
+            `;
+        }
+
         // Fetch All Data
         async function fetchAllData() {
             try {
@@ -2443,6 +2548,9 @@
                 
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await fetchRiverData();
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchWeatherWarnings();
                 
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await initRadar();
@@ -2495,7 +2603,7 @@
                     minTemp: Math.round(weather.daily.temperature_2m_min[0]),
                     weatherCode: weather.current.weather_code,
                     humidity: weather.current.relative_humidity_2m,
-                    windSpeed: Math.round(weather.current.wind_speed_10m),
+                    windSpeed: Math.round(weather.current.wind_speed_10m * 0.621371), // Convert mph to MPH
                     windDirection: Math.round(weather.current.wind_direction_10m),
                     uvIndex: Math.round(weather.current.uv_index || 0),
                     aqi: Math.round(aqi.current.european_aqi || 0),
@@ -2564,34 +2672,80 @@
                 // Add small delay to avoid rate limiting
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
-                // Using sunrise-sunset.org API for sun times
-                const sunUrl = `https://api.sunrise-sunset.org/json?lat=${locationCoords.lat}&lng=${locationCoords.lon}&formatted=0`;
-                const sunResp = await fetch(sunUrl);
-                
-                if (!sunResp.ok) {
-                    throw new Error('Sun API error: ' + sunResp.status);
+                // If API key is provided, use ipgeolocation.io for accurate moon data
+                if (ASTRONOMY_API_KEY && ASTRONOMY_API_KEY.length > 0) {
+                    const url = `https://api.ipgeolocation.io/astronomy?apiKey=${ASTRONOMY_API_KEY}&lat=${locationCoords.lat}&long=${locationCoords.lon}`;
+                    
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Astronomy API data:', data);
+                        
+                        sunMoonData = {
+                            sunrise: data.sunrise || '--:--',
+                            sunset: data.sunset || '--:--',
+                            moonrise: data.moonrise || '--:--',
+                            moonset: data.moonset || '--:--',
+                            moonPhase: data.moon_phase || 'Unknown',
+                            moonIcon: getMoonIcon(data.moon_phase),
+                            moonIllumination: Math.round(parseFloat(data.moon_illumination || 0))
+                        };
+                        
+                        renderSunMoon();
+                        return;
+                    }
                 }
                 
-                const sunData = await sunResp.json();
-
-                if (sunData.status === 'OK') {
-                    const sunrise = new Date(sunData.results.sunrise);
-                    const sunset = new Date(sunData.results.sunset);
-
-                    sunMoonData = {
-                        sunrise: sunrise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                        sunset: sunset.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                    };
-                } else {
-                    throw new Error('Invalid sun data response');
-                }
-
-                // Calculate moon phase (simplified)
+                // Use SunCalc library for accurate calculations (no API needed!)
                 const now = new Date();
-                const moonPhaseData = calculateMoonPhase(now);
+                
+                // Get sun times
+                const sunTimes = SunCalc.getSunTimes(now, locationCoords.lat, locationCoords.lon);
+                
+                // Get moon times  
+                const moonTimes = SunCalc.getMoonTimes(now, locationCoords.lat, locationCoords.lon);
+                
+                // Get moon illumination and phase
+                const moonIllum = SunCalc.getMoonIllumination(now);
+                
+                // Convert phase (0-1) to phase name
+                const phase = moonIllum.phase;
+                let phaseName, phaseIcon;
+                if (phase < 0.03 || phase > 0.97) {
+                    phaseName = 'New Moon';
+                    phaseIcon = '🌑';
+                } else if (phase < 0.22) {
+                    phaseName = 'Waxing Crescent';
+                    phaseIcon = '🌒';
+                } else if (phase < 0.28) {
+                    phaseName = 'First Quarter';
+                    phaseIcon = '🌓';
+                } else if (phase < 0.47) {
+                    phaseName = 'Waxing Gibbous';
+                    phaseIcon = '🌔';
+                } else if (phase < 0.53) {
+                    phaseName = 'Full Moon';
+                    phaseIcon = '🌕';
+                } else if (phase < 0.72) {
+                    phaseName = 'Waning Gibbous';
+                    phaseIcon = '🌖';
+                } else if (phase < 0.78) {
+                    phaseName = 'Last Quarter';
+                    phaseIcon = '🌗';
+                } else {
+                    phaseName = 'Waning Crescent';
+                    phaseIcon = '🌘';
+                }
+                
                 sunMoonData = {
-                    ...sunMoonData,
-                    ...moonPhaseData
+                    sunrise: sunTimes.sunrise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                    sunset: sunTimes.sunset.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                    moonrise: moonTimes.rise ? moonTimes.rise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'No rise',
+                    moonset: moonTimes.set ? moonTimes.set.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'No set',
+                    moonPhase: phaseName,
+                    moonIcon: phaseIcon,
+                    moonIllumination: Math.round(moonIllum.fraction * 100)
                 };
 
                 renderSunMoon();
@@ -2601,93 +2755,31 @@
                 sunMoonData = {
                     sunrise: '--:--',
                     sunset: '--:--',
-                    ...calculateMoonPhase(new Date())
+                    moonrise: 'Error',
+                    moonset: 'Error',
+                    moonPhase: 'Unknown',
+                    moonIcon: '🌙',
+                    moonIllumination: 0
                 };
                 renderSunMoon();
             }
         }
-
-        // Calculate Moon Phase
-        function calculateMoonPhase(date) {
-            // Simplified moon phase calculation
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1;
-            const day = date.getDate();
-
-            let c = 0;
-            let e = 0;
-            let jd = 0;
-            let b = 0;
-
-            if (month < 3) {
-                year--;
-                month += 12;
-            }
-
-            ++month;
-            c = 365.25 * year;
-            e = 30.6 * month;
-            jd = c + e + day - 694039.09;
-            jd /= 29.5305882;
-            b = parseInt(jd);
-            jd -= b;
-            b = Math.round(jd * 8);
-
-            if (b >= 8) b = 0;
-
-            const phases = [
-                { name: 'New Moon', icon: '🌑' },
-                { name: 'Waxing Crescent', icon: '🌒' },
-                { name: 'First Quarter', icon: '🌓' },
-                { name: 'Waxing Gibbous', icon: '🌔' },
-                { name: 'Full Moon', icon: '🌕' },
-                { name: 'Waning Gibbous', icon: '🌖' },
-                { name: 'Last Quarter', icon: '🌗' },
-                { name: 'Waning Crescent', icon: '🌘' }
-            ];
-
-            const illumination = Math.round(jd * 100);
-
-            // Calculate moonrise/moonset based on moon phase
-            // The moon rises ~50 minutes later each day
-            // Phase determines the general time:
-            // - New Moon (b=0): rises ~6am, sets ~6pm (with sun)
-            // - First Quarter (b=2): rises ~12pm, sets ~12am
-            // - Full Moon (b=4): rises ~6pm, sets ~6am (opposite sun)
-            // - Last Quarter (b=6): rises ~12am, sets ~12pm
-            
-            const baseTime = new Date(date);
-            const moonrise = new Date(baseTime);
-            const moonset = new Date(baseTime);
-            
-            // Calculate moonrise hour based on phase (0-7)
-            // Phase 0 (New): 6am, Phase 2 (First Q): 12pm, Phase 4 (Full): 6pm, Phase 6 (Last Q): 12am
-            let moonriseHour;
-            if (b === 0) moonriseHour = 6;        // New moon - rises with sun
-            else if (b === 1) moonriseHour = 9;   // Waxing crescent
-            else if (b === 2) moonriseHour = 12;  // First quarter - rises at noon
-            else if (b === 3) moonriseHour = 15;  // Waxing gibbous
-            else if (b === 4) moonriseHour = 18;  // Full moon - rises at sunset
-            else if (b === 5) moonriseHour = 21;  // Waning gibbous
-            else if (b === 6) moonriseHour = 0;   // Last quarter - rises at midnight
-            else moonriseHour = 3;                // Waning crescent
-            
-            moonrise.setHours(moonriseHour);
-            moonrise.setMinutes(Math.round(jd * 60));
-            moonrise.setSeconds(0);
-            
-            // Moonset is approximately 12-13 hours after moonrise
-            // But if moonrise is late (evening/night), moonset is next day
-            moonset.setTime(moonrise.getTime() + (12.5 * 60 * 60 * 1000));
-
-            return {
-                moonPhase: phases[b].name,
-                moonIcon: phases[b].icon,
-                moonIllumination: illumination,
-                moonrise: moonrise.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-                moonset: moonset.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-            };
+        
+        // Helper function to get moon icon from phase name
+        function getMoonIcon(phaseName) {
+            if (!phaseName) return '🌑';
+            const phase = phaseName.toLowerCase();
+            if (phase.includes('new')) return '🌑';
+            if (phase.includes('waxing crescent')) return '🌒';
+            if (phase.includes('first quarter')) return '🌓';
+            if (phase.includes('waxing gibbous')) return '🌔';
+            if (phase.includes('full')) return '🌕';
+            if (phase.includes('waning gibbous')) return '🌖';
+            if (phase.includes('last quarter') || phase.includes('third quarter')) return '🌗';
+            if (phase.includes('waning crescent')) return '🌘';
+            return '🌙';
         }
+
 
         // Fetch River Data
         async function fetchRiverData() {
@@ -2695,10 +2787,11 @@
                 // Add small delay to avoid rate limiting
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // UK Environment Agency API for river levels
-                const url = `https://environment.data.gov.uk/flood-monitoring/id/stations?lat=${locationCoords.lat}&long=${locationCoords.lon}&dist=30`;
+                // UK Environment Agency API - use simpler endpoint
+                const stationsUrl = `https://environment.data.gov.uk/flood-monitoring/id/stations?lat=${locationCoords.lat}&long=${locationCoords.lon}&dist=30`;
                 
-                const response = await fetch(url);
+                console.log('Fetching river stations from:', stationsUrl);
+                const response = await fetch(stationsUrl);
                 
                 if (!response.ok) {
                     console.error('River API HTTP error:', response.status);
@@ -2708,15 +2801,87 @@
                 }
                 
                 const data = await response.json();
+                console.log('River stations data:', data);
 
                 if (data.items && data.items.length > 0) {
-                    riverData = data.items.slice(0, 5).map(station => ({
-                        name: station.label || station.riverName || 'Unknown River',
-                        level: station.stageScale ? station.stageScale.typicalRangeHigh : 'N/A',
-                        status: 'Normal',
-                        town: station.town || ''
-                    }));
+                    // Get up to 5 stations
+                    const stations = data.items.slice(0, 5);
+                    const riverPromises = stations.map(async (station) => {
+                        try {
+                            // Try to get the measure ID
+                            let measureId = null;
+                            if (station.measures) {
+                                if (typeof station.measures === 'string') {
+                                    measureId = station.measures;
+                                } else if (station.measures['@id']) {
+                                    measureId = station.measures['@id'];
+                                } else if (Array.isArray(station.measures) && station.measures.length > 0) {
+                                    measureId = station.measures[0]['@id'] || station.measures[0];
+                                }
+                            }
+                            
+                            // If we have a stationReference, try to fetch latest reading
+                            if (station.stationReference) {
+                                const readingUrl = `https://environment.data.gov.uk/flood-monitoring/id/stations/${station.stationReference}/readings?latest`;
+                                console.log('Fetching reading from:', readingUrl);
+                                
+                                try {
+                                    const readingResp = await fetch(readingUrl);
+                                    if (readingResp.ok) {
+                                        const readingData = await readingResp.json();
+                                        console.log('Reading data:', readingData);
+                                        
+                                        if (readingData.items && readingData.items.length > 0) {
+                                            const reading = readingData.items[0];
+                                            const level = reading.value;
+                                            
+                                            // Determine status
+                                            let status = 'Normal';
+                                            if (station.stageScale) {
+                                                const high = station.stageScale.typicalRangeHigh || 5;
+                                                const low = station.stageScale.typicalRangeLow || 0;
+                                                
+                                                if (level > high * 1.1) status = 'High';
+                                                else if (level > high * 0.9) status = 'Rising';
+                                                else if (level < low * 0.5) status = 'Low';
+                                            }
+                                            
+                                            return {
+                                                name: station.label || station.riverName || 'Unknown',
+                                                level: level.toFixed(2) + 'm',
+                                                status: status,
+                                                town: station.town || ''
+                                            };
+                                        }
+                                    }
+                                } catch (readError) {
+                                    console.error('Error fetching reading:', readError);
+                                }
+                            }
+                            
+                            // Fallback if no reading available
+                            return {
+                                name: station.label || station.riverName || 'Unknown',
+                                level: 'No data',
+                                status: 'Unknown',
+                                town: station.town || ''
+                            };
+                            
+                        } catch (err) {
+                            console.error('Error processing station:', err);
+                            return {
+                                name: station.label || 'Unknown',
+                                level: 'Error',
+                                status: 'Error',
+                                town: ''
+                            };
+                        }
+                    });
+                    
+                    riverData = await Promise.all(riverPromises);
+                    console.log('Final river data:', riverData);
                 } else {
+                    console.log('No river stations found nearby');
                     riverData = [];
                 }
 
@@ -2857,7 +3022,7 @@
                             <div class="hourly-temp">${temp}°</div>
                             <div class="hourly-details">
                                 <span>💧 ${precip}%</span>
-                                <span>💨 ${wind} km/h</span>
+                                <span>💨 ${wind} mph</span>
                             </div>
                         </div>
                     `);
@@ -2891,8 +3056,17 @@
 
             document.getElementById('sunrise').textContent = sunMoonData.sunrise || '--:--';
             document.getElementById('sunset').textContent = sunMoonData.sunset || '--:--';
-            document.getElementById('moonrise').textContent = sunMoonData.moonrise || '--:--';
-            document.getElementById('moonset').textContent = sunMoonData.moonset || '--:--';
+            
+            // Show moonrise/moonset (now accurate!)
+            const moonriseEl = document.getElementById('moonrise');
+            const moonsetEl = document.getElementById('moonset');
+            
+            moonriseEl.textContent = sunMoonData.moonrise || '--:--';
+            moonriseEl.title = '';
+            
+            moonsetEl.textContent = sunMoonData.moonset || '--:--';
+            moonsetEl.title = '';
+            
             document.getElementById('moonIcon').textContent = sunMoonData.moonIcon || '🌙';
             document.getElementById('moonPhase').textContent = sunMoonData.moonPhase || 'Unknown';
             document.getElementById('moonIllumination').textContent = `${sunMoonData.moonIllumination}% illuminated`;
@@ -2962,15 +3136,25 @@
                 return;
             }
 
-            container.innerHTML = riverData.map(river => `
-                <div class="river-item">
-                    <div class="river-name">${river.name}</div>
-                    <div class="river-info">
-                        <span>${river.town || 'Location N/A'}</span>
-                        <span class="badge badge-success">${river.status}</span>
+            container.innerHTML = riverData.map(river => {
+                // Determine badge class based on status
+                let badgeClass = 'badge-success';
+                if (river.status === 'High') badgeClass = 'badge-danger';
+                else if (river.status === 'Rising') badgeClass = 'badge-warning';
+                else if (river.status === 'Low') badgeClass = 'badge-moderate';
+                else if (river.status === 'Unknown' || river.status === 'Error') badgeClass = 'badge-moderate';
+                
+                return `
+                    <div class="river-item">
+                        <div class="river-name">${river.name}</div>
+                        <div class="river-info">
+                            <span style="font-weight: 500; color: rgba(255,255,255,0.9);">Level: ${river.level}</span>
+                            <span class="badge ${badgeClass}">${river.status}</span>
+                        </div>
+                        ${river.town ? `<div style="font-size: 11px; opacity: 0.6; margin-top: 4px;">${river.town}</div>` : ''}
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function getWeatherIcon(code) {
@@ -3048,7 +3232,7 @@
 
             document.getElementById('conditions').textContent = getWeatherDescription(weatherData.weatherCode);
             document.getElementById('humidity').textContent = weatherData.humidity + '%';
-            document.getElementById('wind').textContent = weatherData.windSpeed + ' km/h';
+            document.getElementById('wind').textContent = weatherData.windSpeed + ' mph';
             
             // Update wind direction
             if (weatherData.windDirection !== undefined) {
@@ -3069,6 +3253,9 @@
             document.getElementById('o3').textContent = weatherData.o3;
             document.getElementById('no2').textContent = weatherData.no2;
             
+            // Update pollen card with air quality data
+            updatePollenCard();
+            
             // Update background based on weather
             updateWeatherBackground(weatherData.weatherCode);
             
@@ -3077,6 +3264,22 @@
             
             // Check for rain alerts
             checkRainAlert();
+        }
+        
+        function updatePollenCard() {
+            if (!weatherData) return;
+            
+            // Update pollen card with actual air quality data
+            document.getElementById('pollenO3').textContent = weatherData.o3 + ' µg/m³';
+            document.getElementById('pollenPM10').textContent = weatherData.pm10 + ' µg/m³';
+            document.getElementById('pollenPM25').textContent = weatherData.pm25 + ' µg/m³';
+            document.getElementById('pollenAQI').textContent = weatherData.aqi + ' AQI';
+            
+            // Update badge based on AQI
+            const aqiInfo = getAQIInfo(weatherData.aqi);
+            const badge = document.getElementById('pollenBadge');
+            badge.textContent = aqiInfo.level;
+            badge.className = 'badge ' + aqiInfo.class;
         }
         
         function updateWeatherSummary() {
@@ -3108,9 +3311,9 @@
             
             // Wind
             if (weatherData.windSpeed > 30) {
-                summary.push(`Strong winds at ${weatherData.windSpeed} km/h from ${getWindDirection(weatherData.windDirection)}`);
+                summary.push(`Strong winds at ${weatherData.windSpeed} mph from ${getWindDirection(weatherData.windDirection)}`);
             } else if (weatherData.windSpeed > 15) {
-                summary.push(`Breezy with ${weatherData.windSpeed} km/h winds from ${getWindDirection(weatherData.windDirection)}`);
+                summary.push(`Breezy with ${weatherData.windSpeed} mph winds from ${getWindDirection(weatherData.windDirection)}`);
             } else {
                 summary.push(`Light winds from ${getWindDirection(weatherData.windDirection)}`);
             }
@@ -3453,6 +3656,28 @@
             }
         }
         
+        // Test function for animation preview
+        function testWeatherAnimation(type) {
+            const body = document.body;
+            
+            // Remove all weather classes
+            body.classList.remove('weather-clear-day', 'weather-clear-night', 'weather-cloudy', 
+                                  'weather-rainy', 'weather-stormy', 'weather-snowy', 
+                                  'weather-foggy', 'weather-sunset');
+            
+            if (type === 'reset') {
+                // Restore actual weather
+                if (weatherData && weatherData.weatherCode !== undefined) {
+                    updateWeatherBackground(weatherData.weatherCode);
+                } else {
+                    body.classList.add('weather-cloudy');
+                }
+            } else {
+                // Apply test animation
+                body.classList.add('weather-' + type);
+            }
+        }
+        
         
         function checkRainAlert() {
             if (!hourlyForecastData || !notificationsEnabled) return;
@@ -3658,6 +3883,12 @@
             setTimeout(() => {
                 location.reload();
             }, 300);
+        });
+        
+        // Hide test panel button
+        document.getElementById('hideTestPanel').addEventListener('click', () => {
+            const panel = document.getElementById('hideTestPanel').closest('.glass');
+            panel.style.display = 'none';
         });
         
         document.getElementById('notificationBtn').addEventListener('click', () => {
