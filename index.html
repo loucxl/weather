@@ -1693,7 +1693,7 @@ body.weather-foggy::before {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div>
                     <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">🎨 Weather Animation Tester</div>
-                    <div style="font-size: 11px; opacity: 0.8;">Test different weather themes and animations, menu being removed soon.</div>
+                    <div style="font-size: 11px; opacity: 0.8;">Test different weather themes and animations</div>
                 </div>
                 <button id="hideTestPanel" style="background: rgba(255,255,255,0.2); border: none; padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">Hide</button>
             </div>
@@ -1755,6 +1755,14 @@ body.weather-foggy::before {
                             <span>Air Quality & Allergens</span>
                         </label>
                         <div class="setting-description">Live air quality metrics and particle levels</div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="toggleGarden">
+                            <span>🌱 Garden & Growing Guide</span>
+                        </label>
+                        <div class="setting-description">UK planting calendar with weather-based advice</div>
                     </div>
 
                     <div class="setting-item">
@@ -1980,6 +1988,46 @@ body.weather-foggy::before {
                 </div>
             </div>
 
+            <!-- 🌱 Garden & Growing Guide -->
+            <div class="card glass" id="cardGarden" style="display: none;">
+                <div class="card-header">
+                    <span class="card-title">🌱 Garden Guide</span>
+                    <span class="badge" id="gardenScore">--/10</span>
+                </div>
+                
+                <!-- Current Conditions -->
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Today's Gardening Conditions</div>
+                    <div id="gardenConditions" style="font-size: 12px; opacity: 0.9; line-height: 1.6;">
+                        Loading conditions...
+                    </div>
+                </div>
+                
+                <!-- Today's Tasks -->
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Today's Tasks</div>
+                    <div id="gardenTasks" style="font-size: 12px; line-height: 1.8;">
+                        Loading tasks...
+                    </div>
+                </div>
+                
+                <!-- This Month -->
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;" id="gardenMonthTitle">This Month</div>
+                    <div id="gardenThisMonth" style="font-size: 12px; line-height: 1.8;">
+                        Loading planting guide...
+                    </div>
+                </div>
+                
+                <!-- Next Month Preview -->
+                <div>
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;" id="gardenNextMonthTitle">Next Month</div>
+                    <div id="gardenNextMonth" style="font-size: 12px; opacity: 0.8; line-height: 1.8;">
+                        Loading preview...
+                    </div>
+                </div>
+            </div>
+
             <!-- Astronomy -->
             <div class="card glass" id="cardAstronomy" style="display: none;">
                 <div class="card-header">
@@ -2138,6 +2186,94 @@ body.weather-foggy::before {
         let hourlyForecastData = null;
         let sunMoonData = null;
         let riverData = null;
+        
+        // UK Garden Calendar Data
+        const gardenCalendar = {
+            0: { // January
+                month: 'January',
+                sowIndoors: ['Tomatoes (late month)', 'Chillies', 'Peppers'],
+                sowOutdoors: [],
+                plant: ['Garlic cloves (if soil not frozen)', 'Onion sets'],
+                harvest: ['Brussels sprouts', 'Kale', 'Leeks', 'Parsnips']
+            },
+            1: { // February
+                month: 'February',
+                sowIndoors: ['Tomatoes', 'Aubergines', 'Peppers', 'Chillies'],
+                sowOutdoors: ['Broad beans (under cloches)', 'Peas (under cloches)'],
+                plant: ['Shallots', 'Garlic'],
+                harvest: ['Purple sprouting broccoli', 'Leeks', 'Parsnips']
+            },
+            2: { // March
+                month: 'March',
+                sowIndoors: ['Tomatoes', 'Cucumbers', 'Courgettes', 'Pumpkins'],
+                sowOutdoors: ['Carrots', 'Parsnips', 'Beetroot', 'Peas', 'Broad beans', 'Spinach', 'Lettuce'],
+                plant: ['Onion sets', 'Shallots', 'Early potatoes'],
+                harvest: ['Spring cabbage', 'Sprouting broccoli', 'Leeks']
+            },
+            3: { // April
+                month: 'April',
+                sowIndoors: [],
+                sowOutdoors: ['Carrots', 'Beetroot', 'Lettuce', 'Radish', 'Spring onions', 'Peas', 'Spinach'],
+                plant: ['Maincrop potatoes', 'Asparagus crowns'],
+                harvest: ['Spring cabbage', 'Kale', 'Sprouting broccoli']
+            },
+            4: { // May
+                month: 'May',
+                sowIndoors: [],
+                sowOutdoors: ['French beans', 'Runner beans', 'Courgettes', 'Pumpkins', 'Squash', 'Sweetcorn'],
+                plant: ['Tomatoes (after frost)', 'Peppers', 'Cucumbers'],
+                harvest: ['Asparagus', 'Radish', 'Spring onions', 'Lettuce']
+            },
+            5: { // June
+                month: 'June',
+                sowIndoors: [],
+                sowOutdoors: ['Beetroot', 'Carrots', 'Lettuce', 'Radish', 'Spring onions', 'French beans'],
+                plant: ['Leeks', 'Cabbage', 'Cauliflower', 'Broccoli'],
+                harvest: ['Lettuce', 'Radish', 'Broad beans', 'Peas', 'New potatoes']
+            },
+            6: { // July
+                month: 'July',
+                sowIndoors: [],
+                sowOutdoors: ['Beetroot', 'Carrots', 'Spring onions', 'Lettuce'],
+                plant: ['Kale', 'Sprouting broccoli'],
+                harvest: ['Tomatoes', 'Beans', 'Courgettes', 'Peas', 'Lettuce', 'Beetroot', 'Carrots']
+            },
+            7: { // August
+                month: 'August',
+                sowIndoors: [],
+                sowOutdoors: ['Winter lettuce', 'Spinach', 'Spring cabbage'],
+                plant: [],
+                harvest: ['Tomatoes', 'Beans', 'Courgettes', 'Beetroot', 'Carrots', 'Potatoes', 'Onions']
+            },
+            8: { // September
+                month: 'September',
+                sowIndoors: [],
+                sowOutdoors: ['Winter lettuce', 'Spinach', 'Spring onions'],
+                plant: ['Spring cabbage'],
+                harvest: ['Tomatoes', 'Beans', 'Courgettes', 'Beetroot', 'Carrots', 'Squash', 'Pumpkins']
+            },
+            9: { // October
+                month: 'October',
+                sowIndoors: [],
+                sowOutdoors: ['Broad beans (overwintering)'],
+                plant: ['Garlic cloves'],
+                harvest: ['Squash', 'Pumpkins', 'Carrots', 'Beetroot', 'Leeks']
+            },
+            10: { // November
+                month: 'November',
+                sowIndoors: [],
+                sowOutdoors: [],
+                plant: ['Garlic', 'Japanese onion sets'],
+                harvest: ['Parsnips', 'Leeks', 'Brussels sprouts', 'Kale']
+            },
+            11: { // December
+                month: 'December',
+                sowIndoors: [],
+                sowOutdoors: [],
+                plant: [],
+                harvest: ['Brussels sprouts', 'Kale', 'Leeks', 'Parsnips']
+            }
+        };
         let map = null;
         let marker = null;
         let clockInterval = null;
@@ -2202,6 +2338,7 @@ body.weather-foggy::before {
         function applyFeatureToggles() {
             document.getElementById('toggleWeatherAlerts').checked = features.weatherAlerts;
             document.getElementById('togglePollen').checked = features.pollen;
+            document.getElementById('toggleGarden').checked = features.garden || false;
             document.getElementById('toggleAstronomy').checked = features.astronomy;
             document.getElementById('toggleHistorical').checked = features.historical;
             document.getElementById('toggleRadar').checked = features.radar;
@@ -2212,6 +2349,7 @@ body.weather-foggy::before {
         function saveFeatureSettings() {
             features.weatherAlerts = document.getElementById('toggleWeatherAlerts').checked;
             features.pollen = document.getElementById('togglePollen').checked;
+            features.garden = document.getElementById('toggleGarden').checked;
             features.astronomy = document.getElementById('toggleAstronomy').checked;
             features.historical = document.getElementById('toggleHistorical').checked;
             features.radar = document.getElementById('toggleRadar').checked;
@@ -2239,6 +2377,7 @@ body.weather-foggy::before {
         function updateCardVisibility() {
             document.getElementById('cardWeatherAlerts').style.display = features.weatherAlerts ? 'flex' : 'none';
             document.getElementById('cardPollen').style.display = features.pollen ? 'flex' : 'none';
+            document.getElementById('cardGarden').style.display = features.garden ? 'flex' : 'none';
             document.getElementById('cardAstronomy').style.display = features.astronomy ? 'flex' : 'none';
             document.getElementById('cardHistorical').style.display = features.historical ? 'flex' : 'none';
             document.getElementById('cardRadar').style.display = features.radar ? 'flex' : 'none';
@@ -2653,7 +2792,7 @@ body.weather-foggy::before {
                     temps: data.hourly.temperature_2m,
                     codes: data.hourly.weather_code,
                     precipitation: data.hourly.precipitation_probability,
-                    windSpeed: data.hourly.wind_speed_10m
+                    windSpeed: data.hourly.wind_speed_10m.map(speed => speed * 0.621371) // Convert km/h to MPH
                 };
 
                 console.log('Processed forecast data:', forecastData);
@@ -3413,6 +3552,123 @@ body.weather-foggy::before {
                 `;
             }).join('');
         }
+        
+        // Render Garden Guide
+        function renderGardenGuide() {
+            if (!weatherData) return;
+            
+            const now = new Date();
+            const month = now.getMonth();
+            const temp = weatherData.temp;
+            const windSpeed = weatherData.windSpeed;
+            
+            const thisMonth = gardenCalendar[month];
+            const nextMonth = gardenCalendar[(month + 1) % 12];
+            
+            // Calculate gardening conditions score (1-10)
+            let score = 5; // Start at middle
+            
+            // Temperature factors
+            if (temp >= 10 && temp <= 20) score += 2; // Perfect
+            else if (temp >= 5 && temp < 10) score += 1; // OK
+            else if (temp < 2) score -= 2; // Too cold
+            else if (temp > 25) score -= 1; // Too hot
+            
+            // Wind factors
+            if (windSpeed < 10) score += 1; // Calm
+            else if (windSpeed > 20) score -= 2; // Too windy
+            
+            // Ensure score stays 1-10
+            score = Math.max(1, Math.min(10, score));
+            
+            // Update score badge
+            document.getElementById('gardenScore').textContent = score + '/10';
+            document.getElementById('gardenScore').className = 'badge ' + 
+                (score >= 8 ? 'badge-success' : score >= 5 ? 'badge-moderate' : 'badge-warning');
+            
+            // Generate conditions text
+            let conditions = [];
+            conditions.push(`🌡️ Temperature: ${temp >= 10 && temp <= 20 ? 'Perfect' : temp >= 5 ? 'OK' : 'Too cold'} (${temp}°C)`);
+            conditions.push(`💨 Wind: ${windSpeed < 10 ? 'Calm' : windSpeed < 20 ? 'Breezy' : 'Strong'} (${windSpeed}mph)`);
+            
+            document.getElementById('gardenConditions').innerHTML = conditions.join('<br>');
+            
+            // Generate tasks
+            let tasks = [];
+            
+            // Frost warning
+            if (temp <= 2) {
+                tasks.push('⚠️ <strong>Frost alert!</strong> Protect tender plants');
+            }
+            
+            // Harvest suggestions
+            if (thisMonth.harvest && thisMonth.harvest.length > 0) {
+                tasks.push('✅ Harvest: ' + thisMonth.harvest.slice(0, 3).join(', '));
+            }
+            
+            // Planting advice based on temp
+            if (temp < 5) {
+                tasks.push('⏸️ Too cold to plant outdoors (' + temp + '°C)');
+            } else if (temp >= 10 && temp <= 20) {
+                tasks.push('✅ Perfect planting weather!');
+            }
+            
+            // Watering advice
+            if (temp > 15) {
+                tasks.push('💧 Water plants regularly in warm weather');
+            }
+            
+            // Wind warning
+            if (windSpeed > 20) {
+                tasks.push('⚠️ Strong winds - stake tall plants');
+            }
+            
+            if (tasks.length === 0) {
+                tasks.push('✅ General garden maintenance');
+            }
+            
+            document.getElementById('gardenTasks').innerHTML = tasks.join('<br>');
+            
+            // This month section
+            document.getElementById('gardenMonthTitle').textContent = thisMonth.month;
+            let thisMonthContent = [];
+            
+            if (thisMonth.sowIndoors.length > 0) {
+                thisMonthContent.push('🌱 <strong>Sow indoors:</strong> ' + thisMonth.sowIndoors.join(', '));
+            }
+            if (thisMonth.sowOutdoors.length > 0) {
+                thisMonthContent.push('🌱 <strong>Sow outdoors:</strong> ' + thisMonth.sowOutdoors.join(', '));
+            }
+            if (thisMonth.plant.length > 0) {
+                thisMonthContent.push('🧅 <strong>Plant:</strong> ' + thisMonth.plant.join(', '));
+            }
+            
+            if (thisMonthContent.length === 0) {
+                thisMonthContent.push('Planning season - prepare for spring! 📝');
+            }
+            
+            document.getElementById('gardenThisMonth').innerHTML = thisMonthContent.join('<br>');
+            
+            // Next month preview
+            document.getElementById('gardenNextMonthTitle').textContent = nextMonth.month + ' (Coming Up)';
+            let nextMonthContent = [];
+            
+            if (nextMonth.sowIndoors.length > 0) {
+                nextMonthContent.push('🌱 Sow indoors: ' + nextMonth.sowIndoors.slice(0, 2).join(', '));
+            }
+            if (nextMonth.sowOutdoors.length > 0) {
+                nextMonthContent.push('🌱 Sow outdoors: ' + nextMonth.sowOutdoors.slice(0, 2).join(', '));
+            }
+            if (nextMonth.plant.length > 0) {
+                nextMonthContent.push('🧅 Plant: ' + nextMonth.plant.slice(0, 2).join(', '));
+            }
+            
+            if (nextMonthContent.length === 0) {
+                nextMonthContent.push('Check back next month!');
+            }
+            
+            document.getElementById('gardenNextMonth').innerHTML = nextMonthContent.join('<br>');
+        }
 
         function getWeatherIcon(code) {
             const icons = {
@@ -3512,6 +3768,11 @@ body.weather-foggy::before {
             
             // Update pollen card with air quality data
             updatePollenCard();
+            
+            // Update garden guide
+            if (features.garden) {
+                renderGardenGuide();
+            }
             
             // Update background based on weather
             updateWeatherBackground(weatherData.weatherCode);
@@ -3879,6 +4140,12 @@ body.weather-foggy::before {
             const hour = now.getHours();
             const isNight = hour < 6 || hour > 20;
             
+            console.log('Updating weather background:', {
+                weatherCode: weatherCode,
+                hour: hour,
+                isNight: isNight
+            });
+            
             // Remove all weather classes
             body.classList.remove('weather-clear-day', 'weather-clear-night', 'weather-cloudy', 
                                   'weather-rainy', 'weather-stormy', 'weather-snowy', 
@@ -3887,30 +4154,43 @@ body.weather-foggy::before {
             // Sunset/sunrise times (approximate)
             const isSunsetTime = (hour >= 16 && hour <= 18) || (hour >= 5 && hour <= 7);
             
+            let appliedTheme = '';
+            
             if (isSunsetTime && (weatherCode === 0 || weatherCode === 1)) {
                 body.classList.add('weather-sunset');
+                appliedTheme = 'sunset';
             } else if (weatherCode === 0 || weatherCode === 1) {
                 // Clear
-                body.classList.add(isNight ? 'weather-clear-night' : 'weather-clear-day');
+                const theme = isNight ? 'weather-clear-night' : 'weather-clear-day';
+                body.classList.add(theme);
+                appliedTheme = theme;
             } else if (weatherCode === 2 || weatherCode === 3) {
                 // Cloudy
                 body.classList.add('weather-cloudy');
+                appliedTheme = 'cloudy';
             } else if (weatherCode === 45 || weatherCode === 48) {
                 // Fog
                 body.classList.add('weather-foggy');
+                appliedTheme = 'foggy';
             } else if (weatherCode >= 71 && weatherCode <= 77) {
                 // Snow
                 body.classList.add('weather-snowy');
+                appliedTheme = 'snowy';
             } else if (weatherCode === 95 || weatherCode === 96 || weatherCode === 99) {
                 // Thunderstorm
                 body.classList.add('weather-stormy');
+                appliedTheme = 'stormy';
             } else if (weatherCode >= 51 && weatherCode <= 67) {
                 // Rain
                 body.classList.add('weather-rainy');
+                appliedTheme = 'rainy';
             } else {
                 // Default cloudy
                 body.classList.add('weather-cloudy');
+                appliedTheme = 'cloudy (default)';
             }
+            
+            console.log('Applied weather theme:', appliedTheme);
         }
         
         // Test function for animation preview
