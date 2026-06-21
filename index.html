@@ -1,1474 +1,943 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HarvestOS - The Ultimate Farming Tablet RPG</title>
+    <meta name="theme-color" content="#1a73e8">
+    <title>Weather Command Center v2</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
     <style>
         :root {
-            --bg-tablet: #1e1e24;
-            --bg-bezel: #0a0a0c;
-            --bg-screen: #f4f7f6;
-            --bg-card: #ffffff;
-            --text-main: #2b2d42;
-            --text-muted: #6c757d;
-            --primary: #4caf50;
-            --primary-dark: #388e3c;
-            --accent: #ff9800;
-            --coin: #ffd700;
-            --gem: #00bfff;
-            --token: #9c27b0;
-            --border: #e0e0e0;
-            --shadow: rgba(0,0,0,0.1);
-            --rarity-common: #8e9aaf;
-            --rarity-uncommon: #4caf50;
-            --rarity-rare: #2196f3;
-            --rarity-epic: #9c27b0;
-            --rarity-legendary: #ff9800;
+            --bg: #f0f4f8;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.5);
+            --text: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --accent: #1a73e8;
+            --accent-hover: #1557b0;
+            --border: rgba(0, 0, 0, 0.06);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --radius: 24px;
+            --transition: 0.3s ease;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
         }
-
         [data-theme="dark"] {
-            --bg-screen: #121214;
-            --bg-card: #1d1d21;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border: #2d3748;
-            --shadow: rgba(0,0,0,0.4);
+            --bg: #0f1119;
+            --bg-card: rgba(26, 29, 43, 0.75);
+            --bg-glass: rgba(22, 25, 38, 0.5);
+            --text: #e8eaed;
+            --text-secondary: #b0b5c0;
+            --text-muted: #7a8090;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            background: #2c3e50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        /* Tablet Frame Simulation */
-        .tablet-container {
-            width: 100%;
-            max-width: 1280px;
-            height: 850px;
-            background: var(--bg-bezel);
-            border-radius: 40px;
-            padding: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2);
+            transition: background 0.6s, color 0.4s;
             position: relative;
-            display: flex;
-            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .weather-bg {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index:0; opacity:0.6; transition: background 1.2s ease;
+        }
+        .weather-bg.sunny { background: linear-gradient(160deg, #4facfe, #a8e6ff); }
+        .weather-bg.sunny::after { content:''; position:absolute; top:10%; left:70%; width:120px; height:120px; background: radial-gradient(circle, rgba(255,255,200,0.6) 0%, transparent 70%); border-radius:50%; animation: sunGlow 4s infinite; filter: blur(6px); }
+        .weather-bg.cloudy { background: linear-gradient(160deg, #8e9eab, #dce3ea); }
+        .weather-bg.cloudy::before { content:''; position:absolute; top:20%; left:-10%; width:200px; height:80px; background: rgba(255,255,255,0.3); border-radius:50%; animation: driftCloud 25s linear infinite; filter: blur(15px); }
+        .weather-bg.cloudy::after { content:''; position:absolute; top:40%; left:60%; width:250px; height:100px; background: rgba(255,255,255,0.25); border-radius:50%; animation: driftCloud 30s linear infinite reverse; filter: blur(20px); }
+        .weather-bg.rain { background: linear-gradient(160deg, #3a4a5c, #6b7d8e); }
+        .weather-bg.rain::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px); animation: rainStreaks 0.5s linear infinite; }
+        .weather-bg.storm { background: linear-gradient(160deg, #1a1a2e, #3d3d5c); }
+        .weather-bg.storm::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(ellipse at 30% 40%, rgba(255,255,200,0.15) 0%, transparent 50%); animation: lightningFlash 3s infinite; opacity:0; }
+        .weather-bg.snow { background: linear-gradient(160deg, #e8edf2, #bcc8d6); }
+        .weather-bg.snow::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 30%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.3) 0%, transparent 25%); animation: frostPulse 8s infinite; }
+        .weather-bg.night { background: linear-gradient(160deg, #0c1445, #283593); }
+        .weather-bg.night::before { content:''; position:absolute; top:10%; left:15%; width:4px; height:4px; background: white; border-radius:50%; box-shadow:0 0 8px white; animation: twinkle 2s infinite; }
+        .weather-bg.night::after { content:''; position:absolute; top:25%; right:20%; width:3px; height:3px; background: white; border-radius:50%; box-shadow:0 0 6px white; animation: twinkle 3s infinite 1s; }
+        .weather-bg.mist { background: linear-gradient(160deg, #c9d6df, #f0f3f5); }
+        @keyframes sunGlow { 0%,100%{transform:scale(1);opacity:0.7;} 50%{transform:scale(1.15);opacity:1;} }
+        @keyframes driftCloud { 0%{transform:translateX(0);} 100%{transform:translateX(120vw);} }
+        @keyframes rainStreaks { 0%{background-position:0 0;} 100%{background-position:0 20px;} }
+        @keyframes lightningFlash { 0%,90%,100%{opacity:0;} 92%{opacity:1;} 94%{opacity:0.3;} 96%{opacity:1;} }
+        @keyframes frostPulse { 0%,100%{opacity:0.5;} 50%{opacity:0.9;} }
+        @keyframes twinkle { 0%,100%{opacity:0.3;transform:scale(0.8);} 50%{opacity:1;transform:scale(1.2);} }
+        .particles-container {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index:1; overflow: hidden;
+        }
+        .particle { position: absolute; animation: fall linear infinite; }
+        .particle.raindrop { width:2px; height:14px; background:rgba(180,210,240,0.5); border-radius:50%; animation-duration:0.6s; }
+        .particle.snowflake { width:5px; height:5px; background:rgba(255,255,255,0.7); border-radius:50%; animation-duration:3s; box-shadow:0 0 4px rgba(255,255,255,0.5); }
+        @keyframes fall { 0%{transform:translateY(-10vh) rotate(0deg);opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translateY(105vh) rotate(180deg);opacity:0;} }
+
+        .app-container { position: relative; z-index:2; max-width: 1200px; margin:0 auto; padding:20px 24px 40px; }
+        .header { display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
+        .logo { font-size:1.8rem; font-weight:700; background: linear-gradient(135deg, var(--accent), #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space:nowrap; }
+        .search-box { flex:1 1 350px; display:flex; gap:8px; position:relative; }
+        .search-input {
+            flex:1; padding:14px 20px; border-radius:50px; border:1px solid var(--border);
+            background: var(--bg-glass); backdrop-filter: blur(16px); color: var(--text);
+            font-size:1rem; outline:none; box-shadow: var(--shadow);
+        }
+        .search-input:focus { border-color:var(--accent); box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
+        .btn {
+            padding:12px 20px; border-radius:50px; border:none; cursor:pointer; font-weight:600; font-size:0.9rem;
+            transition: var(--transition); background: var(--bg-glass); backdrop-filter: blur(12px);
+            color: var(--text); border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;
+        }
+        .btn-primary { background: var(--accent); color:white; border:none; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+        .header-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .autocomplete-dropdown {
+            position:absolute; top:calc(100% + 8px); left:0; right:0; background: var(--bg-card);
+            backdrop-filter: blur(20px); border-radius:20px; box-shadow:0 12px 32px rgba(0,0,0,0.15);
+            z-index:100; overflow:hidden; display:none;
+        }
+        .autocomplete-dropdown.active { display:block; }
+        .autocomplete-item { padding:12px 18px; cursor:pointer; border-bottom:1px solid var(--border); color:var(--text); }
+        .autocomplete-item:hover { background: rgba(26,115,232,0.1); }
+
+        .recent-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+        .recent-tag { padding:6px 14px; border-radius:40px; background: var(--bg-glass); font-size:0.8rem; cursor:pointer; border:1px solid var(--border); backdrop-filter: blur(12px); }
+        .recent-tag:hover { background: var(--accent); color:white; }
+
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px; }
+        .card {
+            background: var(--bg-card); backdrop-filter: blur(20px); border-radius: var(--radius);
+            padding:24px; border:1px solid var(--border); box-shadow: var(--shadow); transition: var(--transition);
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.1); }
+        .card-header { display:flex; justify-content: space-between; align-items:center; margin-bottom:16px; }
+        .card-title { font-size:1rem; font-weight:700; text-transform: uppercase; letter-spacing:0.04em; color:var(--text-secondary); }
+        .span-2 { grid-column: span 2; }
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .span-2 { grid-column: span 1; }
+            .current-weather-grid { grid-template-columns: 1fr; }
         }
 
-        .tablet-camera {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
-            background: #1a1a1a;
-            border-radius: 50%;
+        .current-weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:center; }
+        .temp-block { display: flex; flex-direction: column; align-items: flex-start; gap:4px; }
+        .temp-large { font-size:4.5rem; font-weight:700; letter-spacing:-2px; line-height:1; }
+        .feels-like { font-size:1rem; color:var(--text-muted); margin-top:4px; }
+        .weather-icon { font-size:5rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap:12px; }
+        .detail-item { display: flex; align-items: center; gap:10px; padding:10px; background: var(--bg-glass); border-radius:14px; font-size:0.9rem; }
+        .detail-icon { font-size:1.4rem; }
+
+        .hourly-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; }
+        .hourly-item { flex:0 0 auto; min-width:80px; text-align:center; padding:14px 8px; border-radius:20px; background: var(--bg-glass); border:1px solid var(--border); }
+        .daily-list { display:flex; flex-direction:column; gap:8px; }
+        .daily-row {
+            display:grid; grid-template-columns: 80px 1fr 70px 70px 50px; align-items:center; gap:10px;
+            padding:12px; border-radius:16px; background: var(--bg-glass); border:1px solid var(--border);
         }
-
-        .tablet-screen {
-            flex: 1;
-            background: var(--bg-screen);
-            border-radius: 20px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
+        .alert-banner {
+            padding:14px 20px; border-radius:18px; background: rgba(231,76,60,0.1);
+            border:1px solid rgba(231,76,60,0.3); color:#e74c3c; margin-bottom:12px;
         }
-
-        /* Status Bar */
-        .status-bar {
-            background: rgba(0,0,0,0.05);
-            padding: 8px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border);
+        .pollen-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+        .pollen-item { text-align:center; padding:12px; border-radius:16px; background: var(--bg-glass); }
+        .chart-box { height:260px; }
+        .sim-panel { background: var(--bg-card); backdrop-filter: blur(20px); border-radius:24px; padding:16px; margin-bottom:20px; display:none; border:1px solid var(--border); }
+        .sim-panel.active { display:block; }
+        .toast {
+            position:fixed; bottom:30px; left:50%; transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card); backdrop-filter: blur(16px); padding:14px 28px;
+            border-radius:50px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:1000;
+            transition: transform 0.4s ease; font-weight:600;
         }
-
-        .status-left, .status-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .loading-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); z-index:999;
+            display:flex; align-items:center; justify-content:center;
         }
-
-        /* Top Bar Info Dashboard */
-        .dashboard-bar {
-            background: var(--bg-card);
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 5px var(--shadow);
-        }
-
-        .currencies {
-            display: flex;
-            gap: 15px;
-        }
-
-        .currency-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(0,0,0,0.03);
-            border: 1px solid var(--border);
-        }
-        [data-theme="dark"] .currency-badge {
-            background: rgba(255,255,255,0.03);
-        }
-
-        .badge-coins { color: var(--coin); }
-        .badge-gems { color: var(--gem); }
-        .badge-tokens { color: var(--token); }
-
-        .time-environment {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.02);
-            padding: 6px 15px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-        }
-
-        /* Main Shell Layout */
-        .main-shell {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        /* Navigation Sidebar */
-        .sidebar-nav {
-            width: 220px;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 20px;
-            background: none;
-            border: none;
-            text-align: left;
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 4px solid transparent;
-        }
-
-        .nav-btn:hover {
-            background: rgba(0,0,0,0.02);
-        }
-
-        .nav-btn.active {
-            background: rgba(76, 175, 80, 0.1);
-            color: var(--primary);
-            border-left-color: var(--primary);
-        }
-
-        /* App Content Viewports */
-        .content-viewport {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .view-panel {
-            display: none;
-            height: 100%;
-        }
-
-        .view-panel.active {
-            display: block;
-        }
-
-        /* Utilities & Grid Modules */
-        .grid-plots {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 15px;
-        }
-
-        .farm-plot {
-            background: var(--bg-card);
-            border: 2px dashed #a0a0a0;
-            border-radius: 12px;
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.1s, border-color 0.2s;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .farm-plot.active-planted {
-            border-style: solid;
-            border-color: var(--primary);
-        }
-
-        .farm-plot:hover {
-            transform: scale(1.03);
-        }
-
-        /* Progress Elements */
-        .progress-wrapper {
-            width: 100%;
-            background: #e0e0e0;
-            border-radius: 6px;
-            height: 8px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        /* Market Cards & Systems */
-        .market-layout {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .catalog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .item-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 2px 4px var(--shadow);
-        }
-
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .rarity-tag {
-            font-size: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #fff;
-        }
-
-        /* Generic Buttons */
-        .btn-action {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-size: 13px;
-        }
-
-        .btn-action:hover { background: var(--primary-dark); }
-        .btn-action:disabled { background: #cccccc; cursor: not-allowed; }
-
-        /* Notification Engine */
-        .toast-container {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .toast-popup {
-            background: var(--text-main);
-            color: var(--bg-card);
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-size: 13px;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: toastIn 0.3s forwards, toastOut 0.3s 2.7s forwards;
-        }
-
-        @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
-        @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
-
-        /* Section Specific Styles */
-        .flex-row-center { display: flex; align-items: center; gap: 8px; }
-        .section-title { font-size: 20px; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;}
-        .stats-grid, .upgrade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
-        .stat-card, .upgrade-card { background: var(--bg-card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; }
-
-        /* Giant clicker element */
-        .clicker-well {
-            background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 20px;
-            border: 2px solid #81c784;
-            transition: transform 0.05s;
-        }
-        .clicker-well:active { transform: scale(0.98); }
-
-        /* Simple mini layout adjustments */
-        .split-box { display: flex; gap: 10px; margin-top: 5px; }
-        .split-box button { flex: 1; }
+        .loading-overlay.hidden { display:none; }
+        .moon-phase { display:flex; align-items:center; gap:8px; font-size:1.5rem; }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-<div class="tablet-container">
-    <div class="tablet-camera"></div>
-    <div class="tablet-screen">
-        
-        <div class="status-bar">
-            <div class="status-left">
-                <span id="tablet-time">12:00 PM</span>
-                <span>📶 HarvestNet 5G</span>
-            </div>
-            <div><strong>HarvestOS v4.2</strong></div>
-            <div class="status-right">
-                <span id="active-event-indicator" style="color:var(--accent);"></span>
-                <span>🔋 100%</span>
-            </div>
-        </div>
+    <div class="weather-bg sunny" id="weatherBg"></div>
+    <div class="particles-container" id="particlesContainer"></div>
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div style="width:56px;height:56px;border:4px solid rgba(255,255,255,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+    </div>
+    <div class="toast" id="toast"></div>
 
-        <div class="dashboard-bar">
-            <div class="currencies">
-                <div class="currency-badge badge-coins">🪙 <span id="display-coins">0</span></div>
-                <div class="currency-badge badge-gems">💎 <span id="display-gems">0</span></div>
-                <div class="currency-badge badge-tokens">🎟️ <span id="display-tokens">0</span></div>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">⛈ Weather Command Center v2</div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search city, town, postcode..." autocomplete="off">
+                <button class="btn btn-primary" id="searchBtn">🔍</button>
+                <button class="btn" id="locationBtn" title="Use my location">📍</button>
+                <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
             </div>
-            <div class="time-environment">
-                <span id="env-season-day">Spring - Day 1</span>
-                <span id="env-weather">☀️ Sunny</span>
+            <div class="header-actions">
+                <button class="btn" id="simToggleBtn">🎭 Simulate</button>
+                <button class="btn" id="themeToggle">🌓</button>
+                <button class="btn" id="unitToggle">°C/°F</button>
+                <button class="btn" id="shareBtn">📤</button>
+                <button class="btn" id="printBtn">🖨</button>
             </div>
         </div>
 
-        <div class="main-shell">
-            
-            <nav class="sidebar-nav">
-                <button class="nav-btn active" onclick="switchTab('farm')">🚜 Hub & Farm</button>
-                <button class="nav-btn" onclick="switchTab('crops')">🌱 Crop Nursery</button>
-                <button class="nav-btn" onclick="switchTab('animals')">🐾 Animal Barn</button>
-                <button class="nav-btn" onclick="switchTab('market')">📈 Dynamic Market</button>
-                <button class="nav-btn" onclick="switchTab('inventory')">🎒 Storage Bag</button>
-                <button class="nav-btn" onclick="switchTab('quests')">📜 Level Quests</button>
-                <button class="nav-btn" onclick="switchTab('skills')">🧬 Mastery RPG</button>
-                <button class="nav-btn" onclick="switchTab('pets')">🦅 Special Pets</button>
-                <button class="nav-btn" onclick="switchTab('upgrades')">⚙️ Infrastructure</button>
-                <button class="nav-btn" onclick="switchTab('settings')">🛠️ Settings</button>
-            </nav>
+        <div class="sim-panel" id="simPanel">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <strong>🎨 Animation Test Panel</strong>
+                <button class="btn" id="simResetBtn">↺ Live</button>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;" id="simButtons">
+                <button class="btn" data-weather="sunny">☀️ Sunny</button>
+                <button class="btn" data-weather="cloudy">☁️ Cloudy</button>
+                <button class="btn" data-weather="rain">🌧 Rain</button>
+                <button class="btn" data-weather="storm">⛈ Storm</button>
+                <button class="btn" data-weather="snow">❄️ Snow</button>
+                <button class="btn" data-weather="night">🌙 Night</button>
+                <button class="btn" data-weather="mist">🌫 Mist</button>
+            </div>
+        </div>
 
-            <main class="content-viewport">
-                <div class="toast-container" id="toast-bin"></div>
+        <div class="recent-bar" id="recentSearches">
+            <span style="font-weight:600; color:var(--text-muted); margin-right:4px;">Recent:</span>
+        </div>
 
-                <div id="view-farm" class="view-panel active">
-                    <div class="clicker-well" onclick="manualFarmClick()">
-                        <h2 style="color:#2e7d32;">🌾 Tap the Fields 🌾</h2>
-                        <p style="color:#4e342e; font-size:14px; margin-top:5px;">Manually plow fields to extract baseline Coins and acquire dynamic skill points!</p>
-                    </div>
-                    <div class="section-title">
-                        <span>Your Cultivation Acreage</span>
-                        <button class="btn-action" onclick="buyNewPlot()">Buy Field Plot (<span id="plot-cost">50</span> 🪙)</button>
-                    </div>
-                    <div class="grid-plots" id="farm-plots-container"></div>
-                </div>
+        <div id="alertsContainer"></div>
 
-                <div id="view-crops" class="view-panel">
-                    <div class="section-title">Seed Procurement Market</div>
-                    <div class="catalog-grid" id="crop-catalog-container"></div>
-                </div>
-
-                <div id="view-animals" class="view-panel">
-                    <div class="section-title">Livestock Management</div>
-                    <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:10px;" id="animal-purchasing-row"></div>
-                    <div class="section-title">Active Animals on Farm</div>
-                    <div class="catalog-grid" id="active-animals-container"></div>
-                </div>
-
-                <div id="view-market" class="view-panel">
-                    <div class="market-layout">
-                        <div>
-                            <div class="section-title">Current Commodity Indexes</div>
-                            <div class="catalog-grid" id="market-pricing-container"></div>
+        <div class="dashboard">
+            <div class="card span-2">
+                <div class="current-weather-grid">
+                    <div class="temp-block">
+                        <div class="weather-icon" id="currentIcon">☀️</div>
+                        <div class="temp-large" id="currentTemp">--°</div>
+                        <div id="currentCondition" style="font-weight:600;">Loading...</div>
+                        <div class="feels-like" id="currentFeelsLike">Feels like --</div>
+                        <div style="font-size:0.9rem; margin-top: 8px;">
+                            <span id="currentLocationName">—</span> 
+                            <span id="favoriteStar" style="cursor:pointer; font-size:1.2rem;">☆</span>
                         </div>
-                        <div style="background:var(--bg-card); border:1px solid var(--border); padding:15px; border-radius:12px;">
-                            <h3 style="margin-bottom:10px; color:var(--text-main);">Economic Forecast</h3>
-                            <p id="market-trend-text" style="font-size:13px; color:var(--text-muted); line-height:1.5;"></p>
-                            <hr style="margin:15px 0; border:none; border-top:1px solid var(--border);">
-                            <button class="btn-action" style="width:100%;" onclick="sellAllInventory()">Liquidate All Inventory Assets</button>
-                        </div>
+                        <div style="font-size:0.7rem; color:var(--text-muted);" id="lastUpdated">Last updated: --</div>
                     </div>
+                    <div class="details-grid" id="currentDetails"></div>
                 </div>
+            </div>
 
-                <div id="view-inventory" class="view-panel">
-                    <div class="section-title">Storage Silo & Vault</div>
-                    <div class="catalog-grid" id="inventory-container"></div>
+            <div class="card span-2">
+                <div class="card-header"><span class="card-title">⏱ Hourly Forecast</span></div>
+                <div class="hourly-scroll" id="hourlyScroll"></div>
+            </div>
+
+            <div class="card span-2">
+                <div class="card-header"><span class="card-title">📅 7-Day Forecast</span></div>
+                <div class="daily-list" id="dailyList"></div>
+                <button class="btn btn-primary" id="viewSummaryBtn" style="margin-top:16px;">📋 Weekly Summary</button>
+            </div>
+
+            <div class="card span-2" id="summaryCard" style="display:none;">
+                <div class="card-header">
+                    <span class="card-title">📝 Weekly Weather Report</span>
+                    <button class="btn" id="closeSummaryBtn">✕ Close</button>
                 </div>
+                <p id="summaryText"></p>
+                <p style="color:var(--text-muted); font-size:0.8rem;" id="summaryTimestamp"></p>
+            </div>
 
-                <div id="view-quests" class="view-panel">
-                    <div class="section-title">Job Board Contract Assignments</div>
-                    <div class="catalog-grid" id="quests-container"></div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">🌬 Air Quality</span></div>
+                <div id="airQualityContent">Loading...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span class="card-title">🌿 Pollen Levels</span></div>
+                <div class="pollen-grid" id="pollenGrid">Loading...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span class="card-title">🌙 Moon & Sun</span></div>
+                <div id="moonSunContent">
+                    <div class="moon-phase" id="moonPhaseDisplay">🌕 Loading...</div>
+                    <div style="margin-top:8px;">🌅 Sunrise: <span id="sunriseTime">--</span></div>
+                    <div>🌇 Sunset: <span id="sunsetTime">--</span></div>
                 </div>
+            </div>
 
-                <div id="view-skills" class="view-panel">
-                    <div class="section-title">RPG Character Mastery Levels</div>
-                    <div class="stats-grid" id="skills-container"></div>
+            <div class="card span-2">
+                <div class="card-header"><span class="card-title">📊 Trends</span></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="chart-box"><canvas id="chartTemp"></canvas></div>
+                    <div class="chart-box"><canvas id="chartRain"></canvas></div>
+                    <div class="chart-box"><canvas id="chartWind"></canvas></div>
+                    <div class="chart-box"><canvas id="chartUV"></canvas></div>
                 </div>
-
-                <div id="view-pets" class="view-panel">
-                    <div class="section-title">Sanctuary Companion Animals</div>
-                    <div class="catalog-grid" id="pets-container"></div>
-                </div>
-
-                <div id="view-upgrades" class="view-panel">
-                    <div class="section-title">Permanent Structural Infrastructure</div>
-                    <div class="upgrade-grid" id="upgrades-container"></div>
-                </div>
-
-                <div id="view-settings" class="view-panel">
-                    <div class="section-title">System Settings</div>
-                    <div class="stat-card" style="margin-bottom:15px;">
-                        <h3>Interface Visual Appearance</h3><br>
-                        <button class="btn-action" onclick="setTheme('light')">☀️ Light Mode</button>
-                        <button class="btn-action" onclick="setTheme('dark')">🌙 Dark Mode</button>
-                    </div>
-                    <div class="stat-card" style="margin-bottom:15px;">
-                        <h3>Prestige Ascension Loop</h3><br>
-                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Reset all progress except tokens/permanent multiplier stats. Yields rare Farm Tokens based on cumulative net wealth milestones.</p>
-                        <button class="btn-action" style="background:#e91e63;" onclick="triggerPrestigeSystem()">Ascend Farm (Gain <span id="prestige-gain-estimate">0</span> Tokens)</button>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Dangerous Administrative Controls</h3><br>
-                        <button class="btn-action" style="background:#d32f2f;" onclick="purgeSaveData()">Completely Wipe Profile LocalStorage</button>
-                    </div>
-                </div>
-
-            </main>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // ==========================================
-    // SEED ENGINES & COMPREHENSIVE DATABASES
-    // ==========================================
-    const CROP_DATABASE = [
-        // SPRING CROPS (13)
-        { id: "lettuce", name: "Lettuce", season: "Spring", buy: 5, sell: 12, time: 4, yield: 1, rarity: "common", xp: 4 },
-        { id: "carrots", name: "Carrots", season: "Spring", buy: 8, sell: 20, time: 6, yield: 1, rarity: "common", xp: 6 },
-        { id: "radishes", name: "Radishes", season: "Spring", buy: 12, sell: 28, time: 5, yield: 1, rarity: "common", xp: 5 },
-        { id: "peas", name: "Peas", season: "Spring", buy: 15, sell: 38, time: 8, yield: 2, rarity: "common", xp: 8 },
-        { id: "spinach", name: "Spinach", season: "Spring", buy: 20, sell: 52, time: 10, yield: 1, rarity: "uncommon", xp: 12 },
-        { id: "kale", name: "Spring Kale", season: "Spring", buy: 25, sell: 65, time: 12, yield: 1, rarity: "uncommon", xp: 14 },
-        { id: "broccoli", name: "Broccoli", season: "Spring", buy: 35, sell: 95, time: 15, yield: 1, rarity: "uncommon", xp: 18 },
-        { id: "rhubarb", name: "Rhubarb", season: "Spring", buy: 50, sell: 140, time: 20, yield: 1, rarity: "rare", xp: 25 },
-        { id: "asparagus", name: "Asparagus", season: "Spring", buy: 70, sell: 210, time: 25, yield: 1, rarity: "rare", xp: 35 },
-        { id: "garlic", name: "Spring Garlic", season: "Spring", buy: 90, sell: 280, time: 30, yield: 2, rarity: "rare", xp: 45 },
-        { id: "green_onions", name: "Green Onions", season: "Spring", buy: 120, sell: 400, time: 18, yield: 3, rarity: "epic", xp: 50 },
-        { id: "spring_cabbage", name: "Savoy Cabbage", season: "Spring", buy: 200, sell: 700, time: 40, yield: 1, rarity: "epic", xp: 80 },
-        { id: "royal_strawberry", name: "Royal Strawberry", season: "Spring", buy: 500, sell: 2000, time: 60, yield: 2, rarity: "legendary", xp: 200 },
+    <script>
+        (function() {
+            const state = {
+                location: null,
+                weather: null,
+                daily: null,
+                hourly: null,
+                airQuality: null,
+                pollen: null,
+                unit: 'celsius',
+                theme: 'light',
+                favorites: [],
+                recent: [],
+                charts: {},
+                sim: null,
+            };
 
-        // SUMMER CROPS (13)
-        { id: "corn", name: "Sweet Corn", season: "Summer", buy: 10, sell: 25, time: 7, yield: 2, rarity: "common", xp: 7 },
-        { id: "tomatoes", name: "Tomatoes", season: "Summer", buy: 12, sell: 30, time: 8, yield: 3, rarity: "common", xp: 8 },
-        { id: "peppers", name: "Bell Peppers", season: "Summer", buy: 15, sell: 40, time: 10, yield: 1, rarity: "common", xp: 10 },
-        { id: "cucumber", name: "Cucumber", season: "Summer", buy: 18, sell: 48, time: 9, yield: 2, rarity: "common", xp: 9 },
-        { id: "zucchini", name: "Zucchini", season: "Summer", buy: 22, sell: 60, time: 11, yield: 2, rarity: "uncommon", xp: 13 },
-        { id: "eggplant", name: "Eggplant", season: "Summer", buy: 30, sell: 85, time: 14, yield: 1, rarity: "uncommon", xp: 16 },
-        { id: "blueberries", name: "Blueberries", season: "Summer", buy: 45, sell: 120, time: 16, yield: 4, rarity: "uncommon", xp: 20 },
-        { id: "sunflowers", name: "Sunflowers", season: "Summer", buy: 60, sell: 180, time: 22, yield: 1, rarity: "rare", xp: 30 },
-        { id: "chili", name: "Ghost Chili", season: "Summer", buy: 85, sell: 260, time: 18, yield: 2, rarity: "rare", xp: 40 },
-        { id: "okra", name: "Okra", season: "Summer", buy: 110, sell: 350, time: 24, yield: 2, rarity: "rare", xp: 50 },
-        { id: "squash", name: "Summer Squash", season: "Summer", buy: 150, sell: 520, time: 28, yield: 1, rarity: "epic", xp: 70 },
-        { id: "watermelon", name: "Crimson Watermelon", season: "Summer", buy: 250, sell: 900, time: 50, yield: 1, rarity: "epic", xp: 100 },
-        { id: "sun_melon", name: "Golden Sun Melon", season: "Summer", buy: 600, sell: 2500, time: 70, yield: 1, rarity: "legendary", xp: 250 },
+            const $ = id => document.getElementById(id);
+            const dom = {
+                searchInput: $('searchInput'),
+                searchBtn: $('searchBtn'),
+                locationBtn: $('locationBtn'),
+                autocompleteDropdown: $('autocompleteDropdown'),
+                weatherBg: $('weatherBg'),
+                particlesContainer: $('particlesContainer'),
+                loadingOverlay: $('loadingOverlay'),
+                currentIcon: $('currentIcon'),
+                currentTemp: $('currentTemp'),
+                currentCondition: $('currentCondition'),
+                currentFeelsLike: $('currentFeelsLike'),
+                currentLocationName: $('currentLocationName'),
+                lastUpdated: $('lastUpdated'),
+                currentDetails: $('currentDetails'),
+                hourlyScroll: $('hourlyScroll'),
+                dailyList: $('dailyList'),
+                alertsContainer: $('alertsContainer'),
+                airQualityContent: $('airQualityContent'),
+                pollenGrid: $('pollenGrid'),
+                summaryCard: $('summaryCard'),
+                summaryText: $('summaryText'),
+                summaryTimestamp: $('summaryTimestamp'),
+                viewSummaryBtn: $('viewSummaryBtn'),
+                closeSummaryBtn: $('closeSummaryBtn'),
+                themeToggle: $('themeToggle'),
+                unitToggle: $('unitToggle'),
+                shareBtn: $('shareBtn'),
+                printBtn: $('printBtn'),
+                recentSearches: $('recentSearches'),
+                favoriteStar: $('favoriteStar'),
+                toast: $('toast'),
+                simToggleBtn: $('simToggleBtn'),
+                simPanel: $('simPanel'),
+                simButtons: $('simButtons'),
+                simResetBtn: $('simResetBtn'),
+                moonSunContent: $('moonSunContent'),
+                sunriseTime: $('sunriseTime'),
+                sunsetTime: $('sunsetTime'),
+            };
 
-        // AUTUMN CROPS (12)
-        { id: "wheat", name: "Wheat", season: "Autumn", buy: 8, sell: 22, time: 5, yield: 1, rarity: "common", xp: 5 },
-        { id: "beetroot", name: "Beetroot", season: "Autumn", buy: 14, sell: 36, time: 8, yield: 1, rarity: "common", xp: 8 },
-        { id: "parsnips", name: "Parsnips", season: "Autumn", buy: 16, sell: 42, time: 9, yield: 1, rarity: "common", xp: 9 },
-        { id: "sweet_potato", name: "Sweet Potato", season: "Autumn", buy: 24, sell: 70, time: 13, yield: 1, rarity: "uncommon", xp: 15 },
-        { id: "cabbage", name: "Red Cabbage", season: "Autumn", buy: 32, sell: 95, time: 16, yield: 1, rarity: "uncommon", xp: 19 },
-        { id: "cranberries", name: "Cranberries", season: "Autumn", buy: 50, sell: 145, time: 15, yield: 3, rarity: "uncommon", xp: 22 },
-        { id: "hops", name: "Hops", season: "Autumn", buy: 65, sell: 200, time: 18, yield: 2, rarity: "rare", xp: 32 },
-        { id: "grapes", name: "Wine Grapes", season: "Autumn", buy: 95, sell: 310, time: 22, yield: 2, rarity: "rare", xp: 45 },
-        { id: "artichoke", name: "Globe Artichoke", season: "Autumn", buy: 130, sell: 450, time: 30, yield: 1, rarity: "epic", xp: 65 },
-        { id: "yam", name: "Jewel Yam", season: "Autumn", buy: 180, sell: 650, time: 35, yield: 1, rarity: "epic", xp: 85 },
-        { id: "pumpkin", name: "Giant Pumpkin", season: "Autumn", buy: 300, sell: 1200, time: 55, yield: 1, rarity: "epic", xp: 125 },
-        { id: "eclipse_mushroom", name: "Eclipse Mushroom", season: "Autumn", buy: 750, sell: 3200, time: 80, yield: 1, rarity: "legendary", xp: 300 },
+            const GEO = 'https://geocoding-api.open-meteo.com/v1/search';
+            const WEATHER = 'https://api.open-meteo.com/v1/forecast';
+            const AIR = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 
-        // WINTER CROPS (12)
-        { id: "turnips", name: "Turnips", season: "Winter", buy: 12, sell: 32, time: 6, yield: 1, rarity: "common", xp: 6 },
-        { id: "leeks", name: "Leeks", season: "Winter", buy: 18, sell: 50, time: 9, yield: 1, rarity: "common", xp: 9 },
-        { id: "winter_kale", name: "Ironshore Kale", season: "Winter", buy: 26, sell: 75, time: 12, yield: 1, rarity: "uncommon", xp: 14 },
-        { id: "brussels_sprouts", name: "Brussels Sprouts", season: "Winter", buy: 36, sell: 110, time: 15, yield: 2, rarity: "uncommon", xp: 20 },
-        { id: "winter_radish", name: "Daikon Radish", season: "Winter", buy: 48, sell: 150, time: 14, yield: 1, rarity: "uncommon", xp: 22 },
-        { id: "rutabaga", name: "Rutabaga", season: "Winter", buy: 60, sell: 195, time: 18, yield: 1, rarity: "rare", xp: 28 },
-        { id: "chard", name: "Swiss Chard", season: "Winter", buy: 80, sell: 270, time: 20, yield: 1, rarity: "rare", xp: 38 },
-        { id: "snow_peas", name: "Snow Peas", season: "Winter", buy: 110, sell: 380, time: 22, yield: 2, rarity: "rare", xp: 48 },
-        { id: "collards", name: "Tiger Collards", season: "Winter", buy: 160, sell: 580, time: 28, yield: 1, rarity: "epic", xp: 75 },
-        { id: "winter_oats", name: "Glacial Oats", season: "Winter", buy: 220, sell: 820, time: 32, yield: 1, rarity: "epic", xp: 95 },
-        { id: "barley", name: "Winter Barley", season: "Winter", buy: 350, sell: 1400, time: 45, yield: 1, rarity: "epic", xp: 150 },
-        { id: "frost_lotus", name: "Glacial Frost Lotus", season: "Winter", buy: 1000, sell: 5000, time: 100, yield: 1, rarity: "legendary", xp: 500 }
-    ];
+            const WMO = {
+                0: { cond:'Clear', icon:'☀️', cat:'sunny', night:'🌙' },
+                1: { cond:'Mainly Clear', icon:'🌤️', cat:'sunny', night:'🌙' },
+                2: { cond:'Partly Cloudy', icon:'⛅', cat:'cloudy', night:'☁️' },
+                3: { cond:'Overcast', icon:'☁️', cat:'cloudy', night:'☁️' },
+                45: { cond:'Fog', icon:'🌫️', cat:'mist', night:'🌫️' },
+                48: { cond:'Rime Fog', icon:'🌫️', cat:'mist', night:'🌫️' },
+                51: { cond:'Light Drizzle', icon:'🌦️', cat:'rain', night:'🌧️' },
+                53: { cond:'Drizzle', icon:'🌦️', cat:'rain', night:'🌧️' },
+                55: { cond:'Heavy Drizzle', icon:'🌧️', cat:'rain', night:'🌧️' },
+                61: { cond:'Light Rain', icon:'🌦️', cat:'rain', night:'🌧️' },
+                63: { cond:'Rain', icon:'🌧️', cat:'rain', night:'🌧️' },
+                65: { cond:'Heavy Rain', icon:'🌧️', cat:'rain', night:'🌧️' },
+                71: { cond:'Light Snow', icon:'🌨️', cat:'snow', night:'❄️' },
+                73: { cond:'Snow', icon:'🌨️', cat:'snow', night:'❄️' },
+                75: { cond:'Heavy Snow', icon:'❄️', cat:'snow', night:'❄️' },
+                77: { cond:'Snow Grains', icon:'❄️', cat:'snow', night:'❄️' },
+                80: { cond:'Light Showers', icon:'🌦️', cat:'rain', night:'🌧️' },
+                81: { cond:'Rain Showers', icon:'🌧️', cat:'rain', night:'🌧️' },
+                82: { cond:'Heavy Showers', icon:'⛈️', cat:'storm', night:'⛈️' },
+                85: { cond:'Snow Showers', icon:'🌨️', cat:'snow', night:'❄️' },
+                86: { cond:'Heavy Snow Showers', icon:'❄️', cat:'snow', night:'❄️' },
+                95: { cond:'Thunderstorm', icon:'⛈️', cat:'storm', night:'⛈️' },
+                96: { cond:'Thunderstorm + Hail', icon:'⛈️', cat:'storm', night:'⛈️' },
+                99: { cond:'Severe Thunderstorm', icon:'⛈️', cat:'storm', night:'⛈️' },
+            };
 
-    const ANIMAL_TEMPLATES = [
-        { type: "chicken", name: "Chicken", cost: 100, output: "Eggs", price: 25, interval: 5, xp: 10 },
-        { type: "duck", name: "Duck", cost: 250, output: "Duck Eggs", price: 65, interval: 8, xp: 20 },
-        { type: "goose", name: "Geese", cost: 500, output: "Feathers", price: 140, interval: 12, xp: 35 },
-        { type: "rabbit", name: "Rabbit", cost: 900, output: "Rabbit Fur", price: 270, interval: 10, xp: 50 },
-        { type: "bee", name: "Bees", cost: 1500, output: "Honey", price: 420, interval: 15, xp: 80 },
-        { type: "turkey", name: "Turkey", cost: 2800, output: "Down Feathers", price: 800, interval: 18, xp: 120 },
-        { type: "goat", name: "Goat", cost: 5000, output: "Goat Milk", price: 1500, interval: 22, xp: 200 },
-        { type: "sheep", name: "Sheep", cost: 9000, output: "Wool", price: 2800, interval: 25, xp: 350 },
-        { type: "pig", name: "Pig", cost: 16000, output: "Truffles", price: 5200, interval: 30, xp: 600 },
-        { type: "cow", name: "Cow", cost: 30000, output: "Milk", price: 10000, interval: 35, xp: 1000 },
-        { type: "alpaca", name: "Alpaca", cost: 60000, output: "Alpaca Fleece", price: 22000, interval: 40, xp: 2000 },
-        { type: "horse", name: "Horse", cost: 120000, output: "Purebred Seedlings", price: 50000, interval: 60, xp: 5000 }
-    ];
+            function getWMO(code, isNight) {
+                const w = WMO[code] || WMO[0];
+                return { ...w, displayIcon: isNight && w.night ? w.night : w.icon };
+            }
+            function isNight(sunrise, sunset) {
+                if (!sunrise || !sunset) return false;
+                const now = new Date();
+                return now < new Date(sunrise) || now > new Date(sunset);
+            }
+            function convert(c) { return state.unit === 'fahrenheit' ? Math.round(c * 9/5 + 32) : Math.round(c); }
+            function sym() { return state.unit === 'fahrenheit' ? '°F' : '°C'; }
+            function dayName(iso) {
+                const d = new Date(iso);
+                const today = new Date();
+                const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+                if (d.toDateString() === today.toDateString()) return 'Today';
+                if (d.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+                return d.toLocaleDateString([], {weekday:'long'});
+            }
+            function showToast(msg, dur=2500) {
+                const t = dom.toast; t.textContent = msg; t.classList.add('show');
+                clearTimeout(t._timeout); t._timeout = setTimeout(() => t.classList.remove('show'), dur);
+            }
+            function showLoading() { dom.loadingOverlay.classList.remove('hidden'); }
+            function hideLoading() { dom.loadingOverlay.classList.add('hidden'); }
+            function loadFrom(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
+            function saveTo(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
 
-    const WEATHER_TYPES = ["Sunny", "Cloudy", "Rain", "Storm", "Heatwave", "Frost", "Snow", "Drought"];
-    const SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
-
-    // ==========================================
-    // STATEFUL ENGINE ARCHITECTURE
-    // ==========================================
-    let player = {
-        coins: 150,
-        gems: 10,
-        farmTokens: 0,
-        prestigeCount: 0,
-        currentDay: 1,
-        currentSeasonIndex: 0,
-        currentWeather: "Sunny",
-        plotsCount: 4,
-        plots: [],
-        animals: [],
-        inventory: {},
-        skills: {
-            farming: { level: 1, xp: 0 },
-            animal_care: { level: 1, xp: 0 },
-            trading: { level: 1, xp: 0 },
-            mining: { level: 1, xp: 0 },
-            crafting: { level: 1, xp: 0 }
-        },
-        pets: [
-            { id: "dog", name: "Farm Dog", level: 1, xp: 0, active: true, bonus: "Faster Crop Growth (+10%)" },
-            { id: "cat", name: "Barn Cat", level: 1, xp: 0, active: false, bonus: "More Animal Happiness (+15%)" }
-        ],
-        upgrades: {
-            tools: { level: 1, cost: 100, name: "Premium Hand Trowel" },
-            irrigation: { level: 0, cost: 250, name: "Automatic Drip Lines" },
-            silos: { level: 1, cost: 400, name: "Standard Corrugated Silo" },
-            workers: { level: 0, cost: 600, name: "Hired Farmhands" }
-        },
-        activeQuests: [],
-        marketFluctuations: {}
-    };
-
-    let activeEvent = "None";
-
-    // ==========================================
-    // INIT & LOOP CORE
-    // ==========================================
-    function initializeGameEngine() {
-        loadProfileData();
-        buildPlotsGrid();
-        buildCropCatalog();
-        buildAnimalStorefront();
-        buildUpgradeMatrix();
-        refreshDynamicMarketModel();
-        generateQuestBoard();
-        renderSkillsScreen();
-        renderPetsScreen();
-        
-        // Main Core Tick Loops (1 second intervals)
-        setInterval(coreSystemTick, 1000);
-        setInterval(autoSaveProcess, 10000);
-        
-        updateUI();
-        createToast("Welcome back to HarvestOS tablet interface.");
-    }
-
-    function coreSystemTick() {
-        // Ticking plots
-        let stateChanged = false;
-        player.plots.forEach(plot => {
-            if (plot.status === "growing") {
-                let speedModifier = 1 + (player.upgrades.irrigation.level * 0.15);
-                if (player.pets.find(p => p.id === "dog" && p.active)) speedModifier += 0.10;
-                if (player.currentWeather === "Rain") speedModifier += 0.25;
-                if (player.currentWeather === "Drought") speedModifier -= 0.40;
-
-                plot.progress += (1 * speedModifier);
-                if (plot.progress >= plot.duration) {
-                    plot.status = "ready";
-                    plot.progress = plot.duration;
-                    stateChanged = true;
+            function loadPreferences() {
+                state.unit = loadFrom('wcc2_unit', 'celsius');
+                state.theme = loadFrom('wcc2_theme', null);
+                state.favorites = loadFrom('wcc2_fav', []);
+                state.recent = loadFrom('wcc2_recent', []);
+                if (!state.theme) state.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                applyTheme();
+                dom.unitToggle.textContent = state.unit === 'celsius' ? '°C→°F' : '°F→°C';
+            }
+            function applyTheme() {
+                document.body.setAttribute('data-theme', state.theme);
+                dom.themeToggle.textContent = state.theme === 'dark' ? '☀️' : '🌓';
+                saveTo('wcc2_theme', state.theme);
+            }
+            function toggleTheme() {
+                state.theme = state.theme === 'dark' ? 'light' : 'dark';
+                applyTheme();
+                if (state.daily) renderCharts(state.daily);
+            }
+            function toggleUnit() {
+                state.unit = state.unit === 'celsius' ? 'fahrenheit' : 'celsius';
+                saveTo('wcc2_unit', state.unit);
+                dom.unitToggle.textContent = state.unit === 'celsius' ? '°C→°F' : '°F→°C';
+                if (state.weather) {
+                    renderCurrentWeather(state.weather, state.daily);
+                    renderHourly(state.hourly, state.daily);
+                    renderDaily(state.daily);
+                    renderCharts(state.daily);
                 }
             }
-        });
-
-        // Hired Worker Automations
-        if (player.upgrades.workers.level > 0) {
-            player.plots.forEach((plot, index) => {
-                if (plot.status === "ready") {
-                    harvestPlot(index);
+            function addRecent(loc) {
+                const idx = state.recent.findIndex(r => r.name.toLowerCase() === loc.name.toLowerCase());
+                if (idx >= 0) state.recent.splice(idx, 1);
+                state.recent.unshift(loc);
+                if (state.recent.length > 6) state.recent.pop();
+                saveTo('wcc2_recent', state.recent);
+                renderRecent();
+            }
+            function renderRecent() {
+                dom.recentSearches.innerHTML = '<span style="font-weight:600; color:var(--text-muted); margin-right:4px;">Recent:</span>';
+                if (!state.recent.length) dom.recentSearches.innerHTML += '<span style="font-size:0.8rem;">None</span>';
+                state.recent.forEach(loc => {
+                    const tag = document.createElement('span');
+                    tag.className = 'recent-tag';
+                    tag.textContent = loc.name;
+                    tag.addEventListener('click', () => fetchWeather(loc.lat, loc.lon, loc.name));
+                    dom.recentSearches.appendChild(tag);
+                });
+            }
+            function toggleFavorite() {
+                if (!state.location) return;
+                const loc = state.location;
+                const idx = state.favorites.findIndex(f => f.name.toLowerCase() === loc.name.toLowerCase());
+                if (idx >= 0) {
+                    state.favorites.splice(idx, 1);
+                    dom.favoriteStar.textContent = '☆';
+                    showToast('Removed from favorites');
+                } else {
+                    state.favorites.push({ name: loc.name, lat: loc.lat, lon: loc.lon });
+                    dom.favoriteStar.textContent = '★';
+                    showToast('Added to favorites ⭐');
                 }
-                if (plot.status === "empty") {
-                    // Auto replant matching context if resources are available
-                    let appropriateCrop = CROP_DATABASE.find(c => c.season === SEASONS[player.currentSeasonIndex]);
-                    if (appropriateCrop && player.coins >= appropriateCrop.buy) {
-                        plantCrop(index, appropriateCrop.id);
+                saveTo('wcc2_fav', state.favorites);
+            }
+            function updateFavStar() {
+                if (!state.location) return;
+                const isFav = state.favorites.some(f => f.name.toLowerCase() === state.location.name.toLowerCase());
+                dom.favoriteStar.textContent = isFav ? '★' : '☆';
+            }
+
+            // API calls – reduced current variables to avoid 400 errors
+            async function geocode(q) {
+                const res = await fetch(`${GEO}?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+                if (!res.ok) throw new Error('Geocode fail');
+                const data = await res.json();
+                return (data.results || []).map(r => ({
+                    name: [r.name, r.admin1, r.country].filter(Boolean).join(', '),
+                    lat: r.latitude, lon: r.longitude,
+                }));
+            }
+            async function fetchWeatherData(lat, lon) {
+                const params = new URLSearchParams({
+                    latitude: lat,
+                    longitude: lon,
+                    current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,visibility,precipitation',
+                    daily: 'temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset,moon_phase',
+                    hourly: 'temperature_2m,precipitation_probability,wind_speed_10m,uv_index,weather_code',
+                    timezone: 'auto',
+                    forecast_days: 7,
+                });
+                const res = await fetch(`${WEATHER}?${params}`);
+                if (!res.ok) throw new Error('Weather fetch failed (status ' + res.status + ')');
+                return res.json();
+            }
+            async function fetchAir(lat, lon) {
+                try {
+                    const params = new URLSearchParams({
+                        latitude: lat,
+                        longitude: lon,
+                        current: 'european_aqi,us_aqi,pm2_5,pm10,ozone',
+                    });
+                    const res = await fetch(`${AIR}?${params}`);
+                    if (!res.ok) return null;
+                    return res.json();
+                } catch { return null; }
+            }
+            async function fetchPollen(lat, lon) {
+                try {
+                    const params = new URLSearchParams({
+                        latitude: lat,
+                        longitude: lon,
+                        current: 'alder_pollen,birch_pollen,grass_pollen,weed_pollen',
+                    });
+                    const res = await fetch(`${AIR}?${params}`);
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return data.current?.alder_pollen !== undefined ? data : null;
+                } catch { return null; }
+            }
+
+            async function fetchWeather(lat, lon, name) {
+                showLoading();
+                try {
+                    const [weather, aq, pollen] = await Promise.all([
+                        fetchWeatherData(lat, lon),
+                        fetchAir(lat, lon),
+                        fetchPollen(lat, lon)
+                    ]);
+                    state.weather = weather.current;
+                    state.daily = weather.daily;
+                    state.hourly = weather.hourly;
+                    state.airQuality = aq?.current || null;
+                    state.pollen = pollen?.current || null;
+                    state.location = { name, lat, lon };
+                    state.sim = null;
+                    dom.simPanel.classList.remove('active');
+                    renderAll();
+                    addRecent(state.location);
+                    updateFavStar();
+                    hideLoading();
+                    showToast(`Weather loaded for ${name}`);
+                } catch (e) {
+                    hideLoading();
+                    console.error(e);
+                    showToast('⚠️ Failed to load weather. Check console.');
+                    state.weather = null;
+                    state.daily = null;
+                    renderAll();
+                }
+            }
+
+            // Simulation
+            function applySim(category) {
+                state.sim = category;
+                dom.simPanel.classList.add('active');
+                updateBackground(null, false, category);
+                updateParticles(category);
+            }
+            function resetSim() {
+                state.sim = null;
+                dom.simPanel.classList.remove('active');
+                if (state.weather && state.daily) {
+                    const night = isNight(state.daily.sunrise?.[0], state.daily.sunset?.[0]);
+                    const cat = getWMO(state.weather.weather_code, night).cat;
+                    updateBackground(state.weather.weather_code, night);
+                    updateParticles(cat);
+                }
+            }
+            function updateBackground(code, night, forceCat = null) {
+                let cat = forceCat;
+                if (!cat && code !== undefined) {
+                    const info = getWMO(code, night);
+                    cat = (night && info.cat === 'sunny') ? 'night' : info.cat;
+                }
+                dom.weatherBg.className = 'weather-bg';
+                if (cat) dom.weatherBg.classList.add(cat);
+            }
+            function updateParticles(cat) {
+                const container = dom.particlesContainer;
+                container.innerHTML = '';
+                if (cat === 'rain' || cat === 'storm') {
+                    for (let i=0; i<60; i++) {
+                        const d = document.createElement('div');
+                        d.className = 'particle raindrop';
+                        d.style.left = Math.random()*100+'%';
+                        d.style.animationDelay = Math.random()*0.6+'s';
+                        d.style.animationDuration = (0.4+Math.random()*0.5)+'s';
+                        container.appendChild(d);
+                    }
+                } else if (cat === 'snow') {
+                    for (let i=0; i<40; i++) {
+                        const s = document.createElement('div');
+                        s.className = 'particle snowflake';
+                        s.style.left = Math.random()*100+'%';
+                        s.style.animationDelay = Math.random()*3+'s';
+                        s.style.animationDuration = (2+Math.random()*3)+'s';
+                        container.appendChild(s);
                     }
                 }
-            });
-        }
+            }
 
-        // Ticking animals
-        player.animals.forEach(anim => {
-            anim.progress += 1;
-            // Drain food & water incrementally
-            anim.food = Math.max(0, anim.food - 0.5);
-            anim.water = Math.max(0, anim.water - 0.7);
-            
-            // Recompute happiness index
-            if (anim.food > 20 && anim.water > 20) {
-                anim.happiness = Math.min(100, anim.happiness + 2);
+            function renderAll() {
+                if (!state.weather || !state.daily) {
+                    dom.currentTemp.textContent = '--°';
+                    dom.currentCondition.textContent = 'No data';
+                    dom.currentFeelsLike.textContent = 'Feels like --';
+                    dom.currentDetails.innerHTML = '';
+                    dom.hourlyScroll.innerHTML = '';
+                    dom.dailyList.innerHTML = '';
+                    dom.alertsContainer.innerHTML = '';
+                    dom.airQualityContent.innerHTML = 'Data unavailable';
+                    dom.pollenGrid.innerHTML = 'Data unavailable';
+                    dom.moonSunContent.innerHTML = '🌕 Moon data unavailable';
+                    dom.summaryCard.style.display = 'none';
+                    return;
+                }
+                const night = isNight(state.daily.sunrise?.[0], state.daily.sunset?.[0]);
+                const cat = getWMO(state.weather.weather_code, night).cat;
+                updateBackground(state.weather.weather_code, night);
+                updateParticles(cat);
+                renderCurrentWeather(state.weather, state.daily);
+                renderHourly(state.hourly, state.daily);
+                renderDaily(state.daily);
+                renderAirQuality(state.airQuality);
+                renderPollen(state.pollen);
+                renderAlerts(state.daily, state.weather);
+                renderMoonSun(state.daily);
+                renderCharts(state.daily);
+                dom.summaryCard.style.display = 'none';
+            }
+
+            function renderCurrentWeather(current, daily) {
+                if (!current) return;
+                const night = isNight(daily?.sunrise?.[0], daily?.sunset?.[0]);
+                const info = getWMO(current.weather_code, night);
+                const s = sym();
+                dom.currentIcon.textContent = info.displayIcon;
+                dom.currentTemp.textContent = `${convert(current.temperature_2m)}${s}`;
+                dom.currentCondition.textContent = info.cond;
+                dom.currentFeelsLike.textContent = `Feels like ${convert(current.apparent_temperature)}${s}`;
+                dom.currentLocationName.textContent = state.location?.name || '';
+                dom.lastUpdated.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+
+                // Build details using only available fields
+                const items = [
+                    ['💧', 'Humidity', `${current.relative_humidity_2m}%`],
+                    ['💨', 'Wind', `${current.wind_speed_10m} km/h`],
+                    ['🧭', 'Direction', `${current.wind_direction_10m}°`],
+                    ['🌧️', 'Precip', `${current.precipitation || 0} mm`],
+                    ['📊', 'Pressure', `${current.surface_pressure} hPa`],
+                    ['👁', 'Visibility', `${(current.visibility/1000).toFixed(1)} km`],
+                    ['☀️', 'UV Index', daily?.uv_index_max?.[0] ?? '--'],
+                ];
+                dom.currentDetails.innerHTML = items.map(([icon, label, val]) => `
+                    <div class="detail-item">
+                        <span class="detail-icon">${icon}</span>
+                        <div><small>${label}</small><br><strong>${val}</strong></div>
+                    </div>`).join('');
+            }
+
+            function renderHourly(hourly, daily) {
+                if (!hourly) { dom.hourlyScroll.innerHTML = ''; return; }
+                const s = sym();
+                const now = new Date();
+                const hours = [];
+                for (let i=0; i<hourly.time.length; i++) {
+                    const t = new Date(hourly.time[i]);
+                    if (t >= now && hours.length < 24) hours.push({ time:t, temp:hourly.temperature_2m[i], precip:hourly.precipitation_probability[i], code:hourly.weather_code[i] });
+                }
+                dom.hourlyScroll.innerHTML = hours.map(h => {
+                    const info = getWMO(h.code);
+                    const label = h.time.getHours() === 0 ? '12AM' : h.time.getHours() === 12 ? '12PM' : h.time.getHours() < 12 ? h.time.getHours()+'AM' : (h.time.getHours()-12)+'PM';
+                    return `<div class="hourly-item"><div>${label}</div><div style="font-size:1.8rem;">${info.displayIcon}</div><div><strong>${convert(h.temp)}${s}</strong></div><div>💧${h.precip}%</div></div>`;
+                }).join('');
+            }
+
+            function renderDaily(daily) {
+                if (!daily) { dom.dailyList.innerHTML = ''; return; }
+                const s = sym();
+                dom.dailyList.innerHTML = daily.time.map((t,i) => {
+                    const info = getWMO(daily.weather_code[i]);
+                    return `<div class="daily-row">
+                        <div><strong>${dayName(t)}</strong><br><small>${new Date(t).toLocaleDateString()}</small></div>
+                        <div style="font-size:1.8rem;">${info.icon}</div>
+                        <div>${info.cond}</div>
+                        <div>${convert(daily.temperature_2m_max[i])}${s} / ${convert(daily.temperature_2m_min[i])}${s}</div>
+                        <div>💧${daily.precipitation_probability_max[i]}%</div>
+                    </div>`;
+                }).join('');
+            }
+
+            function renderAirQuality(aq) {
+                if (!aq) { dom.airQualityContent.innerHTML = 'Air quality data unavailable.'; return; }
+                const val = aq.european_aqi || aq.us_aqi || 1;
+                const ratings = ['','Excellent','Good','Moderate','Poor','Very Poor'];
+                const idx = Math.min(Math.max(Math.round(val),1),5);
+                dom.airQualityContent.innerHTML = `
+                    <div style="font-size:2rem; font-weight:700;">AQI ${val} <span style="font-size:1rem; background:${idx===1?'#27ae60':idx===2?'#7cb342':idx===3?'#f9a825':idx===4?'#e67e22':'#e74c3c'}; padding:4px 12px; border-radius:20px; color:white;">${ratings[idx]}</span></div>
+                    <div style="margin-top:12px;">PM2.5: ${aq.pm2_5 ?? '--'} µg/m³ | PM10: ${aq.pm10 ?? '--'} | Ozone: ${aq.ozone ?? '--'}</div>`;
+            }
+            function renderPollen(pollen) {
+                if (!pollen) { dom.pollenGrid.innerHTML = 'Pollen data unavailable (Europe-only).'; return; }
+                const types = [
+                    { key:'alder_pollen', label:'Tree (Alder)', icon:'🌳' },
+                    { key:'birch_pollen', label:'Tree (Birch)', icon:'🌲' },
+                    { key:'grass_pollen', label:'Grass', icon:'🌿' },
+                    { key:'weed_pollen', label:'Weed', icon:'🌾' },
+                ];
+                dom.pollenGrid.innerHTML = types.map(t => {
+                    const val = pollen[t.key];
+                    const risk = val < 20 ? 'Low' : val < 50 ? 'Moderate' : val < 100 ? 'High' : 'Very High';
+                    return `<div class="pollen-item"><div>${t.icon} ${t.label}</div><strong>${val ?? '--'}</strong> grains/m³<br><span style="font-size:0.8rem;">${risk}</span></div>`;
+                }).join('');
+            }
+            function renderAlerts(daily, current) {
+                const alerts = [];
+                if (!daily || !current) return;
+                const code = daily.weather_code?.[0] || current.weather_code;
+                const wind = daily.wind_speed_10m_max?.[0] || current.wind_speed_10m;
+                const precip = daily.precipitation_probability_max?.[0] || 0;
+                const uv = daily.uv_index_max?.[0] || 0;
+                if ([95,96,99].includes(code)) alerts.push('⛈️ Thunderstorm warning!');
+                if ([65,82].includes(code) || precip>70) alerts.push('🌧 Heavy rain expected.');
+                if (wind>50) alerts.push('💨 Strong winds.');
+                if (uv>=8) alerts.push('☀️ Very high UV.');
+                if (convert(current.temperature_2m) >= 38) alerts.push('🔥 Extreme heat.');
+                dom.alertsContainer.innerHTML = alerts.map(a => `<div class="alert-banner">${a}</div>`).join('');
+            }
+
+            function getMoonPhaseEmoji(phase) {
+                if (phase === undefined || phase === null) return '🌕';
+                if (phase === 0) return '🌑';
+                if (phase === 0.25) return '🌓';
+                if (phase === 0.5) return '🌕';
+                if (phase === 0.75) return '🌗';
+                if (phase < 0.25) return '🌒';
+                if (phase < 0.5) return '🌔';
+                if (phase < 0.75) return '🌖';
+                return '🌘';
+            }
+            function renderMoonSun(daily) {
+                if (!daily) { dom.moonSunContent.innerHTML = '🌕 Moon data unavailable'; return; }
+                const moon = daily.moon_phase?.[0];
+                dom.moonSunContent.innerHTML = `
+                    <div class="moon-phase">${getMoonPhaseEmoji(moon)} Moon phase: ${moon !== undefined ? (moon*100).toFixed(0)+'%' : '--'}</div>
+                    <div style="margin-top:8px;">🌅 Sunrise: <span id="sunriseTime">${new Date(daily.sunrise[0]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                    <div>🌇 Sunset: <span id="sunsetTime">${new Date(daily.sunset[0]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                `;
+            }
+
+            function renderCharts(daily) {
+                if (!daily) return;
+                const s = sym();
+                const labels = daily.time.map(t => dayName(t));
+                const maxT = daily.temperature_2m_max.map(t => convert(t));
+                const minT = daily.temperature_2m_min.map(t => convert(t));
+                const precip = daily.precipitation_probability_max;
+                const wind = daily.wind_speed_10m_max;
+                const uv = daily.uv_index_max;
+                const isDark = state.theme === 'dark';
+                const textColor = isDark ? '#b0b5c0' : '#4a5568';
+                const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+                const configs = [
+                    { id:'chartTemp', type:'line', datasets:[
+                        { label:'Max', data:maxT, color:'#e74c3c' },
+                        { label:'Min', data:minT, color:'#2980b9' }
+                    ], unit:s },
+                    { id:'chartRain', type:'bar', datasets:[
+                        { label:'Rain %', data:precip, color:'#4facfe' }
+                    ], unit:'%' },
+                    { id:'chartWind', type:'line', datasets:[
+                        { label:'Wind km/h', data:wind, color:'#7cb342' }
+                    ], unit:' km/h' },
+                    { id:'chartUV', type:'bar', datasets:[
+                        { label:'UV', data:uv, color:'#f9a825' }
+                    ], unit:'' },
+                ];
+                configs.forEach(cfg => {
+                    const ctx = document.getElementById(cfg.id)?.getContext('2d');
+                    if (!ctx) return;
+                    if (state.charts[cfg.id]) state.charts[cfg.id].destroy();
+                    state.charts[cfg.id] = new Chart(ctx, {
+                        type: cfg.type,
+                        data: {
+                            labels,
+                            datasets: cfg.datasets.map(ds => ({
+                                label: ds.label,
+                                data: ds.data,
+                                borderColor: ds.color,
+                                backgroundColor: ds.color+'40',
+                                borderWidth: 3,
+                                pointRadius: 4,
+                                tension: 0.4,
+                            }))
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: textColor } } },
+                            scales: {
+                                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                                y: { ticks: { color: textColor, callback: v => v+cfg.unit }, grid: { color: gridColor } }
+                            }
+                        }
+                    });
+                });
+            }
+
+            function generateSummary() {
+                if (!state.daily) return '';
+                const s = sym();
+                const days = state.daily.time.map((t,i) => ({
+                    date:t, max:state.daily.temperature_2m_max[i], min:state.daily.temperature_2m_min[i],
+                    code:state.daily.weather_code[i], precip:state.daily.precipitation_probability_max[i],
+                    wind:state.daily.wind_speed_10m_max[i], uv:state.daily.uv_index_max[i]
+                }));
+                const sunny = days.filter(d => getWMO(d.code).cat==='sunny').length;
+                const rainy = days.filter(d => ['rain','storm'].includes(getWMO(d.code).cat)).length;
+                const trend = sunny>=5 ? 'mostly sunny' : rainy>=4 ? 'predominantly wet' : 'varied';
+                const temps = days.flatMap(d => [d.max, d.min]);
+                const avg = temps.reduce((a,b)=>a+b,0)/temps.length;
+                const warmest = days.reduce((a,b) => b.max>a.max?b:a);
+                const coldest = days.reduce((a,b) => b.min<a.min?b:a);
+                const rainyDays = days.filter(d => d.precip>40);
+                const windiest = days.reduce((a,b) => b.wind>a.wind?b:a);
+                const highUV = days.filter(d => d.uv>=6);
+                return `The week looks ${trend}. Temperatures range from ${convert(Math.round(Math.min(...temps)))}${s} to ${convert(Math.round(Math.max(...temps)))}${s}. Warmest: ${dayName(warmest.date)}. Coldest: ${dayName(coldest.date)}. ${rainyDays.length} rainy days; wettest: ${rainyDays.length ? dayName(rainyDays[0].date) : 'none'}. Wind peaks on ${dayName(windiest.date)}. ${highUV.length ? 'High UV on '+highUV.map(d=>dayName(d.date)).join(', ') : 'UV moderate'}. Avg temp ~${convert(Math.round(avg))}${s}.`;
+            }
+            function showSummary() {
+                if (!state.daily) return;
+                dom.summaryText.textContent = generateSummary();
+                dom.summaryTimestamp.textContent = `Generated: ${new Date().toLocaleString()}`;
+                dom.summaryCard.style.display = 'block';
+                dom.summaryCard.scrollIntoView({ behavior:'smooth' });
+            }
+
+            // Event listeners
+            dom.searchInput.addEventListener('input', debounce(async () => {
+                const q = dom.searchInput.value.trim();
+                if (q.length < 2) { dom.autocompleteDropdown.classList.remove('active'); return; }
+                try {
+                    const res = await geocode(q);
+                    if (!res.length) { dom.autocompleteDropdown.classList.remove('active'); return; }
+                    dom.autocompleteDropdown.innerHTML = res.map(r => `<div class="autocomplete-item" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${r.name}">📍 ${r.name}</div>`).join('');
+                    dom.autocompleteDropdown.classList.add('active');
+                    dom.autocompleteDropdown.querySelectorAll('.autocomplete-item').forEach(el => {
+                        el.addEventListener('click', () => {
+                            dom.searchInput.value = el.dataset.name;
+                            dom.autocompleteDropdown.classList.remove('active');
+                            fetchWeather(parseFloat(el.dataset.lat), parseFloat(el.dataset.lon), el.dataset.name);
+                        });
+                    });
+                } catch { dom.autocompleteDropdown.classList.remove('active'); }
+            }, 350));
+            function debounce(fn, delay) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); }; }
+            dom.searchBtn.addEventListener('click', () => {
+                const q = dom.searchInput.value.trim();
+                if (!q) return showToast('Enter a location.');
+                dom.autocompleteDropdown.classList.remove('active');
+                search(q);
+            });
+            dom.searchInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    dom.autocompleteDropdown.classList.remove('active');
+                    search(dom.searchInput.value.trim());
+                }
+            });
+            async function search(q) {
+                if (!q) return;
+                showLoading();
+                try {
+                    const res = await geocode(q);
+                    if (!res.length) { hideLoading(); showToast('Location not found.'); return; }
+                    const best = res[0];
+                    dom.searchInput.value = best.name;
+                    await fetchWeather(best.lat, best.lon, best.name);
+                } catch { hideLoading(); showToast('Search failed.'); }
+            }
+            dom.locationBtn.addEventListener('click', () => {
+                if (!navigator.geolocation) return showToast('Geolocation not supported.');
+                showLoading();
+                navigator.geolocation.getCurrentPosition(async pos => {
+                    const { latitude, longitude } = pos.coords;
+                    try {
+                        const res = await geocode(`${latitude},${longitude}`);
+                        const name = res.length ? res[0].name : `${latitude.toFixed(2)},${longitude.toFixed(2)}`;
+                        await fetchWeather(latitude, longitude, name);
+                        dom.searchInput.value = name;
+                    } catch { await fetchWeather(latitude, longitude, `${latitude.toFixed(2)},${longitude.toFixed(2)}`); }
+                }, err => { hideLoading(); showToast('Location denied.'); }, { timeout:15000 });
+            });
+            dom.viewSummaryBtn.addEventListener('click', showSummary);
+            dom.closeSummaryBtn.addEventListener('click', () => dom.summaryCard.style.display = 'none');
+            dom.themeToggle.addEventListener('click', toggleTheme);
+            dom.unitToggle.addEventListener('click', toggleUnit);
+            dom.favoriteStar.addEventListener('click', toggleFavorite);
+            dom.shareBtn.addEventListener('click', () => {
+                if (!state.location) return;
+                const text = `${state.location.name}: ${dom.currentTemp.textContent}, ${dom.currentCondition.textContent}`;
+                if (navigator.share) navigator.share({ title:'Weather', text });
+                else { navigator.clipboard.writeText(text); showToast('Copied!'); }
+            });
+            dom.printBtn.addEventListener('click', () => window.print());
+
+            dom.simToggleBtn.addEventListener('click', () => dom.simPanel.classList.toggle('active'));
+            dom.simButtons.addEventListener('click', e => {
+                if (e.target.dataset.weather) applySim(e.target.dataset.weather);
+            });
+            dom.simResetBtn.addEventListener('click', resetSim);
+
+            document.addEventListener('click', e => {
+                if (!dom.searchInput.contains(e.target) && !dom.autocompleteDropdown.contains(e.target)) dom.autocompleteDropdown.classList.remove('active');
+            });
+
+            // Init
+            loadPreferences();
+            renderRecent();
+            updateFavStar();
+            const last = state.recent[0];
+            if (last) {
+                fetchWeather(last.lat, last.lon, last.name);
+                dom.searchInput.value = last.name;
             } else {
-                anim.happiness = Math.max(0, anim.happiness - 4);
+                fetchWeather(51.5074, -0.1278, 'London, United Kingdom');
+                dom.searchInput.value = 'London, United Kingdom';
             }
-
-            if (anim.progress >= anim.interval) {
-                anim.progress = 0;
-                let qualityBonus = anim.happiness / 100;
-                let lootCount = Math.random() < qualityBonus ? 2 : 1;
-                addInventoryItem(anim.output, lootCount);
-                rewardXP("animal_care", anim.xp);
-                checkQuestProgression("animal", anim.type, lootCount);
-            }
-        });
-
-        // Update active displays on views
-        renderActivePlotsView();
-        renderActiveAnimalsView();
-        updateTimeMetrics();
-    }
-
-    function updateTimeMetrics() {
-        let dateObj = new Date();
-        document.getElementById("tablet-time").innerText = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
-
-    function advanceCalendarDay() {
-        player.currentDay++;
-        if (player.currentDay > 10) { // Configurable standard season shift
-            player.currentDay = 1;
-            player.currentSeasonIndex = (player.currentSeasonIndex + 1) % 4;
-            createToast(`The calendar transitions into ${SEASONS[player.currentSeasonIndex]}!`);
-            buildCropCatalog(); // Refresh valid seed types
-        }
-        
-        // Randomly cycle global climate vectors
-        player.currentWeather = WEATHER_TYPES[Math.floor(Math.random() * WEATHER_TYPES.length)];
-        
-        // Core economic shift loops
-        refreshDynamicMarketModel();
-        rollWorldEvents();
-        generateQuestBoard();
-        updateUI();
-    }
-
-    // ==========================================
-    // FARM OPERATIONS & CLICKER LOGIC
-    // ==========================================
-    function buildPlotsGrid() {
-        // Hydrate initial arrays to bounds if missing
-        while (player.plots.length < player.plotsCount) {
-            player.plots.push({ status: "empty", cropId: null, progress: 0, duration: 0 });
-        }
-        renderActivePlotsView();
-    }
-
-    function renderActivePlotsView() {
-        const target = document.getElementById("farm-plots-container");
-        if (!target || viewCurrentTab !== "farm") return;
-        
-        target.innerHTML = "";
-        player.plots.forEach((plot, idx) => {
-            let el = document.createElement("div");
-            el.className = `farm-plot ${plot.status !== 'empty' ? 'active-planted' : ''}`;
-            
-            if (plot.status === "empty") {
-                el.innerHTML = `<strong>Field Slot #${idx+1}</strong><span style="font-size:12px;color:var(--text-muted);margin-top:5px;">Fallow Earth</span>`;
-                el.onclick = () => switchTab('crops');
-            } else if (plot.status === "growing") {
-                let crop = CROP_DATABASE.find(c => c.id === plot.cropId);
-                let pct = Math.floor((plot.progress / plot.duration) * 100);
-                el.innerHTML = `
-                    <strong>${crop.name}</strong>
-                    <span style="font-size:11px;color:var(--accent);">Sprouting (${pct}%)</span>
-                    <div class="progress-wrapper"><div class="progress-fill" style="width:${pct}%"></div></div>
-                `;
-            } else if (plot.status === "ready") {
-                let crop = CROP_DATABASE.find(c => c.id === plot.cropId);
-                el.innerHTML = `
-                    <strong style="color:var(--primary); font-size:15px;">🌾 Ready 🌾</strong>
-                    <span style="font-size:12px; font-weight:600;">${crop.name}</span>
-                    <span style="font-size:10px; background:var(--primary); color:white; padding:2px 6px; border-radius:4px; margin-top:4px;">TAP TO REAP</span>
-                `;
-                el.onclick = (e) => { e.stopPropagation(); harvestPlot(idx); };
-            }
-            target.appendChild(el);
-        });
-    }
-
-    function manualFarmClick() {
-        let baseEarn = 1 + (player.upgrades.tools.level * 2);
-        player.coins += baseEarn;
-        rewardXP("farming", 2);
-        checkQuestProgression("earn", "coins", baseEarn);
-        updateUI();
-        
-        // Spawn miniature float text if desired
-        createToast(`Collected +${baseEarn} 🪙 from direct labor.`);
-    }
-
-    function buyNewPlot() {
-        let cost = Math.floor(50 * Math.pow(1.8, player.plotsCount - 3));
-        if (player.coins >= cost) {
-            player.coins -= cost;
-            player.plotsCount++;
-            player.plots.push({ status: "empty", cropId: null, progress: 0, duration: 0 });
-            buildPlotsGrid();
-            updateUI();
-            createToast("Acreage expanded. New planting fields available.");
-        } else {
-            createToast("Insufficient capital funding.");
-        }
-    }
-
-    // ==========================================
-    // NURSERY & CROP MANAGEMENT
-    // ==========================================
-    function buildCropCatalog() {
-        const target = document.getElementById("crop-catalog-container");
-        if (!target) return;
-        target.innerHTML = "";
-
-        CROP_DATABASE.forEach(crop => {
-            let currentSeason = SEASONS[player.currentSeasonIndex];
-            let isCorrectSeason = crop.season === currentSeason;
-            
-            let card = document.createElement("div");
-            card.className = "item-card";
-            card.style.opacity = isCorrectSeason ? "1" : "0.5";
-
-            let rarityColor = `var(--rarity-${crop.rarity})`;
-
-            card.innerHTML = `
-                <div class="item-header">
-                    <div>
-                        <strong style="display:block; font-size:15px;">${crop.name}</strong>
-                        <span style="font-size:11px; color:var(--text-muted);">Season: ${crop.season}</span>
-                    </div>
-                    <span class="rarity-tag" style="background:${rarityColor}">${crop.rarity}</span>
-                </div>
-                <div style="font-size:12px; margin-bottom:12px; color:var(--text-main);">
-                    ⏳ Growth Time: ${crop.time}s<br>
-                    📦 Projected Yield: ${crop.yield} units<br>
-                    📈 Basic Seed Cost: ${crop.buy} 🪙
-                </div>
-                <button class="btn-action" ${!isCorrectSeason || player.coins < crop.buy ? 'disabled' : ''} onclick="purchaseAndPlant('${crop.id}')">
-                    ${isCorrectSeason ? `Sow Seed (${crop.buy} 🪙)` : 'Wrong Season'}
-                </button>
-            `;
-            target.appendChild(card);
-        });
-    }
-
-    function purchaseAndPlant(cropId) {
-        let crop = CROP_DATABASE.find(c => c.id === cropId);
-        if (!crop || player.coins < crop.buy) return;
-
-        // Find standard free field plot
-        let idx = player.plots.findIndex(p => p.status === "empty");
-        if (idx === -1) {
-            createToast("No cleared fallow fields. Harvest fields or buy space.");
-            return;
-        }
-
-        player.coins -= crop.buy;
-        plantCrop(idx, cropId);
-        updateUI();
-    }
-
-    function plantCrop(plotIdx, cropId) {
-        let crop = CROP_DATABASE.find(c => c.id === cropId);
-        player.plots[plotIdx] = {
-            status: "growing",
-            cropId: cropId,
-            progress: 0,
-            duration: crop.time
-        };
-        checkQuestProgression("plant", cropId, 1);
-    }
-
-    function harvestPlot(idx) {
-        let plot = player.plots[idx];
-        if (!plot || plot.status !== "ready") return;
-
-        let crop = CROP_DATABASE.find(c => c.id === plot.cropId);
-        let finalYield = crop.yield;
-        
-        // Skill adjustments
-        if (Math.random() < (player.skills.farming.level * 0.03)) {
-            finalYield += 1; // Critical bounty gather
-        }
-
-        addInventoryItem(crop.name, finalYield);
-        rewardXP("farming", crop.xp);
-        checkQuestProgression("harvest", crop.id, finalYield);
-
-        // Wipe slot reset
-        player.plots[idx] = { status: "empty", cropId: null, progress: 0, duration: 0 };
-        updateUI();
-        createToast(`Gathered ${finalYield}x ${crop.name} into warehouse storage.`);
-    }
-
-    // ==========================================
-    // LIVESTOCK BARN MANAGEMENT
-    // ==========================================
-    function buildAnimalStorefront() {
-        const row = document.getElementById("animal-purchasing-row");
-        if (!row) return;
-        row.innerHTML = "";
-
-        ANIMAL_TEMPLATES.forEach(tmpl => {
-            let btn = document.createElement("button");
-            btn.className = "btn-action";
-            btn.style.background = "#5d4037";
-            btn.style.whiteSpace = "nowrap";
-            btn.innerHTML = `Buy ${tmpl.name} (${tmpl.cost} 🪙)`;
-            btn.onclick = () => buyLivestock(tmpl.type);
-            row.appendChild(btn);
-        });
-    }
-
-    function buyLivestock(type) {
-        let tmpl = ANIMAL_TEMPLATES.find(t => t.type === type);
-        if (player.coins >= tmpl.cost) {
-            player.coins -= tmpl.cost;
-            player.animals.push({
-                type: tmpl.type,
-                name: tmpl.name,
-                output: tmpl.output,
-                price: tmpl.price,
-                interval: tmpl.interval,
-                xp: tmpl.xp,
-                progress: 0,
-                food: 100,
-                water: 100,
-                happiness: 100
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (!loadFrom('wcc2_theme', null)) {
+                    state.theme = e.matches ? 'dark' : 'light';
+                    applyTheme();
+                    if (state.daily) renderCharts(state.daily);
+                }
             });
-            updateUI();
-            createToast(`Acquired a healthy ${tmpl.name} inside your primary barn barnyards.`);
-        } else {
-            createToast("Insufficient corporate liquid reserves.");
-        }
-    }
-
-    function renderActiveAnimalsView() {
-        const target = document.getElementById("active-animals-container");
-        if (!target || viewCurrentTab !== "animals") return;
-        target.innerHTML = "";
-
-        if (player.animals.length === 0) {
-            target.innerHTML = "<p style='color:var(--text-muted); grid-column: 1/-1;'>No operational livestock units are currently running.</p>";
-            return;
-        }
-
-        player.animals.forEach((anim, idx) => {
-            let card = document.createElement("div");
-            card.className = "item-card";
-            card.innerHTML = `
-                <div class="item-header">
-                    <strong>${anim.name} (Unit #${idx+1})</strong>
-                    <span style="color:var(--primary); font-size:12px;">❤️ ${anim.happiness}%</span>
-                </div>
-                <div style="font-size:12px; margin-bottom:10px;">
-                    🌾 Feed: ${Math.floor(anim.food)}% | 💧 Hydration: ${Math.floor(anim.water)}%<br>
-                    ⚙️ Processing Commodity: <strong>${anim.output}</strong>
-                </div>
-                <div class="progress-wrapper" style="margin-bottom:12px;">
-                    <div class="progress-fill" style="width:${(anim.progress/anim.interval)*100}%"></div>
-                </div>
-                <div class="split-box">
-                    <button class="btn-action" style="background:#8d6e63; font-size:11px;" onclick="feedAnimal(${idx})">Feed (5 🪙)</button>
-                    <button class="btn-action" style="background:#4fc3f7; font-size:11px;" onclick="waterAnimal(${idx})">Water (Free)</button>
-                </div>
-            `;
-            target.appendChild(card);
-        });
-    }
-
-    function feedAnimal(idx) {
-        if (player.coins >= 5) {
-            player.coins -= 5;
-            player.animals[idx].food = Math.min(100, player.animals[idx].food + 40);
-            updateUI();
-        } else {
-            createToast("No fodder coins available.");
-        }
-    }
-
-    function waterAnimal(idx) {
-        player.animals[idx].water = 100;
-        updateUI();
-    }
-
-    // ==========================================
-    // DYNAMIC ECONOMY MARKET SIMULATION
-    // ==========================================
-    function refreshDynamicMarketModel() {
-        CROP_DATABASE.forEach(crop => {
-            let base = crop.sell;
-            let variance = (Math.random() * 0.4) - 0.2; // +/- 20% Base random trend volatility
-
-            // Dynamic environmental scale vectors
-            if (player.currentWeather === "Drought") variance += 0.35; // Shortages lift indices
-            if (player.currentWeather === "Heatwave" && crop.season === "Summer") variance += 0.15;
-            if (player.currentWeather === "Frost" && crop.season !== "Winter") variance -= 0.25;
-
-            if (activeEvent === "Harvest Festival") variance += 0.40;
-            if (activeEvent === "Recession") variance -= 0.30;
-
-            let calculatedFinal = Math.max(1, Math.floor(base * (1 + variance)));
-            player.marketFluctuations[crop.name] = calculatedFinal;
-        });
-
-        // Loop baseline commodities derived via animals too
-        ANIMAL_TEMPLATES.forEach(anim => {
-            let base = anim.price;
-            let variance = (Math.random() * 0.2) - 0.1;
-            if (activeEvent === "Animal Competition") variance += 0.30;
-            player.marketFluctuations[anim.output] = Math.max(5, Math.floor(base * (1 + variance)));
-        });
-
-        renderMarketViewElements();
-    }
-
-    function renderMarketViewElements() {
-        const target = document.getElementById("market-pricing-container");
-        if (!target) return;
-        target.innerHTML = "";
-
-        // Combine fields to read current market indexes
-        for (let item in player.marketFluctuations) {
-            let card = document.createElement("div");
-            card.className = "item-card";
-            let currentPrice = player.marketFluctuations[item];
-            let countInBag = player.inventory[item] || 0;
-
-            card.innerHTML = `
-                <div>
-                    <strong>${item}</strong>
-                    <div style="font-size:16px; font-weight:bold; color:var(--primary); margin:5px 0;">
-                        ${currentPrice} 🪙 <span style="font-size:11px; color:var(--text-muted);">per unit</span>
-                    </div>
-                    <div style="font-size:11px; color:var(--text-muted);">Stored Quantity: ${countInBag}</div>
-                </div>
-                <button class="btn-action" style="margin-top:10px;" ${countInBag <= 0 ? 'disabled' : ''} onclick="sellInventoryItem('${item}')">
-                    Liquidate All Stored
-                </button>
-            `;
-            target.appendChild(card);
-        }
-
-        // Set contextual narrative descriptive texts
-        document.getElementById("market-trend-text").innerText = ` Current System Atmosphere: ${player.currentWeather}. Active macro events macrotrends: ${activeEvent}. Prices calculate natively relative to regional crop seasonality.`;
-    }
-
-    // ==========================================
-    // INVENTORY CORE MANAGERS
-    // ==========================================
-    function addInventoryItem(name, amount) {
-        if (!player.inventory[name]) player.inventory[name] = 0;
-        player.inventory[name] += amount;
-        updateUI();
-    }
-
-    function sellInventoryItem(name) {
-        let count = player.inventory[name] || 0;
-        if (count > 0) {
-            let unitPrice = player.marketFluctuations[name] || 10;
-            let totalGain = count * unitPrice;
-            
-            // Trading skill application multiplier
-            let bonusMulti = 1 + (player.skills.trading.level * 0.04);
-            totalGain = Math.floor(totalGain * bonusMulti);
-
-            player.coins += totalGain;
-            player.inventory[name] = 0;
-
-            rewardXP("trading", Math.floor(count * 3));
-            checkQuestProgression("sell", name, count);
-            checkQuestProgression("earn", "coins", totalGain);
-            
-            updateUI();
-            createToast(`Sold ${count} units of ${name} capturing a net premium of ${totalGain} 🪙.`);
-        }
-    }
-
-    function sellAllInventory() {
-        let executionFlag = false;
-        for (let item in player.inventory) {
-            if (player.inventory[item] > 0) {
-                sellInventoryItem(item);
-                executionFlag = true;
-            }
-        }
-        if (!executionFlag) createToast("Inventory warehouses are currently vacant.");
-    }
-
-    function renderInventorySilo() {
-        const target = document.getElementById("inventory-container");
-        if (!target || viewCurrentTab !== "inventory") return;
-        target.innerHTML = "";
-
-        let populated = false;
-        for (let item in player.inventory) {
-            let amt = player.inventory[item];
-            if (amt > 0) {
-                populated = true;
-                let card = document.createElement("div");
-                card.className = "item-card";
-                card.innerHTML = `
-                    <strong>${item}</strong>
-                    <span style="font-size:20px; font-weight:bold; margin:8px 0;">${amt} Units</span>
-                    <button class="btn-action" onclick="sellInventoryItem('${item}')">Sell on Open Exchange</button>
-                `;
-                target.appendChild(card);
-            }
-        }
-        if (!populated) {
-            target.innerHTML = "<p style='color:var(--text-muted);'>No materials stored in logistics network.</p>";
-        }
-    }
-
-    // ==========================================
-    // DYNAMIC QUEST SYSTEM PROCEDURES
-    // ==========================================
-    function generateQuestBoard() {
-        if (player.activeQuests.length >= 3) return; // Keep standard workload filled
-
-        const targets = ["lettuce", "wheat", "tomatoes", "turnips"];
-        while (player.activeQuests.length < 3) {
-            let targetCrop = targets[Math.floor(Math.random() * targets.length)];
-            let scaleRequirement = Math.floor(Math.random() * 8) + 4;
-            let rewardsCash = scaleRequirement * 25;
-
-            player.activeQuests.push({
-                id: Math.random().toString(36).substr(2, 5),
-                type: "harvest",
-                target: targetCrop,
-                required: scaleRequirement,
-                current: 0,
-                rewardCoins: rewardsCash,
-                rewardGems: Math.random() > 0.7 ? 2 : 0
-            });
-        }
-        renderQuestsDashboard();
-    }
-
-    function renderQuestsDashboard() {
-        const target = document.getElementById("quests-container");
-        if (!target || viewCurrentTab !== "quests") return;
-        target.innerHTML = "";
-
-        player.activeQuests.forEach(q => {
-            let pct = Math.min(100, Math.floor((q.current / q.required) * 100));
-            let card = document.createElement("div");
-            card.className = "item-card";
-            card.innerHTML = `
-                <div>
-                    <strong style="text-transform:capitalize;">Assignment: Contract Gathering</strong>
-                    <p style="font-size:13px; color:var(--text-muted); margin:6px 0;">Harvest and supply ${q.required}x unique ${q.target} instances to fulfill commercial specifications.</p>
-                    <div style="font-size:12px; font-weight:bold;">Progress Tracker: ${q.current} / ${q.required} (${pct}%)</div>
-                    <div class="progress-wrapper"><div class="progress-fill" style="width:${pct}%"></div></div>
-                </div>
-                <div style="margin-top:12px; font-size:11px; color:var(--text-main);">
-                    🎁 Rewards: 🪙 ${q.rewardCoins} ${q.rewardGems > 0 ? `| 💎 ${q.rewardGems}` : ''}
-                </div>
-                <button class="btn-action" style="margin-top:8px;" ${q.current < q.required ? 'disabled' : ''} onclick="claimQuestAward('${q.id}')">
-                    Discharge & Collect Award
-                </button>
-            `;
-            target.appendChild(card);
-        });
-    }
-
-    function checkQuestProgression(action, targetId, qty) {
-        player.activeQuests.forEach(q => {
-            if (q.type === action && (q.target === targetId || targetId.toLowerCase().includes(q.target))) {
-                q.current += qty;
-            }
-        });
-        renderQuestsDashboard();
-    }
-
-    function claimQuestAward(id) {
-        let idx = player.activeQuests.findIndex(q => q.id === id);
-        if (idx !== -1) {
-            let q = player.activeQuests[idx];
-            player.coins += q.rewardCoins;
-            player.gems += q.rewardGems;
-            player.activeQuests.splice(idx, 1);
-            
-            generateQuestBoard();
-            updateUI();
-            createToast("Bounty contract executed successfully. Assets transferred.");
-        }
-    }
-
-    // ==========================================
-    // PROGRESSION RPG LEVEL SYSTEM
-    // ==========================================
-    function rewardXP(skillKey, amount) {
-        let skill = player.skills[skillKey];
-        if (!skill) return;
-        
-        skill.xp += amount;
-        let nextLevelRequirement = Math.floor(100 * Math.pow(1.5, skill.level - 1));
-        
-        if (skill.xp >= nextLevelRequirement) {
-            skill.xp -= nextLevelRequirement;
-            skill.level++;
-            createToast(`🚀 RPG LEVEL UP! Your ${skillKey.replace('_', ' ')} efficiency is now Tier ${skill.level}!`);
-            
-            // Random drop award mechanics
-            player.gems += 5;
-        }
-        renderSkillsScreen();
-    }
-
-    function renderSkillsScreen() {
-        const target = document.getElementById("skills-container");
-        if (!target || viewCurrentTab !== "skills") return;
-        target.innerHTML = "";
-
-        for (let key in player.skills) {
-            let sk = player.skills[key];
-            let req = Math.floor(100 * Math.pow(1.5, sk.level - 1));
-            let pct = Math.floor((sk.xp / req) * 100);
-
-            let card = document.createElement("div");
-            card.className = "stat-card";
-            card.innerHTML = `
-                <strong style="text-transform:uppercase; font-size:13px; color:var(--text-muted);">${key.replace('_',' ')} Proficiency</strong>
-                <div style="font-size:24px; font-weight:bold; color:var(--text-main); margin:4px 0;">Rank ${sk.level}</div>
-                <div style="font-size:11px; text-align:right;">${sk.xp} / ${req} XP (${pct}%)</div>
-                <div class="progress-wrapper"><div class="progress-fill" style="background-color:var(--accent); width:${pct}%;"></div></div>
-            `;
-            target.appendChild(card);
-        }
-    }
-
-    // ==========================================
-    // ANCILLARY MECHANICS: PETS & UPGRADES
-    // ==========================================
-    function renderPetsScreen() {
-        const target = document.getElementById("pets-container");
-        if (!target || viewCurrentTab !== "pets") return;
-        target.innerHTML = "";
-
-        player.pets.forEach((pet, idx) => {
-            let card = document.createElement("div");
-            card.className = "item-card";
-            card.innerHTML = `
-                <div>
-                    <strong>${pet.name}</strong>
-                    <div style="font-size:12px; color:var(--primary); font-weight:bold; margin:5px 0;">Perk: ${pet.bonus}</div>
-                    <span style="font-size:11px; color:var(--text-muted);">Status: ${pet.active ? '🛡️ Accompanied Active' : 'Resting in Sanctuary'}</span>
-                </div>
-                <button class="btn-action" style="margin-top:10px; background:${pet.active?'#78909c':'var(--primary)'}" onclick="togglePetStatus(${idx})">
-                    ${pet.active ? 'Dismiss Companion' : 'Deploy Companion'}
-                </button>
-            `;
-            target.appendChild(card);
-        });
-    }
-
-    function togglePetStatus(idx) {
-        let targetState = !player.pets[idx].active;
-        if (targetState === true) {
-            // Deactivate all others first
-            player.pets.forEach(p => p.active = false);
-        }
-        player.pets[idx].active = targetState;
-        renderPetsScreen();
-        createToast(`Pet lineup structural changes saved.`);
-    }
-
-    function buildUpgradeMatrix() {
-        const target = document.getElementById("upgrades-container");
-        if (!target) return;
-        target.innerHTML = "";
-
-        for (let key in player.upgrades) {
-            let upg = player.upgrades[key];
-            let card = document.createElement("div");
-            card.className = "upgrade-card";
-            card.id = `upgrade-card-${key}`;
-
-            card.innerHTML = `
-                <strong>${upg.name}</strong>
-                <div style="font-size:12px; color:var(--text-muted); margin:5px 0;">Current Tier: Level ${upg.level}</div>
-                <button class="btn-action" style="width:100%; margin-top:5px;" onclick="purchaseInfrastructureUpgrade('${key}')">
-                    Upgrade Level (${upg.cost} 🪙)
-                </button>
-            `;
-            target.appendChild(card);
-        }
-    }
-
-    function purchaseInfrastructureUpgrade(key) {
-        let upg = player.upgrades[key];
-        if (player.coins >= upg.cost) {
-            player.coins -= upg.cost;
-            upg.level++;
-            upg.cost = Math.floor(upg.cost * 2.2);
-            
-            buildUpgradeMatrix();
-            updateUI();
-            createToast(`Upgraded ${upg.name} infrastructure modules.`);
-        } else {
-            createToast("Inadequate funding capital to procure upgrade arrays.");
-        }
-    }
-
-    // ==========================================
-    // WORLD EVENTS ENGINE
-    // ==========================================
-    function rollWorldEvents() {
-        let roll = Math.random();
-        if (roll < 0.15) {
-            activeEvent = "Harvest Festival";
-            createToast("🎉 WORLD EVENT: The annual Harvest Festival has launched! Crop valuations skyrocket!");
-        } else if (roll < 0.25) {
-            activeEvent = "Recession";
-            createToast("📉 ECONOMIC CRISIS: A global recession has suppressed production demand indices!");
-        } else if (roll < 0.35) {
-            activeEvent = "Animal Competition";
-            createToast("🏆 LIVESTOCK FAIR: Barn yields fetch massive premiums today.");
-        } else {
-            activeEvent = "None";
-        }
-        document.getElementById("active-event-indicator").innerText = activeEvent !== "None" ? `🔥 ${activeEvent} Event` : "";
-    }
-
-    // ==========================================
-    // PRESTIGE & RESET MECHANISM
-    // ==========================================
-    function computePrestigeYield() {
-        // Calculate accrued structural value
-        let cumulativeWealth = player.coins + (player.plotsCount * 100);
-        return Math.floor(Math.sqrt(cumulativeWealth / 500));
-    }
-
-    function triggerPrestigeSystem() {
-        let tokensAwarded = computePrestigeYield();
-        if (tokensAwarded < 1) {
-            alert("Your corporate farm enterprise lacks sufficient evaluation to claim prestige tokens yet.");
-            return;
-        }
-
-        if (confirm(`Are you prepared to reset your active acreage? This path grants you ${tokensAwarded} Farm Tokens to unlock deep scaling structural advantages.`)) {
-            player.farmTokens += tokensAwarded;
-            player.prestigeCount++;
-            
-            // Hard wipe variable layers
-            player.coins = 150;
-            player.plotsCount = 4;
-            player.plots = [];
-            player.animals = [];
-            player.inventory = {};
-            player.activeQuests = [];
-            
-            for (let k in player.skills) {
-                player.skills[k] = { level: 1, xp: 0 };
-            }
-            
-            player.upgrades.tools.level = 1; player.upgrades.tools.cost = 100;
-            player.upgrades.irrigation.level = 0; player.upgrades.irrigation.cost = 250;
-            player.upgrades.silos.level = 1; player.upgrades.silos.cost = 400;
-            player.upgrades.workers.level = 0; player.upgrades.workers.cost = 600;
-
-            advanceCalendarDay();
-            buildPlotsGrid();
-            buildUpgradeMatrix();
-            updateUI();
-            
-            createToast("Ascension sequence finalized. New baseline bonuses are online.");
-        }
-    }
-
-    // ==========================================
-    // DATA PERSISTENCE LAYER (LOCALSTORAGE)
-    // ==========================================
-    function autoSaveProcess() {
-        localStorage.setItem("HARVESTOS_AMPLIFIED_SAVE", JSON.stringify(player));
-        createToast("💾 Core operating metrics mirrored automatically to local flash storage storage blocks.");
-    }
-
-    function loadProfileData() {
-        let file = localStorage.getItem("HARVESTOS_AMPLIFIED_SAVE");
-        if (file) {
-            try {
-                let parsed = JSON.parse(file);
-                // Selective patch deep assignments to map older states seamlessly
-                if (parsed.coins !== undefined) player = Object.assign({}, player, parsed);
-            } catch(err) {
-                console.error("Failed loading corrupted state matrix.", err);
-            }
-        }
-    }
-
-    function purgeSaveData() {
-        if (confirm("Are you absolutely sure you wish to permanently destroy all corporate progress data? This operation cannot be reversed!")) {
-            localStorage.removeItem("HARVESTOS_AMPLIFIED_SAVE");
-            window.location.reload();
-        }
-    }
-
-    // ==========================================
-    // RENDERING CORE SYSTEM ROUTINES
-    // ==========================================
-    function updateUI() {
-        document.getElementById("display-coins").innerText = Number(player.coins).toLocaleString();
-        document.getElementById("display-gems").innerText = player.gems;
-        document.getElementById("display-tokens").innerText = player.farmTokens;
-        document.getElementById("env-season-day").innerText = `${SEASONS[player.currentSeasonIndex]} - Year ${player.prestigeCount + 1}, Day ${player.currentDay}`;
-        document.getElementById("env-weather").innerText = getWeatherEmoji(player.currentWeather) + " " + player.currentWeather;
-        document.getElementById("plot-cost").innerText = Math.floor(50 * Math.pow(1.8, player.plotsCount - 3));
-        document.getElementById("prestige-gain-estimate").innerText = computePrestigeYield();
-
-        // Selective structural viewport updates
-        renderInventorySilo();
-        renderMarketViewElements();
-        renderActivePlotsView();
-        renderActiveAnimalsView();
-    }
-
-    function getWeatherEmoji(w) {
-        switch(w) {
-            case "Sunny": return "☀️";
-            case "Cloudy": return "☁️";
-            case "Rain": return "🌧️";
-            case "Storm": return "⛈️";
-            case "Heatwave": return "🔥";
-            case "Frost": return "❄️";
-            case "Snow": return "☃️";
-            case "Drought": return "🏜️";
-            default: return "🌍";
-        }
-    }
-
-    let viewCurrentTab = "farm";
-    function switchTab(tabId) {
-        viewCurrentTab = tabId;
-        document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
-        document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-        
-        let targetPanel = document.getElementById(`view-${tabId}`);
-        if(targetPanel) targetPanel.classList.add("active");
-        
-        // Find click origin highlight it
-        let clickedBtn = Array.from(document.querySelectorAll(".sidebar-nav .nav-btn")).find(b => b.getAttribute("onclick").includes(tabId));
-        if (clickedBtn) clickedBtn.classList.add("active");
-
-        updateUI();
-        if(tabId === "skills") renderSkillsScreen();
-        if(tabId === "pets") renderPetsScreen();
-    }
-
-    function setTheme(mode) {
-        document.documentElement.setAttribute("data-theme", mode);
-    }
-
-    function createToast(message) {
-        const bin = document.getElementById("toast-bin");
-        if (!bin) return;
-        let t = document.createElement("div");
-        t.className = "toast-popup";
-        t.innerText = message;
-        bin.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-    }
-
-    // Fire economic tickers to continuously simulate background day updates
-    setInterval(advanceCalendarDay, 45000); // Days run on 45-second high speed clock cycle macro tracks
-
-    // Kickstart application framework on DOM lifecycle anchor
-    window.addEventListener("DOMContentLoaded", initializeGameEngine);
-
-</script>
+        })();
+    </script>
 </body>
 </html>
