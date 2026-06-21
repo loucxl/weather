@@ -78,7 +78,7 @@
         .particle.snowflake { width:5px; height:5px; background:rgba(255,255,255,0.7); border-radius:50%; animation-duration:3s; box-shadow:0 0 4px rgba(255,255,255,0.5); }
         @keyframes fall { 0%{transform:translateY(-10vh) rotate(0deg);opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translateY(105vh) rotate(180deg);opacity:0;} }
 
-        .app-container { position: relative; z-index:2; max-width: 1200px; margin:0 auto; padding:20px 24px 40px; }
+        .app-container { position: relative; z-index:2; width:min(96%, 1800px); margin:0 auto; padding:20px 24px 40px; }
         .header { display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
         .logo { font-size:1.8rem; font-weight:700; background: linear-gradient(135deg, var(--accent), #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space:nowrap; }
         .search-box { flex:1 1 350px; display:flex; gap:8px; position:relative; }
@@ -110,7 +110,7 @@
         .recent-tag { padding:6px 14px; border-radius:40px; background: var(--bg-glass); font-size:0.8rem; cursor:pointer; border:1px solid var(--border); backdrop-filter: blur(12px); }
         .recent-tag:hover { background: var(--accent); color:white; }
 
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap:24px; }
         .card {
             background: var(--bg-card); backdrop-filter: blur(20px); border-radius: var(--radius);
             padding:24px; border:1px solid var(--border); box-shadow: var(--shadow); transition: var(--transition);
@@ -125,13 +125,13 @@
             .current-weather-grid { grid-template-columns: 1fr; }
         }
 
-        .current-weather-grid { display:grid; grid-template-columns:minmax(250px,320px) 1fr; gap:24px; align-items:start; }
+        .current-weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:center; }
         .temp-block { display: flex; flex-direction: column; align-items: flex-start; gap:4px; }
-        .temp-large { font-size:clamp(3rem,8vw,4.5rem); font-weight:700; letter-spacing:-2px; line-height:1; }
+        .temp-large { font-size:4.5rem; font-weight:700; letter-spacing:-2px; line-height:1; }
         .feels-like { font-size:1rem; color:var(--text-muted); margin-top:4px; }
         .weather-icon { font-size:5rem; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-        .details-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap:12px; }
         .detail-item { display: flex; align-items: center; gap:10px; padding:10px; background: var(--bg-glass); border-radius:14px; font-size:0.9rem; }
         .detail-icon { font-size:1.4rem; }
 
@@ -142,7 +142,7 @@
         .daily-list { display: flex; flex-direction: column; gap: 8px; }
         .daily-row {
             display: grid;
-            grid-template-columns: 80px 60px 1fr 90px 70px;
+            grid-template-columns: 60px 1fr 55px 70px 50px;
             align-items: center;
             gap: 8px;
             padding: 12px 12px;
@@ -184,7 +184,7 @@
             padding:14px 20px; border-radius:18px; background: rgba(231,76,60,0.1);
             border:1px solid rgba(231,76,60,0.3); color:#e74c3c; margin-bottom:12px;
         }
-        .pollen-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+        .pollen-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
         .pollen-item { text-align:center; padding:12px; border-radius:16px; background: var(--bg-glass); }
         .chart-box { height:260px; }
         .sim-panel { background: var(--bg-card); backdrop-filter: blur(20px); border-radius:24px; padding:16px; margin-bottom:20px; display:none; border:1px solid var(--border); }
@@ -202,31 +202,7 @@
             display:flex; align-items:center; justify-content:center;
         }
         .loading-overlay.hidden { display:none; }
-    
-.charts-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:16px;
-}
-#currentLocationName{
-    display:inline-block;
-    max-width:250px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    vertical-align:bottom;
-}
-.card,.detail-item,.pollen-item,.daily-row,.hourly-item{
-    overflow:hidden;
-}
-*{min-width:0;}
-@media (max-width:900px){
-    .current-weather-grid{
-        grid-template-columns:1fr !important;
-    }
-}
-
-</style>
+    </style>
 </head>
 <body data-theme="light">
 
@@ -335,7 +311,7 @@
 
             <div class="card span-2">
                 <div class="card-header"><span class="card-title">📊 Trends</span></div>
-                <div class="charts-grid">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                     <div class="chart-box"><canvas id="chartTemp"></canvas></div>
                     <div class="chart-box"><canvas id="chartRain"></canvas></div>
                     <div class="chart-box"><canvas id="chartWind"></canvas></div>
