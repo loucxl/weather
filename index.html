@@ -259,6 +259,21 @@
     .spinner{width:38px;height:38px;border:3px solid rgba(56,189,248,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
 
+    /* ── INSIGHT CARDS ── */
+    .insight-score{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+    .score-dial{width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:3px solid;}
+    .score-num{font-size:1.5rem;font-weight:800;line-height:1;}
+    .score-lbl{font-size:.5rem;text-transform:uppercase;letter-spacing:.07em;margin-top:2px;opacity:.8;}
+    .score-info{flex:1;}
+    .score-title{font-size:1.05rem;font-weight:700;line-height:1.3;}
+    .score-sub{font-size:.76rem;color:var(--text-2);margin-top:3px;line-height:1.4;}
+    .tip-list{display:flex;flex-direction:column;}
+    .tip-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.79rem;line-height:1.55;color:var(--text-2);}
+    .tip-item:last-child{border-bottom:none;}
+    .tip-icon{flex-shrink:0;font-size:1rem;margin-top:1px;}
+    .frost-day{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);margin-bottom:6px;font-size:.8rem;}
+    .frost-day:last-child{margin-bottom:0;}
+
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar{width:5px;}
     ::-webkit-scrollbar-track{background:transparent;}
@@ -307,6 +322,7 @@
         <a class="nav-item" href="#s-analytics" onclick="navClick(this,event)"><span class="nav-icon">📊</span>Analytics</a>
         <a class="nav-item" href="#s-environment" onclick="navClick(this,event)"><span class="nav-icon">🌿</span>Environment</a>
         <a class="nav-item" href="#s-hazards" onclick="navClick(this,event)"><span class="nav-icon">🔬</span>Earth Science</a>
+        <a class="nav-item" href="#s-insights" onclick="navClick(this,event)"><span class="nav-icon">💡</span>Daily Insights</a>
 
         <div class="nav-group">Saved Places</div>
         <div id="favsList"><div style="font-size:.74rem;color:var(--text-3);padding:5px 10px;">No saved places yet</div></div>
@@ -467,6 +483,31 @@
           </div>
         </div>
 
+        <!-- ══ DAILY INSIGHTS ══ -->
+        <div class="section" id="s-insights">
+          <div class="section-label">Daily Insights</div>
+          <div class="grid g-2" style="margin-bottom:12px;">
+            <div class="ha-card">
+              <div class="card-head"><span class="card-head-icon">🔭</span><span class="card-title">Stargazing Tonight</span><span class="card-badge" id="starBadge" style="display:none;"></span></div>
+              <div class="card-body" id="starBody"><span style="color:var(--text-3);font-size:.82rem;">Loading…</span></div>
+            </div>
+            <div class="ha-card">
+              <div class="card-head"><span class="card-head-icon">🛌</span><span class="card-title">Sleep Quality Tonight</span><span class="card-badge" id="sleepBadge" style="display:none;"></span></div>
+              <div class="card-body" id="sleepBody"><span style="color:var(--text-3);font-size:.82rem;">Loading…</span></div>
+            </div>
+          </div>
+          <div class="grid g-2">
+            <div class="ha-card">
+              <div class="card-head"><span class="card-head-icon">❄️</span><span class="card-title">Frost &amp; Ice Warning</span><span class="card-badge" id="frostBadge" style="display:none;"></span></div>
+              <div class="card-body" id="frostBody"><span style="color:var(--text-3);font-size:.82rem;">Loading…</span></div>
+            </div>
+            <div class="ha-card">
+              <div class="card-head"><span class="card-head-icon">🌿</span><span class="card-title">Plant Watering</span><span class="card-badge" id="waterBadge" style="display:none;"></span></div>
+              <div class="card-body" id="waterBody"><span style="color:var(--text-3);font-size:.82rem;">Loading…</span></div>
+            </div>
+          </div>
+        </div>
+
         <div style="height:32px;"></div>
       </main>
     </div>
@@ -479,6 +520,7 @@
       weather:null, daily:null, hourly:null,
       aq:null, pollen:null, location:null,
       history:null, marine:null, flood:null, ensemble:null, quakes:[],
+      recentTemps:null,
       unit:'celsius', favorites:[], recent:[], charts:{}, sim:null
     };
 
@@ -504,6 +546,10 @@
       favsList:$('favsList'), unitLabel:$('unitLabel'),
       clockTime:$('clockTime'), clockDate:$('clockDate'), menuBtn:$('menuBtn'),
       ensLabel:$('ensLabel'),
+      starBody:$('starBody'), starBadge:$('starBadge'),
+      sleepBody:$('sleepBody'), sleepBadge:$('sleepBadge'),
+      frostBody:$('frostBody'), frostBadge:$('frostBadge'),
+      waterBody:$('waterBody'), waterBadge:$('waterBadge'),
     };
 
     /* ═══ API ENDPOINTS ═══ */
@@ -679,6 +725,15 @@
           daily:'temperature_2m_max,temperature_2m_min',timezone:'auto'
         });
 
+        // Recent past temps: last 5 days (for heat soak / heatwave detection)
+        const recentEnd=new Date(now);recentEnd.setDate(now.getDate()-1);
+        const recentStart=new Date(now);recentStart.setDate(now.getDate()-5);
+        const recentParams=new URLSearchParams({
+          latitude:lat,longitude:lon,
+          start_date:isoDate(recentStart),end_date:isoDate(recentEnd),
+          daily:'temperature_2m_max',timezone:'auto'
+        });
+
         // Marine wave data
         const marineParams=new URLSearchParams({
           latitude:lat,longitude:lon,
@@ -702,7 +757,7 @@
         // USGS earthquakes within 500km, M2.5+
         const quakeUrl=`${API_USGS}?format=geojson&latitude=${lat}&longitude=${lon}&maxradiuskm=500&minmagnitude=2.5&orderby=time&limit=10`;
 
-        const [wRes,aqRes,archRes,marineRes,floodRes,ensRes,quakeRes]=await Promise.allSettled([
+        const [wRes,aqRes,archRes,marineRes,floodRes,ensRes,quakeRes,recentRes]=await Promise.allSettled([
           fetch(`${API_W}?${wParams}`).then(r=>r.json()),
           fetch(`${API_AQ}?${aqParams}`).then(r=>r.json()),
           fetch(`${API_ARCHIVE}?${archParams}`).then(r=>r.json()),
@@ -710,6 +765,7 @@
           fetch(`${API_FLOOD}?${floodParams}`).then(r=>r.json()),
           fetch(`${API_ENSEMBLE}?${ensParams}`).then(r=>r.json()),
           fetch(quakeUrl).then(r=>r.json()),
+          fetch(`${API_ARCHIVE}?${recentParams}`).then(r=>r.json()),
         ]);
 
         const wd=wRes.status==='fulfilled'?wRes.value:null;
@@ -725,6 +781,7 @@
         S.flood=floodRes.status==='fulfilled'?floodRes.value?.daily:null;
         S.ensemble=ensRes.status==='fulfilled'?parseEnsemble(ensRes.value):null;
         S.quakes=quakeRes.status==='fulfilled'?(quakeRes.value?.features||[]):[];
+        S.recentTemps=recentRes.status==='fulfilled'?(recentRes.value?.daily?.temperature_2m_max||[]):[];
         S.location={lat,lon,name}; S.sim=null;
         el.simPanel.classList.remove('open');
 
@@ -811,9 +868,271 @@
       renderMarine();
       renderFlood();
       renderEarthquakes();
+      renderStargazing();
+      renderSleep();
+      renderFrost();
+      renderWatering();
       renderAlerts();
       renderParticles(info.cat,night);
       updateFavBtn();
+    }
+
+    /* ── STARGAZING ── */
+    function renderStargazing(){
+      if(!S.hourly){el.starBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">No hourly data available.</span>';return;}
+      const now=new Date();
+      const nightIdxs=[];
+      for(let i=0;i<S.hourly.time.length&&nightIdxs.length<6;i++){
+        const t=new Date(S.hourly.time[i]);
+        if(t<now)continue;
+        if(S.hourly.is_day&&S.hourly.is_day[i]===0)nightIdxs.push(i);
+      }
+      if(!nightIdxs.length){
+        for(let i=0;i<S.hourly.time.length&&nightIdxs.length<6;i++){
+          const t=new Date(S.hourly.time[i]);
+          const h=t.getHours();
+          if(t>=now&&(h>=21||h<=2))nightIdxs.push(i);
+        }
+      }
+      if(!nightIdxs.length){el.starBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">Check back after sunset.</span>';return;}
+      const avg=key=>nightIdxs.reduce((s,i)=>s+(S.hourly[key]?.[i]??0),0)/nightIdxs.length;
+      const avgCloud=avg('cloud_cover'),avgVis=avg('visibility');
+      const moon=moonPhase(now);
+      const cloudScore=100-avgCloud,moonScore=100-moon.illum,visScore=Math.min(100,avgVis/100);
+      const total=Math.round(cloudScore*0.55+moonScore*0.3+visScore*0.15);
+      let rating,col,badgeCls;
+      if(total>=75){rating='Excellent';col='#a78bfa';badgeCls='badge-good';}
+      else if(total>=55){rating='Good';col='#60a5fa';badgeCls='badge-good';}
+      else if(total>=35){rating='Fair';col='#fbbf24';badgeCls='badge-mod';}
+      else{rating='Poor';col='#f87171';badgeCls='badge-bad';}
+      el.starBadge.style.display='inline-flex';el.starBadge.textContent=rating;
+      el.starBadge.className=`card-badge ${badgeCls}`;
+      const tips=[];
+      if(avgCloud>70)tips.push({i:'☁️',t:'Heavy cloud cover tonight — clear spells unlikely. Check conditions again tomorrow.'});
+      else if(avgCloud>40)tips.push({i:'⛅',t:`Partial cloud (avg ${Math.round(avgCloud)}%) — observe during gaps. Patience pays off.`});
+      else tips.push({i:'✨',t:`Clear skies expected (avg ${Math.round(avgCloud)}% cloud) — excellent transparency for observing.`});
+      if(moon.illum>70)tips.push({i:'🌕',t:`${moon.name} at ${moon.illum}% will wash out faint stars and nebulae. Stick to bright targets.`});
+      else if(moon.illum>30)tips.push({i:'🌔',t:`${moon.name} (${moon.illum}% lit) — planets and open clusters still viewable well.`});
+      else tips.push({i:'🌑',t:`${moon.name} at only ${moon.illum}% illumination — dark skies, ideal for galaxies and nebulae.`});
+      if(avgVis>=20000)tips.push({i:'👁',t:'Excellent atmospheric visibility — good transparency for fine planetary detail.'});
+      else if(avgVis<5000)tips.push({i:'🌫',t:'Haze or mist may reduce contrast — limit expectations for deep-sky objects tonight.'});
+      if(total>=60)tips.push({i:'🔭',t:'Best targets tonight: '+(moon.illum<30?'Milky Way core, faint nebulae, ':'')+'bright planets, double stars'+(avgCloud<30?' and open clusters':'')+'.'});
+      el.starBody.innerHTML=`
+        <div class="insight-score">
+          <div class="score-dial" style="border-color:${col};color:${col};">
+            <div class="score-num">${total}</div><div class="score-lbl">/100</div>
+          </div>
+          <div class="score-info">
+            <div class="score-title" style="color:${col}">${rating} Conditions</div>
+            <div class="score-sub">${Math.round(avgCloud)}% cloud · Moon ${moon.illum}% lit · ${avgVis>=1000?(avgVis/1000).toFixed(0)+'km':Math.round(avgVis)+'m'} visibility</div>
+          </div>
+        </div>
+        <div class="tip-list">${tips.map(t=>`<div class="tip-item"><span class="tip-icon">${t.i}</span><span>${t.t}</span></div>`).join('')}</div>`;
+    }
+
+    /* ── SLEEP QUALITY ── */
+    function renderSleep(){
+      if(!S.hourly){el.sleepBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">No hourly data.</span>';return;}
+      const now=new Date();
+
+      // Gather overnight hours: 22:00 tonight through 07:00 next morning
+      const overnightIdxs=[];
+      for(let i=0;i<S.hourly.time.length;i++){
+        const t=new Date(S.hourly.time[i]);
+        if(t<now)continue;
+        const h=t.getHours();
+        if(h>=22||h<=7){overnightIdxs.push(i);if(overnightIdxs.length>=10)break;}
+      }
+      if(!overnightIdxs.length){el.sleepBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">Check back this evening.</span>';return;}
+
+      const avg=key=>overnightIdxs.reduce((s,i)=>s+(S.hourly[key]?.[i]??0),0)/overnightIdxs.length;
+      const outdoorNightTemp=avg('temperature_2m');
+      const avgHumid=avg('relative_humidity_2m');
+      const minOutdoor=Math.min(...overnightIdxs.map(i=>S.hourly.temperature_2m?.[i]??20));
+      const maxOutdoor=Math.max(...overnightIdxs.map(i=>S.hourly.temperature_2m?.[i]??20));
+
+      // ── HEAT SOAK CALCULATION ──
+      // Buildings absorb heat during hot days and release it slowly overnight.
+      // We use the last 5 real days + today's forecast max to detect heatwaves.
+      const todayMax=S.daily?.temperature_2m_max?.[0]??outdoorNightTemp;
+      const recentMaxes=[...(S.recentTemps||[]),todayMax];
+      const hotDayCount=recentMaxes.filter(t=>t>=25).length; // days ≥25°C
+      const veryHotDayCount=recentMaxes.filter(t=>t>=30).length;
+
+      // Heat soak offset: each consecutive hot day adds indoor heat retention
+      // 0 hot days → no offset; 1 day → +1.5°C; 3 days → +3°C; 5+ days → +5°C
+      let heatSoakOffset=0;
+      if(veryHotDayCount>=3) heatSoakOffset=6;
+      else if(veryHotDayCount>=1) heatSoakOffset=4;
+      else if(hotDayCount>=4) heatSoakOffset=4;
+      else if(hotDayCount>=2) heatSoakOffset=3;
+      else if(hotDayCount>=1) heatSoakOffset=1.5;
+
+      const isHeatwave=hotDayCount>=3;
+      const effectiveTemp=outdoorNightTemp+heatSoakOffset; // estimated indoor overnight temp
+
+      // Score against ideal sleep: 16–18°C indoors, 40–60% humidity
+      const tempDev=effectiveTemp<16?16-effectiveTemp:effectiveTemp>18?effectiveTemp-18:0;
+      const humidDev=avgHumid<40?40-avgHumid:avgHumid>60?avgHumid-60:0;
+      const total=Math.round(Math.max(0,100-tempDev*8)*0.65+Math.max(0,100-humidDev*1.5)*0.35);
+
+      let rating,col,badgeCls;
+      if(total>=80){rating='Excellent';col='#34d399';badgeCls='badge-good';}
+      else if(total>=60){rating='Good';col='#60a5fa';badgeCls='badge-good';}
+      else if(total>=40){rating='Fair';col='#fbbf24';badgeCls='badge-mod';}
+      else{rating='Poor';col='#f87171';badgeCls='badge-bad';}
+
+      el.sleepBadge.style.display='inline-flex';el.sleepBadge.textContent=rating;
+      el.sleepBadge.className=`card-badge ${badgeCls}`;
+
+      const s=sym();
+      const tips=[];
+
+      // Indoor temp assessment (using heat-soak adjusted figure)
+      if(effectiveTemp>24)tips.push({i:'🥵',t:`Indoor temp estimated ~${cvt(effectiveTemp)}${s} overnight (outdoor ${cvt(outdoorNightTemp)}${s} + ${cvt(heatSoakOffset)}${s} heat soak from ${hotDayCount} hot days). Difficult sleep likely.`});
+      else if(effectiveTemp>20)tips.push({i:'🌡',t:`Indoor temp estimated ~${cvt(effectiveTemp)}${s} overnight — warmer than ideal${heatSoakOffset>0?` (includes +${cvt(heatSoakOffset)}${s} heat retained from recent hot days)`:''}.`});
+      else if(effectiveTemp>=16)tips.push({i:'😴',t:`Indoor temp estimated ~${cvt(effectiveTemp)}${s} — near ideal for deep sleep.`});
+      else tips.push({i:'🥶',t:`Outdoor overnight low ${cvt(outdoorNightTemp)}${s} — consider an extra layer.`});
+
+      // Heatwave-specific advice
+      if(isHeatwave){
+        tips.push({i:'🏠',t:`${hotDayCount} consecutive hot days: your home's thermal mass has built up significant heat. Cooling overnight will be slow even with windows open.`});
+        if(effectiveTemp>22){
+          tips.push({i:'🌬',t:'Cross-ventilate: open windows on opposite sides of the house once outdoor temp drops below indoor temp (usually after midnight).'});
+          tips.push({i:'🪟',t:'Keep curtains and blinds closed during the day tomorrow to limit heat gain before the next night.'});
+        }
+        if(effectiveTemp>25)tips.push({i:'🧊',t:'Consider a cool (not cold) shower before bed, damp cloth on wrists/neck, or a frozen water bottle wrapped in cloth near your feet.'});
+      }else if(effectiveTemp>22){
+        tips.push({i:'🌬',t:'Open windows on opposite sides of the house to create a through-breeze overnight.'});
+        tips.push({i:'❄️',t:'A fan at the window pulling cool night air inward works better than one just circulating hot indoor air.'});
+      }
+
+      // Humidity
+      if(avgHumid>70)tips.push({i:'💧',t:`High humidity (${Math.round(avgHumid)}%) makes heat feel worse — a dehumidifier or airflow improves both comfort and sleep quality.`});
+      else if(avgHumid<35)tips.push({i:'🏜',t:`Low humidity (${Math.round(avgHumid)}%) — a glass of water by the bed helps with dry throat overnight.`});
+      else tips.push({i:'✅',t:`Humidity (${Math.round(avgHumid)}%) within the comfortable 40–60% range.`});
+
+      if(maxOutdoor-minOutdoor>4)tips.push({i:'📉',t:`Outdoor temp drops ${cvt(maxOutdoor-minOutdoor)}${s} overnight — once it falls below your indoor temp, open windows to flush out the stored heat.`});
+
+      // Subtext: clarify what the score means
+      const subtext=heatSoakOffset>0
+        ?`Outdoor avg ${cvt(outdoorNightTemp)}${s} · Est. indoor ~${cvt(effectiveTemp)}${s} · ${Math.round(avgHumid)}% humidity`
+        :`Overnight avg ${cvt(outdoorNightTemp)}${s} · ${Math.round(avgHumid)}% humidity`;
+
+      el.sleepBody.innerHTML=`
+        <div class="insight-score">
+          <div class="score-dial" style="border-color:${col};color:${col};">
+            <div class="score-num">${total}</div><div class="score-lbl">/100</div>
+          </div>
+          <div class="score-info">
+            <div class="score-title" style="color:${col}">${rating} Sleep</div>
+            <div class="score-sub">${subtext}${isHeatwave?` · <span style="color:#fb923c;font-weight:600;">🌡 Heatwave (${hotDayCount}d)</span>`:''}</div>
+          </div>
+        </div>
+        <div class="tip-list">${tips.map(t=>`<div class="tip-item"><span class="tip-icon">${t.i}</span><span>${t.t}</span></div>`).join('')}</div>`;
+    }
+
+    /* ── FROST & ICE ── */
+    function renderFrost(){
+      if(!S.daily){el.frostBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">No forecast data.</span>';return;}
+      const days=S.daily.time.slice(0,4).map((t,i)=>({label:dayName(t),min:S.daily.temperature_2m_min[i]}));
+      const iceDays=days.filter(d=>d.min<=0),frostDays=days.filter(d=>d.min<=2&&d.min>0),nearFrostDays=days.filter(d=>d.min>2&&d.min<=4);
+      const iceRisk=iceDays.length>0,frostRisk=frostDays.length>0,nearRisk=nearFrostDays.length>0;
+      let rating,col,badgeCls;
+      if(iceDays.length>=2){rating='Ice Risk';col='#c084fc';badgeCls='badge-bad';}
+      else if(iceRisk){rating='Frost/Ice';col='#f87171';badgeCls='badge-bad';}
+      else if(frostRisk){rating='Frost Risk';col='#fbbf24';badgeCls='badge-mod';}
+      else if(nearRisk){rating='Watch';col='#60a5fa';badgeCls='badge-mod';}
+      else{rating='All Clear';col='#34d399';badgeCls='badge-good';}
+      el.frostBadge.style.display='inline-flex';el.frostBadge.textContent=rating;
+      el.frostBadge.className=`card-badge ${badgeCls}`;
+      const s=sym();
+      const dayRows=days.map(d=>{
+        const isIce=d.min<=0,isFrost=d.min<=2&&d.min>0,isNear=d.min<=4&&d.min>2;
+        const dc=isIce?'#c084fc':isFrost?'#f87171':isNear?'#fbbf24':'#34d399';
+        const icon=isIce?'🧊':isFrost?'❄️':isNear?'🌡':'✅';
+        const note=isIce?'Hard frost / ice on roads':isFrost?'Ground frost likely':isNear?'Near-frost, watch overnight':'No frost risk';
+        return`<div class="frost-day" style="background:${dc}0d;border:1px solid ${dc}25;">
+          <span>${icon}</span>
+          <span style="flex:1;font-size:.8rem;font-weight:600;">${d.label}</span>
+          <span style="font-size:.82rem;color:${dc};font-weight:700;">Low: ${cvt(d.min)}${s}</span>
+          <span style="font-size:.68rem;color:var(--text-3);margin-left:8px;">${note}</span>
+        </div>`;
+      }).join('');
+      const tips=[];
+      if(iceRisk){
+        tips.push({i:'🚗',t:'Ice on roads and pavements likely — allow extra morning time and drive with care.'});
+        tips.push({i:'🌱',t:'Cover tender plants and seedlings with fleece overnight. Move pots indoors if possible.'});
+        tips.push({i:'💧',t:'Lag outdoor taps and pipes to prevent freezing and potential bursting.'});
+      }else if(frostRisk){
+        tips.push({i:'🌿',t:'Ground frost expected — cover vulnerable plants (tomatoes, dahlias, courgettes) with horticultural fleece.'});
+        tips.push({i:'🚗',t:'Windscreen may ice over — allow a few extra minutes to defrost in the morning.'});
+        tips.push({i:'🪴',t:'Move tender container plants into a shed or porch overnight.'});
+      }else if(nearRisk){
+        tips.push({i:'👀',t:'Temperatures close to freezing in low-lying or exposed areas — keep an eye on tender plants.'});
+        tips.push({i:'🌡',t:'Ground frost unlikely in sheltered spots, but possible in open gardens.'});
+      }else{
+        tips.push({i:'✅',t:'No frost risk in the next 4 days — safe conditions for tender plants outdoors.'});
+        tips.push({i:'🌱',t:'Good planting-out conditions if overnight lows are above 10°C consistently.'});
+      }
+      el.frostBody.innerHTML=`${dayRows}<div class="tip-list" style="margin-top:10px;">${tips.map(t=>`<div class="tip-item"><span class="tip-icon">${t.i}</span><span>${t.t}</span></div>`).join('')}</div>`;
+    }
+
+    /* ── PLANT WATERING ── */
+    function renderWatering(){
+      if(!S.daily||!S.weather){el.waterBody.innerHTML='<span style="color:var(--text-3);font-size:.82rem;">No data.</span>';return;}
+      const month=new Date().getMonth();
+      const inGrowingSeason=month>=3&&month<=9;
+      const rainChance=S.daily.precipitation_probability_max?.[0]??0;
+      const maxTemp=S.daily.temperature_2m_max?.[0]??15;
+      const humidity=S.weather.relative_humidity_2m??60;
+      const evapHigh=maxTemp>22&&humidity<50;
+      const evapMed=maxTemp>16&&humidity<65;
+      let action,col,badgeCls,actionIcon;
+      if(rainChance>=70){action='Skip watering';col='#60a5fa';badgeCls='badge-good';actionIcon='🌧';}
+      else if(rainChance>=40){action='Wait and see';col='#fbbf24';badgeCls='badge-mod';actionIcon='⛅';}
+      else if(evapHigh){action='Water deeply';col='#f87171';badgeCls='badge-bad';actionIcon='💧';}
+      else if(evapMed&&inGrowingSeason){action='Water today';col='#fb923c';badgeCls='badge-mod';actionIcon='🪣';}
+      else if(!inGrowingSeason){action='Minimal needed';col='#34d399';badgeCls='badge-good';actionIcon='💤';}
+      else{action='Light watering';col='#34d399';badgeCls='badge-good';actionIcon='🌿';}
+      el.waterBadge.style.display='inline-flex';el.waterBadge.textContent=action;
+      el.waterBadge.className=`card-badge ${badgeCls}`;
+      const s=sym();
+      const tips=[];
+      if(rainChance>=70){
+        tips.push({i:'🌧',t:`${rainChance}% chance of rain today — let nature do the work and save your water butt.`});
+        tips.push({i:'🪣',t:'Good day to position water butts to catch runoff from gutters and downpipes.'});
+      }else if(rainChance>=40){
+        tips.push({i:'⛅',t:`${rainChance}% rain chance — wait until mid-morning to see if it arrives before reaching for the hose.`});
+        tips.push({i:'💧',t:"If rain doesn't arrive by noon, water gently at the base of plants to avoid leaf scorch."});
+      }else{
+        if(evapHigh)tips.push({i:'🥵',t:`Hot (${cvt(maxTemp)}${s}) and dry — plants will lose moisture quickly. Water deeply at soil level.`});
+        else tips.push({i:'🌤',t:`Dry day forecast (${rainChance}% rain). ${evapMed?'Moderate evaporation expected.':'Conditions comfortable for plants.'}`});
+        tips.push({i:'⏰',t:'Water in early morning (6–9am) to reduce evaporation and minimise fungal disease risk.'});
+      }
+      const monthTips=[
+        null,null,null,
+        {i:'🌱',t:'Spring: seedlings and new plantings need regular gentle watering to establish strong roots.'},
+        {i:'🌱',t:'Spring: seedlings and new plantings need regular gentle watering to establish strong roots.'},
+        {i:'🌻',t:'Late spring: check vegetable beds daily in warm spells — growing fast means drinking fast.'},
+        {i:'🌻',t:'Summer: veg and bedding plants need consistent moisture — check soil 5cm deep before watering.'},
+        {i:'🌻',t:'Summer: water in the evening if mornings are very hot, but morning watering is usually best for health.'},
+        {i:'🍂',t:'Early autumn: ease off as growth slows, but keep new plantings moist to establish before winter.'},
+        {i:'🍂',t:'Autumn: most plants need very little water now — overwatering in cool soil risks root rot.'},
+        {i:'❄️',t:'Winter/dormant season: most outdoor plants need minimal watering — focus on greenhouse and houseplants.'},
+        {i:'❄️',t:'Late winter: indoor seedlings starting early need careful watering — little and often.'},
+      ];
+      if(monthTips[month])tips.push(monthTips[month]);
+      if(S.daily.temperature_2m_min?.[0]<=2)tips.push({i:'🌡',t:'Frost expected tonight — avoid late afternoon watering as wet soil freezes harder and can damage roots.'});
+      el.waterBody.innerHTML=`
+        <div class="insight-score" style="margin-bottom:12px;">
+          <div style="font-size:2.6rem;line-height:1;width:64px;text-align:center;flex-shrink:0;">${actionIcon}</div>
+          <div class="score-info">
+            <div class="score-title" style="color:${col}">${action}</div>
+            <div class="score-sub">${rainChance}% rain · ${cvt(maxTemp)}${s} max · ${humidity}% humidity</div>
+          </div>
+        </div>
+        <div class="tip-list">${tips.map(t=>`<div class="tip-item"><span class="tip-icon">${t.i}</span><span>${t.t}</span></div>`).join('')}</div>`;
     }
 
     /* ── HOURLY ── */
